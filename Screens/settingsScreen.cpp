@@ -20,11 +20,17 @@
 #include "settingsScreen.h"
 #include "../Logical/settingsManager.h"
 
+//global count variablo
+
+short clickCount;
+
 namespace GUI
 {
 	SettingsScreen::SettingsScreen() : _debtValue(0.0), _isAllItems(true), _isFromDate(false), _isMontly(false)
 	{
 		_coin = COINS[0]; //Default value
+
+		clickCount = 0;
 
 		_createUI();
 	}
@@ -255,8 +261,20 @@ namespace GUI
 	{
 		if(b == _coinChangeToggle)
 		{
-			_coinSettingsLayout->addChild(_coinsList);
-			_coinsList->addListViewListener(this);
+			if(clickCount % 2 == 0)
+			{
+				_coinSettingsLayout->addChild(_coinsList);
+				_coinsList->addListViewListener(this);
+				clickCount++;
+				clickCount %= 2;
+			}
+			else
+			{
+				_coinSettingsLayout->removeChild(_coinsList);
+				_coinsList->removeListViewListener(this);
+				clickCount++;
+				clickCount %= 2;
+			}
 		}
 	}
 
@@ -274,8 +292,8 @@ namespace GUI
 			_coinSettingsLayout->removeChild(_coinsList);
 			_coinsList->removeListViewListener(this);
 
-			_coinSettingsLayout->removeChild(_coinsList);
-			_coinsList->removeListViewListener(this);
+			clickCount++;
+			clickCount %= 2;
 		}
 	}
 

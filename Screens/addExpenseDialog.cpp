@@ -344,22 +344,30 @@ namespace GUI
 	{
 		if(button == _addButton)
 		{
-			this->hide();
-			if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
-			else _listScreenRef->createOptionsMenu();
+			double value = (double)_amountSlider->getValue();
+			if(0 < value)
+			{
+				this->hide();
+				if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
+				else _listScreenRef->createOptionsMenu();
 
-			NativeUI::Date d = _datePicker->getDate();
+				NativeUI::Date d = _datePicker->getDate();
 
-			Model::DateStruct date;
-			date._year = d.year;
-			date._mounth = d.month;
-			date._day = d.day;
+				Model::DateStruct date;
+				date._year = d.year;
+				date._mounth = d.month;
+				date._day = d.day;
 
-			Model::TimeStruct time;
-			time._hour = _timePicker->getHour();
-			time._minutes = _timePicker->getMinute();
+				Model::TimeStruct time;
+				time._hour = _timePicker->getHour();
+				time._minutes = _timePicker->getMinute();
 
-			_observerReference->requestExpenseAddition((double)_amountSlider->getValue(), _categoryValue, _descriptionEditBox->getText(), "", date, time);
+				_observerReference->requestExpenseAddition(value, _categoryValue, _descriptionEditBox->getText(), "", date, time);
+			}
+			else
+			{
+				maAlert("Alert!", "The value of the income must be higher than 0!", NULL, NULL, NULL);
+			}
 		}
 		else if(button == _cancelButton)
 		{
@@ -433,7 +441,6 @@ namespace GUI
 
 		it = checkBoxVector->begin();
 		(*it)->setState(true);
-
 
 		_amountSlider->setValue(0);
 		_descriptionToggleButton->setCheckedState(false);

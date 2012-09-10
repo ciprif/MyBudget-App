@@ -326,24 +326,31 @@ namespace GUI
 		if(button == _addButton)
 		{
 			//@todo change the path from hardcoded version to actual value
-			this->hide();
-			if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
-			else _listScreenRef->createOptionsMenu();
-
-			NativeUI::Date d = _datePicker->getDate();
-
-			Model::DateStruct date;
-			date._year = d.year;
-			date._mounth = d.month;
-			date._day = d.day;
-
-			Model::TimeStruct time;
-			time._hour = _timePicker->getHour();
-			time._minutes = _timePicker->getMinute();
-
 			double value = _amountSliderThousands->getValue() * 1000 + _amountSliderUnits->getValue()*9;
 
-			_observerReference->requestIncomeAddition(value, _typeValue, _descriptionEditBox->getText(), _transactionInformationEditBox->getText(), date, time);
+			if(0 < value)
+			{
+				this->hide();
+				if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
+				else _listScreenRef->createOptionsMenu();
+
+				NativeUI::Date d = _datePicker->getDate();
+
+				Model::DateStruct date;
+				date._year = d.year;
+				date._mounth = d.month;
+				date._day = d.day;
+
+				Model::TimeStruct time;
+				time._hour = _timePicker->getHour();
+				time._minutes = _timePicker->getMinute();
+
+				_observerReference->requestIncomeAddition(value, _typeValue, _descriptionEditBox->getText(), _transactionInformationEditBox->getText(), date, time);
+			}
+			else
+			{
+				maAlert("Alert!", "The value of the income must be higher than 0!", NULL, NULL, NULL);
+			}
 		}
 		else if(button == _cancelButton)
 		{
@@ -413,6 +420,8 @@ namespace GUI
 
 		it = checkBoxVector->begin();
 		(*it)->setState(true);
+
+		_typeValue = Model::INCOME_TYPES_LIST[0];
 
 		_amountSliderThousands->setValue(0);
 		_amountSliderUnits->setValue(0);
