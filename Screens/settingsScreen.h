@@ -74,6 +74,8 @@ namespace GUI
 		NativeUI::VerticalLayout* _createTransactionListSettingsLayout();
 		NativeUI::VerticalLayout* _createDebtValueSettingsLayout();
 
+		void _setPlatform();
+
 		Logical::Observer* _observerReference;
 
 		MAUtil::String _coin;
@@ -98,6 +100,7 @@ namespace GUI
 
 		NativeUI::DatePicker* _datePicker;
 		NativeUI::NumberPicker* _numberPicker;
+		NativeUI::EditBox* _numberPickerReplace;
 
 		int _itemWidth;
 
@@ -109,6 +112,8 @@ namespace GUI
 
 		int _saveButtonIndex;
 		int _restoreButtonIndex;
+
+		bool _isWP7;
 	};
 }
 

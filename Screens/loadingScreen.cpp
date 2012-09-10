@@ -12,22 +12,33 @@
 #include <NativeUI/Label.h>
 
 #include "loadingScreen.h"
+#include "../Model/util.h"
 
 namespace GUI
 {
 	LoadingScreen::LoadingScreen()
 	{
+		_setPlatform();
+
 		NativeUI::VerticalLayout* mainLayout = new NativeUI::VerticalLayout();
 		NativeUI::ActivityIndicator* activityIndicator = new NativeUI::ActivityIndicator();
-		NativeUI::Label* loading = new NativeUI::Label("Loading...");
+		NativeUI::Label* loading;
 
 		NativeUI::VerticalLayout* spacer1;
 		NativeUI::VerticalLayout* spacer2;
 		NativeUI::VerticalLayout* spacer3;
 
-		loading->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
-		loading->fillSpaceHorizontally();
-		activityIndicator->fillSpaceHorizontally();
+		if(_isWP7)
+		{
+			activityIndicator->fillSpaceHorizontally();
+			loading = new NativeUI::Label("Loading...");
+			loading->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+			loading->fillSpaceHorizontally();
+			spacer3 = new NativeUI::VerticalLayout();
+			spacer3->setHeight(15);
+			spacer3->fillSpaceHorizontally();
+		}
+		mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 
 		spacer1 = new NativeUI::VerticalLayout();
 		spacer1->fillSpaceVertically();
@@ -35,19 +46,34 @@ namespace GUI
 		spacer2 = new NativeUI::VerticalLayout();
 		spacer2->fillSpaceVertically();
 
-		spacer3 = new NativeUI::VerticalLayout();
-		spacer3->setHeight(15);
-		spacer3->fillSpaceHorizontally();
-
 		mainLayout->addChild(spacer1);
 		mainLayout->addChild(activityIndicator);
-		mainLayout->addChild(spacer3);
-		mainLayout->addChild(loading);
+
+		if(_isWP7)
+		{
+			mainLayout->addChild(loading);
+			mainLayout->addChild(spacer3);
+		}
 		mainLayout->addChild(spacer2);
 
 		activityIndicator->show();
 
 		this->setMainWidget(mainLayout);
+	}
+
+	void LoadingScreen::_setPlatform()
+	{
+		char buffer[Model::BUFF_SIZE];
+		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
+
+		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		{
+			_isWP7 = false;
+		}
+		else
+		{
+			_isWP7 = true;
+		}
 	}
 
 	LoadingScreen::~LoadingScreen() {}

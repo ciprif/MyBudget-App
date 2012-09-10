@@ -11,11 +11,14 @@
 #include <NativeUI/Dialog.h>
 #include <NativeUI/PanoramaView.h>
 #include <NativeUI/ActivityIndicator.h>
+#include <NativeUI/RelativeLayout.h>
 
 #include "addExpenseDialog.h"
 #include "addIncomeDialog.h"
 #include "../Logical/observer.h"
 #include "homeScreen.h"
+
+#include "MAHeaders.h"
 
 namespace GUI
 {
@@ -38,6 +41,9 @@ namespace GUI
 		MAExtent size = maGetScrSize();
 		int screenWidth = EXTENT_X(size);
 		int screenHeight = EXTENT_Y(size);
+
+		_setPlatform();
+
 		_createUI(screenHeight, screenWidth);
 	}
 
@@ -47,26 +53,77 @@ namespace GUI
 		delete _categoryGraphicsMap;
 	}
 
+	void HomeScreen::_setPlatform()
+	{
+		char buffer[Model::BUFF_SIZE];
+		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
+
+		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		{
+			_isWP7 = false;
+		}
+		else
+		{
+			_isWP7 = true;
+		}
+	}
+
 	void HomeScreen::_createUI(const int& screenHeight, const int& screenWidth)
 	{
-		_parentLayoutWidth = 8 * (screenWidth / 10);
+		//create the activity indicator
+		_activityIndicator = new NativeUI::ActivityIndicator();
+
+		//create the main layout
+		_mainLayout = new NativeUI::VerticalLayout();
+
+		if(_isWP7)
+		{
+			_parentLayoutWidth = 8 * (screenWidth / 10);
+			_activityIndicator->fillSpaceHorizontally();
+
+			_mainLayout->addChild(_activityIndicator);
+			this->setMainWidget(_mainLayout);
+		}
+		else
+		{
+			NativeUI::RelativeLayout* activityIndicatorLayoutSupport =
+					new NativeUI::RelativeLayout();
+
+			_activityIndicatorLayout = new NativeUI::VerticalLayout();
+
+			_activityIndicatorLayout->fillSpaceHorizontally();
+			_activityIndicatorLayout->fillSpaceVertically();
+			_activityIndicatorLayout->setAlpha(0.6);
+			_activityIndicatorLayout->setBackgroundColor(GUI::GRAY);
+
+			_activityIndicatorLayout->addChild(_activityIndicator);
+			_activityIndicatorLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+			_activityIndicatorLayout->setChildVerticalAlignment(MAW_ALIGNMENT_CENTER);
+
+			_mainLayout->setWidth(screenWidth);
+			_mainLayout->fillSpaceVertically();
+
+			_mainLayout->setPaddingLeft(screenWidth / 20);
+			_mainLayout->setPaddingRight(screenWidth / 20);
+			_mainLayout->setPaddingBottom(screenHeight / 20);
+
+			activityIndicatorLayoutSupport->addChild(_mainLayout);
+			activityIndicatorLayoutSupport->addChild(_activityIndicatorLayout);
+
+			_parentLayoutWidth = screenWidth * 0.95;
+
+			this->setMainWidget(activityIndicatorLayoutSupport);
+		}
 
 		_categoryGraphicWidth = (int)(_parentLayoutWidth - 2.5 * ( screenWidth / 10 ));
 		_categoryGraphicHeight = screenHeight / 20;
 
-		_mainLayout = new NativeUI::VerticalLayout();
-
-		_activityIndicator = new NativeUI::ActivityIndicator();
-		_activityIndicator->fillSpaceHorizontally();
-		_mainLayout->addChild(_activityIndicator);
 		_activityIndicator->show();
 
 		_createBudgetLabel(screenHeight / 20);
 		_createSimpleExpensesGraphic((int)_parentLayoutWidth, screenHeight / 20);
 		_createDetailedGraphic((int)_parentLayoutWidth, screenHeight / 20);
 		createOptionsMenu();
-
-		this->setMainWidget(_mainLayout);
 	}
 
 	void HomeScreen::_createBudgetLabel(int heigth)
@@ -165,13 +222,23 @@ namespace GUI
 
 	void HomeScreen::createOptionsMenu()
 	{
-		_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
-		_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
+		if(_isWP7)
+		{
+			_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
+			_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
+		}
+		else
+		{
+			_addExpenseIndex = addOptionsMenuItem("Add expense");
+			_addIncomeIndex = addOptionsMenuItem("Add income");
+		}
+
 	}
 
 	void HomeScreen::_removeActivityIndicator()
 	{
 		_activityIndicator->hide();
+		if(!_isWP7) maWidgetDestroy(_activityIndicatorLayout->getWidgetHandle());
 	}
 
 	void HomeScreen::optionsMenuItemSelected(NativeUI::Screen* screen, int index)

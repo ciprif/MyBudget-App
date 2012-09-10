@@ -26,6 +26,8 @@
 
 #include "../Logical/settingsManager.h"
 
+NativeUI::CheckBox* recursiveStateChangedCB;
+
 namespace GUI
 {
 	AddExpenseDialog::AddExpenseDialog()
@@ -34,6 +36,7 @@ namespace GUI
 		_availableBudget = MAX_VALUE;
 		_acceptedDept = MAX_VALUE;
 		checkBoxVector = NULL;
+		_setPlatform();
 		_createUI();
 	}
 	AddExpenseDialog::AddExpenseDialog(const double& availableBudget, const double& posibleDeptValue, const MAUtil::String& coin)
@@ -42,6 +45,7 @@ namespace GUI
 		_availableBudget = availableBudget;
 		_acceptedDept = posibleDeptValue;
 		checkBoxVector = NULL;
+		_setPlatform();
 		_createUI();
 	}
 
@@ -62,10 +66,25 @@ namespace GUI
 		}
 	}
 
+	void AddExpenseDialog::_setPlatform()
+	{
+		char buffer[BUFF_SIZE];
+		maGetSystemProperty("mosync.device.OS", buffer, BUFF_SIZE);
+
+		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		{
+			_isWP7 = false;
+		}
+		else
+		{
+			_isWP7 = true;
+		}
+	}
+
 	void AddExpenseDialog::_createUI()
 	{
 		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
-		parent->setHeight(DIALOG_HEIGHT);
+		if(_isWP7) parent->setHeight(DIALOG_HEIGHT);
 		_mainLayout = new NativeUI::VerticalLayout();
 		_mainLayout->setScrollable(true);
 
@@ -131,10 +150,12 @@ namespace GUI
 		_cancelButton = new NativeUI::Button();
 
 		_addButton->setText("Save");
+		_addButton->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		_addButton->setWidth(DIALOG_BUTTON_WIDTH);
 		_addButton->addButtonListener(this);
 		_cancelButton->setText("Cancel");
 		_cancelButton->setWidth(DIALOG_BUTTON_WIDTH);
+		_cancelButton->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		_cancelButton->addButtonListener(this);
 
 		buttonGroup->addChild(_addButton);
@@ -385,7 +406,6 @@ namespace GUI
 	{
 		if(state == true)
 		{
-			checkBox->setState(true);
 			for(int i = 0; i < checkBoxVector->size(); i++)
 			{
 				if((*checkBoxVector)[i] != checkBox)
@@ -396,9 +416,17 @@ namespace GUI
 				}
 			}
 		}
-		if(state == false)
+		else
 		{
-			checkBox->setState(true);
+			bool checked = false;
+			for(int i = 0; i < checkBoxVector->size(); i++)
+				if((*checkBoxVector)[i]->isChecked())
+				{
+					checked = true;
+					break;
+				}
+			if(!checked)
+				checkBox->setState(true);
 		}
 	}
 

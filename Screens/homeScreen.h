@@ -140,6 +140,8 @@ namespace GUI
 		void _updateConsumeBar(NativeUI::HorizontalLayout* consumeBar, const double& value);
 		void _removeActivityIndicator();
 
+		void _setPlatform();
+
 		// Member data
 		double _budgetTotalValue;
 		double _budgetConsumedValue;
@@ -166,6 +168,7 @@ namespace GUI
 		MAUtil::Map<const MAUtil::String, NativeUI::HorizontalLayout*>* _categoryGraphicsMap;
 
 		NativeUI::ActivityIndicator* _activityIndicator;
+		NativeUI::VerticalLayout* _activityIndicatorLayout;
 
 		int _categoryGraphicHeight;
 		int _categoryGraphicWidth;
@@ -173,6 +176,7 @@ namespace GUI
 		bool _incomesDialogLoaded;
 		bool _expensesDialogLoaded;
 		bool _progressBarActive;
+		bool _isWP7;
 
 		double _parentLayoutWidth;
 	};

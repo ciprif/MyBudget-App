@@ -107,6 +107,8 @@ namespace GUI
 		void _createTransactionInfoBox();
 		void _createDescriptionBox();
 
+		void _setPlatform();
+
 		NativeUI::VerticalLayout* _mainLayout;
 		NativeUI::Label* _categoryLabel;
 
@@ -136,6 +138,8 @@ namespace GUI
 		MAUtil::String _coin;
 
 		bool _launcedFromHomeScreen;
+
+		bool _isWP7;
 	};
 }
 #endif /* ADDINCOMEDIALOG_H_ */

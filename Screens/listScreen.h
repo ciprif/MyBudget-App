@@ -100,6 +100,7 @@ namespace GUI
 		 */
 		void _sortList(int (*criteria)(const Model::ListItemModel&, const Model::ListItemModel&), int left, int right, int value);
 		void _clearAndRepopulateList();
+		void _setPlatform();
 
 		NativeUI::VerticalLayout* _createListItem(const Model::ListItemModel& obj, int index);
 
@@ -132,6 +133,8 @@ namespace GUI
 		int _countClicksDates;
 		int _countClicksAmount;
 		int _countClicksCategory;
+
+		bool _isWP7;
 
 		//int (*criteria)(const Model::ListItemModel&, const Model::ListItemModel&);
 		MAUtil::Vector<int> _characteristicArrayForSorting;

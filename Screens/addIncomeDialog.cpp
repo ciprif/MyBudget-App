@@ -29,12 +29,16 @@ namespace GUI
 {
 	AddIncomeDialog::AddIncomeDialog() : checkBoxVector(NULL)
 	{
-		 _coin = GUI::DEFAULT_COIN;
+		_coin = GUI::DEFAULT_COIN;
+
+		_setPlatform();
 		_createUI();
 	}
 	AddIncomeDialog::AddIncomeDialog(const MAUtil::String& coin) : checkBoxVector(NULL)
 	{
 		_coin = coin;
+
+		_setPlatform();
 		_createUI();
 	}
 
@@ -54,10 +58,25 @@ namespace GUI
 		}
 	}
 
+	void AddIncomeDialog::_setPlatform()
+	{
+		char buffer[BUFF_SIZE];
+		maGetSystemProperty("mosync.device.OS", buffer, BUFF_SIZE);
+
+		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		{
+			_isWP7 = false;
+		}
+		else
+		{
+			_isWP7 = true;
+		}
+	}
+
 	void AddIncomeDialog::_createUI()
 	{
 		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
-		parent->setHeight(DIALOG_HEIGHT);
+		if(_isWP7) parent->setHeight(DIALOG_HEIGHT);
 		_mainLayout = new NativeUI::VerticalLayout();
 		_mainLayout->setScrollable(true);
 
@@ -128,9 +147,11 @@ namespace GUI
 
 		_addButton->setText("Save");
 		_addButton->setWidth(DIALOG_BUTTON_WIDTH);
+		_addButton->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		_addButton->addButtonListener(this);
 		_cancelButton->setText("Cancel");
 		_cancelButton->setWidth(DIALOG_BUTTON_WIDTH);
+		_cancelButton->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		_cancelButton->addButtonListener(this);
 
 		buttonGroup->addChild(_addButton);
@@ -364,7 +385,6 @@ namespace GUI
 	{
 		if(state == true)
 		{
-			checkBox->setState(true);
 			for(int i = 0; i < checkBoxVector->size(); i++)
 			{
 				if((*checkBoxVector)[i] != checkBox)
@@ -375,9 +395,17 @@ namespace GUI
 				}
 			}
 		}
-		if(state == false)
+		else
 		{
-			checkBox->setState(true);
+			bool checked = false;
+			for(int i = 0; i < checkBoxVector->size(); i++)
+				if((*checkBoxVector)[i]->isChecked())
+				{
+					checked = true;
+					break;
+				}
+			if(!checked)
+				checkBox->setState(true);
 		}
 	}
 

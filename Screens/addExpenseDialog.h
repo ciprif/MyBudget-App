@@ -112,6 +112,8 @@ namespace GUI
 		void _createImageBox();
 		void _createDescriptionBox();
 
+		void _setPlatform();
+
 		NativeUI::VerticalLayout* _mainLayout;
 		NativeUI::Label* _categoryLabel;
 
@@ -144,6 +146,7 @@ namespace GUI
 		MAUtil::String _coin;
 
 		bool _launcedFromHomeScreen;
+		bool _isWP7;
 	};
 }
 

@@ -14,7 +14,7 @@
 
 namespace GUI
 {
-
+	const int GRAY = 0xC0C0C0;
 	const int GREEN = 0x00FF00;
 	const int YELLOW = 0xFFFF00;
 	const int RED = 0xFF0000;
@@ -35,6 +35,7 @@ namespace Model
 	const int NO_OF_INCOMES = 4;
 	const MAUtil::String INCOME_TYPES_LIST[] = { "Bank Transfer", "Salary", "Debt", "Other" };
 	const MAUtil::String CATEGORY_LIST[] = { "Food", "Clothes", "Bills", "Fun", "Other" };
+	const int BUFF_SIZE = 1024;
 
 	struct DateStruct
 	{

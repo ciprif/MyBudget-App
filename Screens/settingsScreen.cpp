@@ -31,7 +31,7 @@ namespace GUI
 		_coin = COINS[0]; //Default value
 
 		clickCount = 0;
-
+		_setPlatform();
 		_createUI();
 	}
 
@@ -40,8 +40,23 @@ namespace GUI
 		_allItems->removeCheckBoxListener(this);
 		_monthly->removeCheckBoxListener(this);
 		_fromDate->removeCheckBoxListener(this);
-		_numberPicker->removeNumberPickerListener(this);
+		if(_isWP7) _numberPicker->removeNumberPickerListener(this);
 		_datePicker->removeDatePickerListener(this);
+	}
+
+	void SettingsScreen::_setPlatform()
+	{
+		char buffer[BUFF_SIZE];
+		maGetSystemProperty("mosync.device.OS", buffer, BUFF_SIZE);
+
+		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		{
+			_isWP7 = false;
+		}
+		else
+		{
+			_isWP7 = true;
+		}
 	}
 
 	void SettingsScreen::_createUI()
@@ -49,22 +64,30 @@ namespace GUI
 		MAExtent size = maGetScrSize();
 		int screenWidth = EXTENT_X(size);
 		int screenHeight = EXTENT_Y(size);
-		_itemWidth = 9 * (screenWidth / 10) - screenWidth / 30;
-
 		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
-		parent->setHeight(370);
-
 		_mainLayout = new NativeUI::VerticalLayout();
-		_mainLayout->setScrollable(true);
+
+		if(_isWP7)
+		{
+			_itemWidth = 9 * (screenWidth / 10) - screenWidth / 30;
+
+			parent->setHeight(370);
+			_mainLayout->setScrollable(true);
+			parent->addChild(_mainLayout);
+			this->setMainWidget(parent);
+		}
+		else
+		{
+			_mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+			_itemWidth = screenWidth * 0.95;
+			this->setMainWidget(_mainLayout);
+		}
 
 		_coinSettingsLayout = _createCoinSettingsLayout();
 		_mainLayout->addChild(_coinSettingsLayout);
 		_mainLayout->addChild(_createDebtValueSettingsLayout());
 		_transactionSettingsLayout = _createTransactionListSettingsLayout();
 		_mainLayout->addChild(_transactionSettingsLayout);
-
-		parent->addChild(_mainLayout);
-		this->setMainWidget(parent);
 
 		createOptionsMenu();
 
@@ -142,6 +165,9 @@ namespace GUI
 	{
 		NativeUI::VerticalLayout* transactionListSettings = new NativeUI::VerticalLayout();
 		transactionListSettings->wrapContentVertically();
+		transactionListSettings->fillSpaceHorizontally();
+		transactionListSettings->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+
 		_allItems = new NativeUI::CheckBox();
 		_monthly = new NativeUI::CheckBox();
 		_fromDate = new NativeUI::CheckBox();
@@ -190,16 +216,28 @@ namespace GUI
 		transactionListSettings->addChild(checkBoxLabelLayoutFromDate);
 
 		_datePicker = new NativeUI::DatePicker();
-		_numberPicker = new NativeUI::NumberPicker();
-		_numberPicker->addNumberPickerListener(this);
+		if(_isWP7)
+		{
+			_numberPicker = new NativeUI::NumberPicker();
+			_numberPicker->addNumberPickerListener(this);
+
+			_numberPicker->setMaxValue(31);
+			_numberPicker->setMinValue(1);
+		}
+		else
+		{
+			_numberPickerReplace = new NativeUI::EditBox();
+			_numberPickerReplace->setPlaceholder("Insert the day of the month!");
+			_numberPickerReplace->setInputMode(NativeUI::EDIT_BOX_INPUT_MODE_NUMERIC);
+			_numberPickerReplace->setWidth(_itemWidth);
+			_numberPickerReplace->wrapContentVertically();
+		}
+
 		_datePicker->addDatePickerListener(this);
 
 		_datePicker->setDayOfMonth(Logical::DEFAULT_DAY);
 		_datePicker->setMonth(Logical::DEFAULT_MONTH);
 		_datePicker->setYear(Logical::DEFAULT_YEAR);
-
-		_numberPicker->setMaxValue(31);
-		_numberPicker->setMinValue(1);
 
 		return transactionListSettings;
 	}
@@ -222,18 +260,36 @@ namespace GUI
 
 		if(_isAllItems)
 		{
-			checkBoxStateChanged(_allItems, true);
+			if(_isWP7) checkBoxStateChanged(_allItems, true);
+			else
+			{
+				_allItems->setState(true);
+				_monthly->setState(false);
+				_fromDate->setState(false);
+			}
 		}
 		else if(_isMontly)
 		{
-			checkBoxStateChanged(_monthly, true);
+			if(_isWP7) checkBoxStateChanged(_monthly, true);
+			else
+			{
+				_monthly->setState(true);
+				_fromDate->setState(false);
+				_allItems->setState(false);
+			}
 			_datePicker->setDayOfMonth(_observerReference->requestFromDate()._day);
 			_datePicker->setMonth(_observerReference->requestFromDate()._mounth);
 			_datePicker->setYear(_observerReference->requestFromDate()._year);
 		}
 		else if(_isFromDate)
 		{
-			checkBoxStateChanged(_fromDate, true);
+			if(_isWP7) checkBoxStateChanged(_fromDate, true);
+			else
+			{
+				_fromDate->setState(true);
+				_monthly->setState(false);
+				_allItems->setState(false);
+			}
 			_datePicker->setDayOfMonth(_observerReference->requestFromDate()._day);
 			_datePicker->setMonth(_observerReference->requestFromDate()._mounth);
 			_datePicker->setYear(_observerReference->requestFromDate()._year);
@@ -301,7 +357,7 @@ namespace GUI
 	{
 		if(state == true)
 		{
-			checkBox->setState(true);
+			//checkBox->setState(true);
 			if(checkBox == _monthly)
 			{
 				if(_transactionSettingsLayout->countChildWidgets() == 4)
@@ -310,10 +366,11 @@ namespace GUI
 						_transactionSettingsLayout->removeChild(_datePicker);
 				}
 
-				_transactionSettingsLayout->addChild(_numberPicker);
+				if(_isWP7) _transactionSettingsLayout->addChild(_numberPicker);
+				else _transactionSettingsLayout->addChild(_numberPickerReplace);
 
-				_allItems->setState(false);
-				_fromDate->setState(false);
+				if(_isAllItems) _allItems->setState(false);
+				else if(_isFromDate) _fromDate->setState(false);
 
 				_isMontly = true;
 				_isAllItems = false;
@@ -325,8 +382,9 @@ namespace GUI
 				{
 					_transactionSettingsLayout->removeChild(_transactionSettingsLayout->getChild(3));
 				}
-				_fromDate->setState(false);
-				_monthly->setState(false);
+
+				if(_isFromDate) _fromDate->setState(false);
+				else if(_isMontly) _monthly->setState(false);
 
 				_isMontly = false;
 				_isAllItems = true;
@@ -336,23 +394,27 @@ namespace GUI
 			{
 				if(_transactionSettingsLayout->countChildWidgets() == 4)
 				{
-					if(_transactionSettingsLayout->getChild(3) == _numberPicker)
+					if(_transactionSettingsLayout->getChild(3) == _numberPicker && _isWP7)
 						_transactionSettingsLayout->removeChild(_numberPicker);
+					else if(_transactionSettingsLayout->getChild(3) == _numberPickerReplace)
+						_transactionSettingsLayout->removeChild(_numberPickerReplace);
 				}
 
 				_transactionSettingsLayout->addChild(_datePicker);
 
-				_allItems->setState(false);
-				_monthly->setState(false);
+				if(_isAllItems) _allItems->setState(false);
+				else if(_isMontly) _monthly->setState(false);
 
 				_isMontly = false;
 				_isAllItems = false;
 				_isFromDate = true;
 			}
 		}
-		if(state == false)
+		else
 		{
-			checkBox->setState(true);
+			if(_isAllItems && checkBox == _allItems) checkBox->setState(true);
+			if(_isMontly && checkBox == _monthly) checkBox->setState(true);
+			if(_isFromDate && checkBox == _fromDate) checkBox->setState(true);
 		}
 	}
 
@@ -385,7 +447,14 @@ namespace GUI
 
 			if(_isMontly)
 			{
-				d._day = _dayValue;
+				if(_isWP7)
+				{
+					d._day = _dayValue;
+				}
+				else
+				{
+					d._day = MAUtil::stringToInteger(_numberPickerReplace->getText().c_str());
+				}
 
 				struct tm * dateTime = new tm;
 				split_time(maTime(), dateTime);

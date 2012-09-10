@@ -24,6 +24,9 @@ namespace GUI
 	public:
 		LoadingScreen();
 		~LoadingScreen();
+	private:
+		void _setPlatform();
+		bool _isWP7;
 	};
 }
 #endif /* LOADINGSCREEN_H_ */

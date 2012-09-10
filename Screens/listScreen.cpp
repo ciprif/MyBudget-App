@@ -17,6 +17,8 @@
 #include "addExpenseDialog.h"
 #include "addIncomeDialog.h"
 
+#include "MAHeaders.h"
+
 namespace GUI
 {
 	bool isFromRemove;
@@ -40,7 +42,7 @@ namespace GUI
 		MAExtent size = maGetScrSize();
 		int screenWidth = EXTENT_X(size);
 		int screenHeight = EXTENT_Y(size);
-		_itemWidth = 9 * (screenWidth / 10) - screenWidth / 30;
+
 		_startFromDate = new Model::DateStruct();
 
 		//default values
@@ -52,7 +54,27 @@ namespace GUI
 		_countClicksCategory = 0;
 		_countClicksDates = 0;
 
+		_setPlatform();
+
+		if(_isWP7) _itemWidth = 9 * (screenWidth / 10) - screenWidth / 30;
+		else _itemWidth = screenWidth * 0.95;
+
 		_createUI();
+	}
+
+	void ListScreen::_setPlatform()
+	{
+		char buffer[Model::BUFF_SIZE];
+		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
+
+		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		{
+			_isWP7 = false;
+		}
+		else
+		{
+			_isWP7 = true;
+		}
 	}
 
 	void ListScreen::populateExpensesList()
@@ -328,8 +350,17 @@ namespace GUI
 
 	void ListScreen::createOptionsMenu()
 	{
-		_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
-		_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
+		if(_isWP7)
+		{
+			_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
+			_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
+		}
+		else
+		{
+			_addExpenseIndex = addOptionsMenuItem("Add expense");
+			_addIncomeIndex = addOptionsMenuItem("Add income");
+		}
+
 		_clearListIndex = addOptionsMenuItem("Clear list", MAW_OPTIONS_MENU_ICON_CONSTANT_DELETE, false);
 
 		_sortByDateIndex = addOptionsMenuItem("Sort by date");
