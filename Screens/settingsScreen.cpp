@@ -165,8 +165,11 @@ namespace GUI
 	{
 		NativeUI::VerticalLayout* transactionListSettings = new NativeUI::VerticalLayout();
 		transactionListSettings->wrapContentVertically();
-		transactionListSettings->fillSpaceHorizontally();
-		transactionListSettings->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+		if(!_isWP7)
+		{
+			transactionListSettings->fillSpaceHorizontally();
+			transactionListSettings->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+		}
 
 		_allItems = new NativeUI::CheckBox();
 		_monthly = new NativeUI::CheckBox();
