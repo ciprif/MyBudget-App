@@ -30,15 +30,14 @@ namespace GUI
 
 		if(_isWP7)
 		{
-			activityIndicator->fillSpaceHorizontally();
 			loading = new NativeUI::Label("Loading...");
 			loading->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 			loading->fillSpaceHorizontally();
 			spacer3 = new NativeUI::VerticalLayout();
 			spacer3->setHeight(15);
 			spacer3->fillSpaceHorizontally();
+			activityIndicator->fillSpaceHorizontally();
 		}
-		mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 
 		spacer1 = new NativeUI::VerticalLayout();
 		spacer1->fillSpaceVertically();
@@ -54,9 +53,15 @@ namespace GUI
 			mainLayout->addChild(loading);
 			mainLayout->addChild(spacer3);
 		}
+		else
+		{
+			mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+		}
 		mainLayout->addChild(spacer2);
 
 		activityIndicator->show();
+
+
 
 		this->setMainWidget(mainLayout);
 	}
