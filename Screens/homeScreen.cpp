@@ -43,7 +43,7 @@ namespace GUI
 		int screenHeight = EXTENT_Y(size);
 
 		_setPlatform();
-
+		SetSizeRelatedVariables();
 		_createUI(screenHeight, screenWidth);
 	}
 
@@ -136,7 +136,7 @@ namespace GUI
 		_budgetLabel->fillSpaceHorizontally();
 		_budgetLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		_budgetLabel->setText(budgetString);
-		_budgetLabel->setFontSize(FONT_SIZE);
+		_budgetLabel->setFontSize(_dialogFontSize);
 		_budgetLabel->setHeight(heigth);
 		_budgetLabel->setTextVerticalAlignment(MAW_ALIGNMENT_TOP);
 	}
@@ -197,7 +197,7 @@ namespace GUI
 
 		categoryLabel->setText(category);
 		categoryLabel->setWidth((int)(width / 3.5));
-		categoryLabel->setFontSize(FONT_SIZE);
+		categoryLabel->setFontSize(_dialogFontSize);
 
 		consumeBar->setBackgroundColor(YELLOW);
 		double valueWidth = (consumed / total) * width;

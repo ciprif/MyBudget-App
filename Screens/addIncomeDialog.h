@@ -140,6 +140,9 @@ namespace GUI
 		bool _launcedFromHomeScreen;
 
 		bool _isWP7;
+
+		//0 -> small screen, 1 -> medium screen, 2 -> large screen
+		int _screenType;
 	};
 }
 #endif /* ADDINCOMEDIALOG_H_ */

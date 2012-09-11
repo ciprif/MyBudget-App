@@ -1,4 +1,8 @@
 <resources>
-	<image id="RES_BUTTON_CAMERA" resource="camera.png"/>
-	<image id="RES_BUTTON_FOLDER" resource="folder.png"/>
+	<image id="RES_BUTTON_CAMERA_LARGE" resource="camera48x48.png"/>
+	<image id="RES_BUTTON_FOLDER_LARGE" resource="folder48x48.png"/>
+	<image id="RES_BUTTON_CAMERA_MEDIUM" resource="camera32x32.png"/>
+	<image id="RES_BUTTON_FOLDER_MEDIUM" resource="folder32x32.png"/>
+	<image id="RES_BUTTON_CAMERA_SMALL" resource="camera24x24.png"/>
+	<image id="RES_BUTTON_FOLDER_SMALL" resource="folder24x24.png"/>
 </resources>

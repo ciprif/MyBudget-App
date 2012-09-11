@@ -20,7 +20,7 @@
 #include "settingsScreen.h"
 #include "../Logical/settingsManager.h"
 
-//global count variablo
+//global count variable
 
 short clickCount;
 
@@ -64,6 +64,9 @@ namespace GUI
 		MAExtent size = maGetScrSize();
 		int screenWidth = EXTENT_X(size);
 		int screenHeight = EXTENT_Y(size);
+
+		SetSizeRelatedVariables();
+
 		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
 		_mainLayout = new NativeUI::VerticalLayout();
 
@@ -104,16 +107,18 @@ namespace GUI
 		coinLabelText += _coin;
 
 		_coinLabel->setText(coinLabelText);
-		_coinLabel->setFontSize(DIALOG_FONT_SIZE);
+		if(!_isWP7) _coinLabel->fillSpaceHorizontally();
+		lprintfln("settings screen dialog font size %d", _dialogFontSize);
+		_coinLabel->setFontSize(_dialogFontSize);
 		_coinLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 
 		NativeUI::VerticalLayout* toggleAndLabelParent = new NativeUI::VerticalLayout();
 
+		if(!_isWP7) toggleAndLabelParent->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+
 		_coinChangeToggle = new NativeUI::Button();
 		_coinChangeToggle->setText("Change coin");
 		_coinChangeToggle->setWidth(_itemWidth);
-//		_coinChangeToggle->setCheckedState(false);
-//		_coinChangeToggle->addToggleButtonListener(this);
 		_coinChangeToggle->addButtonListener(this);
 
 		toggleAndLabelParent->addChild(_coinLabel);
@@ -121,7 +126,7 @@ namespace GUI
 
 		_coinsList = new NativeUI::ListView();
 		_coinsList->setWidth(_itemWidth);
-		_coinsList->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT);
+		_coinsList->setHeight(_descriptionBoxHeight);
 
 		for(int i = 0; i < NUMBER_OF_COINS; i++)
 		{
@@ -146,7 +151,8 @@ namespace GUI
 		debtValueLabelText += _coin;
 
 		_debtValueLabel = new NativeUI::Label(debtValueLabelText);
-		_debtValueLabel->setFontSize(DIALOG_FONT_SIZE);
+		_debtValueLabel->setFontSize(_dialogFontSize);
+		if(!_isWP7) _debtValueLabel->fillSpaceHorizontally();
 		_debtValueLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 
 		_newDebtValueEditBox = new NativeUI::EditBox();
@@ -157,6 +163,8 @@ namespace GUI
 
 		debtValueSettingsParent->addChild(_debtValueLabel);
 		debtValueSettingsParent->addChild(_newDebtValueEditBox);
+
+		if(!_isWP7) debtValueSettingsParent->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 
 		return debtValueSettingsParent;
 	}
@@ -201,9 +209,9 @@ namespace GUI
 		NativeUI::Label* checkBoxLabelFromDate = new NativeUI::Label();
 		checkBoxLabelFromDate->setText("Starting from date");
 
-		checkBoxLabelAllItems->setFontSize(DIALOG_FONT_SIZE);
-		checkBoxLabelMonthly->setFontSize(DIALOG_FONT_SIZE);
-		checkBoxLabelFromDate->setFontSize(DIALOG_FONT_SIZE);
+		checkBoxLabelAllItems->setFontSize(_dialogFontSize);
+		checkBoxLabelMonthly->setFontSize(_dialogFontSize);
+		checkBoxLabelFromDate->setFontSize(_dialogFontSize);
 
 		checkBoxLabelLayoutAll->addChild(_allItems);
 		checkBoxLabelLayoutAll->addChild(checkBoxLabelAllItems);
@@ -323,6 +331,7 @@ namespace GUI
 			if(clickCount % 2 == 0)
 			{
 				_coinSettingsLayout->addChild(_coinsList);
+				if(!_isWP7) _coinSettingsLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 				_coinsList->addListViewListener(this);
 				clickCount++;
 				clickCount %= 2;

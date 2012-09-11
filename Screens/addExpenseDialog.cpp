@@ -37,6 +37,7 @@ namespace GUI
 		_acceptedDept = MAX_VALUE;
 		checkBoxVector = NULL;
 		_setPlatform();
+		SetSizeRelatedVariables();
 		_createUI();
 	}
 	AddExpenseDialog::AddExpenseDialog(const double& availableBudget, const double& posibleDeptValue, const MAUtil::String& coin)
@@ -46,6 +47,7 @@ namespace GUI
 		_acceptedDept = posibleDeptValue;
 		checkBoxVector = NULL;
 		_setPlatform();
+		SetSizeRelatedVariables();
 		_createUI();
 	}
 
@@ -83,6 +85,10 @@ namespace GUI
 
 	void AddExpenseDialog::_createUI()
 	{
+		MAExtent size = maGetScrSize();
+		int screenWidth = EXTENT_X(size);
+		int screenHeight = EXTENT_Y(size);
+
 		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
 		if(_isWP7) parent->setHeight(DIALOG_HEIGHT);
 		_mainLayout = new NativeUI::VerticalLayout();
@@ -115,7 +121,7 @@ namespace GUI
 
 		NativeUI::Label* categoryLabel = new NativeUI::Label();
 		categoryLabel->setText("Choose a category:");
-		categoryLabel->setFontSize(DIALOG_FONT_SIZE);
+		categoryLabel->setFontSize(_dialogFontSize);
 
 		checkBoxGroupParentLayout->addChild(categoryLabel);
 		NativeUI::HorizontalLayout* checkBoxLabelLayout;
@@ -129,7 +135,7 @@ namespace GUI
 			NativeUI::CheckBox* checkBox = new NativeUI::CheckBox();
 			checkBox->addCheckBoxListener(this);
 			checkBoxLabel->setText(Model::CATEGORY_LIST[i]);
-			checkBoxLabel->setFontSize(DIALOG_FONT_SIZE);
+			checkBoxLabel->setFontSize(_dialogFontSize);
 			checkBoxLabelLayout->addChild(checkBox);
 			checkBoxLabelLayout->addChild(checkBoxLabel);
 			checkBoxGroupParentLayout->addChild(checkBoxLabelLayout);
@@ -150,11 +156,11 @@ namespace GUI
 		_cancelButton = new NativeUI::Button();
 
 		_addButton->setText("Save");
+		_addButton->setWidth(_dialogButtonWidth);
 		_addButton->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
-		_addButton->setWidth(DIALOG_BUTTON_WIDTH);
 		_addButton->addButtonListener(this);
 		_cancelButton->setText("Cancel");
-		_cancelButton->setWidth(DIALOG_BUTTON_WIDTH);
+		_cancelButton->setWidth(_dialogButtonWidth);
 		_cancelButton->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		_cancelButton->addButtonListener(this);
 
@@ -181,7 +187,7 @@ namespace GUI
 
 		_amountLabel = new NativeUI::Label();
 		_amountLabel->fillSpaceHorizontally();
-		_amountLabel->setFontSize(DIALOG_FONT_SIZE);
+		_amountLabel->setFontSize(_dialogFontSize);
 		_amountLabel->setText("Set the value of your expense: ");
 
 		labelSliderParentLayout->addChild(_amountLabel);
@@ -206,17 +212,27 @@ namespace GUI
 		_descriptionEditBox = new NativeUI::EditBox();
 
 		descriptionToggleLabel->setText("Description:");
-		descriptionToggleLabel->setFontSize(DIALOG_FONT_SIZE);
+		descriptionToggleLabel->setFontSize(_dialogFontSize);
 
 		descritionToggleAndLabelParent->addChild(descriptionToggleLabel);
 		descritionToggleAndLabelParent->addChild(_descriptionToggleButton);
 
 		//_descriptionEditBox->setMaxLines(DESCRIPTION_EDIT_BOX_LINES);
-		_descriptionEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT);
+		switch(_screenType)
+		{
+		case 0:
+			_descriptionEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_SMALL);
+			break;
+		case 1:
+			_descriptionEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_MEDIUM);
+			break;
+		default:
+			_descriptionEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE);
+			break;
+		}
+
 		_descriptionEditBox->fillSpaceHorizontally();
-
 		_descriptionToggleButton->addToggleButtonListener(this);
-
 		_descriptionBoxParent->addChild(descritionToggleAndLabelParent);
 	}
 
@@ -240,7 +256,7 @@ namespace GUI
 		_captureImageButton->addButtonListener(this);
 
 		imageToggleLabel->setText("Atach an image:");
-		imageToggleLabel->setFontSize(DIALOG_FONT_SIZE);
+		imageToggleLabel->setFontSize(_dialogFontSize);
 
 		imageToggleAndLabelParent->addChild(imageToggleLabel);
 		imageToggleAndLabelParent->addChild(_imageAtachementToggleButton);
@@ -248,29 +264,41 @@ namespace GUI
 		NativeUI::RelativeLayout* captureButtonWrapper = new NativeUI::RelativeLayout();
 		NativeUI::RelativeLayout* selectButtonWrapper = new NativeUI::RelativeLayout();
 
-		captureButtonWrapper->setSize(100, 120);
-		selectButtonWrapper->setSize(100, 120);
+		captureButtonWrapper->setSize(_imageButtonWidth, _imageButtonHeight + 0.2 * _imageButtonHeight);
+		selectButtonWrapper->setSize(_imageButtonWidth, _imageButtonHeight + 0.2 * _imageButtonHeight);
 
 		NativeUI::Label* captureLabel = new NativeUI::Label();
 		NativeUI::Label* selectLabel = new NativeUI::Label();
 
 		captureLabel->setText("Capture");
 		captureLabel->setTopPosition(80);
-		captureLabel->setWidth(100);
-		captureLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_TOP);
+		captureLabel->setWidth(_imageButtonWidth);
+		captureLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 
 		selectLabel->setText("Select");
 		selectLabel->setTopPosition(80);
-		selectLabel->setWidth(100);
+		selectLabel->setWidth(_imageButtonWidth);
 		selectLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 
-		_captureImageButton->setSize(100, 100);
+		_captureImageButton->setSize(_imageButtonWidth, _imageButtonHeight);
 		_captureImageButton->setTopPosition(0);
-		_selectImageButton->setSize(100, 100);
+		_selectImageButton->setSize(_imageButtonWidth, _imageButtonHeight);
 		_selectImageButton->setTopPosition(0);
 
-		_captureImageButton->setBackgroundImage(RES_BUTTON_CAMERA);
-		_selectImageButton->setBackgroundImage(RES_BUTTON_FOLDER);
+		switch (GUI::_screenType) {
+			case 0:
+				_captureImageButton->setBackgroundImage(RES_BUTTON_CAMERA_SMALL);
+				_selectImageButton->setBackgroundImage(RES_BUTTON_FOLDER_SMALL);
+				break;
+			case 1:
+				_captureImageButton->setBackgroundImage(RES_BUTTON_CAMERA_MEDIUM);
+				_selectImageButton->setBackgroundImage(RES_BUTTON_FOLDER_MEDIUM);
+				break;
+			case 2:
+				_captureImageButton->setBackgroundImage(RES_BUTTON_CAMERA_LARGE);
+				_selectImageButton->setBackgroundImage(RES_BUTTON_FOLDER_LARGE);
+				break;
+		}
 
 		captureButtonWrapper->addChild(_captureImageButton);
 		captureButtonWrapper->addChild(captureLabel);
@@ -278,7 +306,7 @@ namespace GUI
 		selectButtonWrapper->addChild(selectLabel);
 
 		NativeUI::HorizontalLayout* spacer = new NativeUI::HorizontalLayout();
-		spacer->setWidth(100);
+		spacer->setWidth(_imageButtonWidth);
 
 		_imageButtonsParentLayout->addChild(captureButtonWrapper);
 		_imageButtonsParentLayout->addChild(spacer);
@@ -306,7 +334,7 @@ namespace GUI
 		_datePicker->setYear(Logical::DEFAULT_YEAR);
 
 		NativeUI::Label* datePickerLabel = new NativeUI::Label();
-		datePickerLabel->setFontSize(DIALOG_FONT_SIZE);
+		datePickerLabel->setFontSize(_dialogFontSize);
 		datePickerLabel->setText("Chose a date:");
 
 		labelDPParentLayout->addChild(datePickerLabel);
@@ -330,7 +358,7 @@ namespace GUI
 		_timePicker->fillSpaceHorizontally();
 
 		NativeUI::Label* timePickerLabel = new NativeUI::Label();
-		timePickerLabel->setFontSize(DIALOG_FONT_SIZE);
+		timePickerLabel->setFontSize(_dialogFontSize);
 		timePickerLabel->setText("Chose a time:");
 
 		labelTPParentLayout->addChild(timePickerLabel);

@@ -22,6 +22,7 @@
 #include "homeScreen.h"
 #include "listScreen.h"
 #include "MAHeaders.h"
+#include "../Model/util.h"
 
 #include "../Logical/settingsManager.h"
 
@@ -32,6 +33,7 @@ namespace GUI
 		_coin = GUI::DEFAULT_COIN;
 
 		_setPlatform();
+		SetSizeRelatedVariables();
 		_createUI();
 	}
 	AddIncomeDialog::AddIncomeDialog(const MAUtil::String& coin) : checkBoxVector(NULL)
@@ -39,6 +41,7 @@ namespace GUI
 		_coin = coin;
 
 		_setPlatform();
+		SetSizeRelatedVariables();
 		_createUI();
 	}
 
@@ -107,7 +110,9 @@ namespace GUI
 
 		NativeUI::Label* categoryLabel = new NativeUI::Label();
 		categoryLabel->setText("Choose a type:");
-		categoryLabel->setFontSize(DIALOG_FONT_SIZE);
+
+
+		categoryLabel->setFontSize(_dialogFontSize);
 		NativeUI::HorizontalLayout* checkBoxLabelLayout;
 
 		checkBoxGroupParentLayout->addChild(categoryLabel);
@@ -122,7 +127,7 @@ namespace GUI
 			checkBox->addCheckBoxListener(this);
 
 			checkBoxLabel->setText(categories[i]);
-			checkBoxLabel->setFontSize(DIALOG_FONT_SIZE);
+			checkBoxLabel->setFontSize(_dialogFontSize);
 
 			checkBoxLabelLayout->addChild(checkBox);
 			checkBoxLabelLayout->addChild(checkBoxLabel);
@@ -143,14 +148,14 @@ namespace GUI
 		buttonGroup->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 
 		_addButton = new NativeUI::Button();
-		_cancelButton = new NativeUI::Button();
-
 		_addButton->setText("Save");
-		_addButton->setWidth(DIALOG_BUTTON_WIDTH);
+		_addButton->setWidth(_dialogButtonWidth);
 		_addButton->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		_addButton->addButtonListener(this);
+
+		_cancelButton = new NativeUI::Button();
 		_cancelButton->setText("Cancel");
-		_cancelButton->setWidth(DIALOG_BUTTON_WIDTH);
+		_cancelButton->setWidth(_dialogButtonWidth);
 		_cancelButton->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		_cancelButton->addButtonListener(this);
 
@@ -175,11 +180,13 @@ namespace GUI
 
 		NativeUI::Label* _amountThousandsLabel = new NativeUI::Label();
 		NativeUI::Label* _amountUnitsLabel = new NativeUI::Label();
+		_amountLabel = new NativeUI::Label();
 
+		_amountLabel->setFontSize(_dialogFontSize);
 		_amountThousandsLabel->setText("Thousands");
+		_amountThousandsLabel->setFontSize(_dialogSmallFontSize);
+		_amountUnitsLabel->setFontSize(_dialogSmallFontSize);
 		_amountUnitsLabel->setText("Units");
-		_amountThousandsLabel->setFontSize(DIALOG_FONT_SIZE_SMALL);
-		_amountUnitsLabel->setFontSize(DIALOG_FONT_SIZE_SMALL);
 		_amountThousandsLabel->fillSpaceHorizontally();
 		_amountUnitsLabel->fillSpaceHorizontally();
 
@@ -195,9 +202,8 @@ namespace GUI
 		_amountSliderUnits->setValue(0);
 		_amountSliderUnits->fillSpaceHorizontally();
 
-		_amountLabel = new NativeUI::Label();
 		_amountLabel->fillSpaceHorizontally();
-		_amountLabel->setFontSize(DIALOG_FONT_SIZE);
+
 		_amountLabel->setText("Set the value of your income: ");
 
 		labelSliderParentLayout->addChild(_amountLabel);
@@ -223,19 +229,15 @@ namespace GUI
 		_descriptionToggleButton->setCheckedState(false);
 
 		_descriptionEditBox = new NativeUI::EditBox();
+		_descriptionEditBox->setHeight(_descriptionBoxHeight);
 
 		descriptionToggleLabel->setText("Description:");
-		descriptionToggleLabel->setFontSize(DIALOG_FONT_SIZE);
-
+		descriptionToggleLabel->setFontSize(_dialogFontSize);
 		descritionToggleAndLabelParent->addChild(descriptionToggleLabel);
 		descritionToggleAndLabelParent->addChild(_descriptionToggleButton);
 
-		//_descriptionEditBox->setMaxLines(DESCRIPTION_EDIT_BOX_LINES);
-		_descriptionEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT);
 		_descriptionEditBox->fillSpaceHorizontally();
-
 		_descriptionToggleButton->addToggleButtonListener(this);
-
 		_descriptionBoxParent->addChild(descritionToggleAndLabelParent);
 	}
 
@@ -251,15 +253,13 @@ namespace GUI
 		_transactionInformationToggleButton->setCheckedState(false);
 
 		_transactionInformationEditBox = new NativeUI::EditBox();
+		_transactionInformationEditBox->setHeight(_descriptionBoxHeight);
 
 		transactionToggleLabel->setText("Transaction info:");
-		transactionToggleLabel->setFontSize(DIALOG_FONT_SIZE);
-
+		transactionToggleLabel->setFontSize(_dialogFontSize);
 		transactionToggleAndLabelParent->addChild(transactionToggleLabel);
 		transactionToggleAndLabelParent->addChild(_transactionInformationToggleButton);
 
-		//_transactionInformationEditBox->setMaxLines(DESCRIPTION_EDIT_BOX_LINES);
-		_transactionInformationEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT);
 		_transactionInformationEditBox->setEditMode(NativeUI::EDIT_BOX_MODE_TEXT);
 		_transactionInformationEditBox->fillSpaceHorizontally();
 
@@ -286,7 +286,8 @@ namespace GUI
 		_datePicker->addDatePickerListener(this);
 
 		NativeUI::Label* datePickerLabel = new NativeUI::Label();
-		datePickerLabel->setFontSize(DIALOG_FONT_SIZE);
+
+		datePickerLabel->setFontSize(_dialogFontSize);
 		datePickerLabel->setText("Chose a date:");
 
 		labelDPParentLayout->addChild(datePickerLabel);
@@ -310,7 +311,8 @@ namespace GUI
 		_timePicker->fillSpaceHorizontally();
 
 		NativeUI::Label* timePickerLabel = new NativeUI::Label();
-		timePickerLabel->setFontSize(DIALOG_FONT_SIZE);
+
+		timePickerLabel->setFontSize(_dialogFontSize);
 		timePickerLabel->setText("Chose a time:");
 
 		labelTPParentLayout->addChild(timePickerLabel);

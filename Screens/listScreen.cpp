@@ -263,7 +263,8 @@ namespace GUI
 	NativeUI::VerticalLayout* ListScreen::_createListItem(const Model::ListItemModel& obj, int index)
 	{
 		NativeUI::VerticalLayout* itemParent = new NativeUI::VerticalLayout();
-		itemParent->setWidth(_itemWidth);
+		if(_isWP7) itemParent->setWidth(_itemWidth);
+		else itemParent->fillSpaceHorizontally();
 
 		NativeUI::HorizontalLayout* visiblePart = new NativeUI::HorizontalLayout();
 		NativeUI::Label* typeLabel = new NativeUI::Label();
@@ -271,10 +272,13 @@ namespace GUI
 
 		NativeUI::Label* details = new NativeUI::Label();
 
-		typeLabel->setFontSize(DIALOG_FONT_SIZE);
-		sumLabel->setFontSize(DIALOG_FONT_SIZE);
+		typeLabel->setFontSize(_dialogFontSize);
+		sumLabel->setFontSize(_dialogFontSize);
 		typeLabel->fillSpaceHorizontally();
 		sumLabel->fillSpaceHorizontally();
+
+		if(!_isWP7) sumLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
+
 		if(obj.IsExpense())
 		{
 			typeLabel->setText(obj.getExpenseObject().getCategory());
@@ -295,7 +299,10 @@ namespace GUI
 			aux += Model::TimeStructToString(obj.getExpenseObject().getTime());
 			details->setText(aux);
 			details->setMaxNumberOfLines(10);
-			details->setWidth(_itemWidth);
+
+			if(_isWP7) details->setWidth(_itemWidth);
+			else details->fillSpaceHorizontally();
+
 			details->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 		}
 		else
@@ -324,7 +331,10 @@ namespace GUI
 
 			details->setText(aux);
 			details->setMaxNumberOfLines(10);
-			details->setWidth(_itemWidth);
+
+			if(_isWP7) details->setWidth(_itemWidth);
+			else details->fillSpaceHorizontally();
+
 			details->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 		}
 
