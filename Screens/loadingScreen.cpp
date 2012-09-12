@@ -16,10 +16,25 @@
 
 namespace GUI
 {
+	/**
+	 * \brief No parameter constructor
+	 */
 	LoadingScreen::LoadingScreen()
 	{
 		_setPlatform();
+		_createUI();
+	}
 
+	/**
+	 * \brief Destructor
+	 */
+	LoadingScreen::~LoadingScreen() {}
+
+	/**
+	 * \brief This function calls the UI creation functions
+	 */
+	void LoadingScreen::_createUI()
+	{
 		NativeUI::VerticalLayout* mainLayout = new NativeUI::VerticalLayout();
 		NativeUI::ActivityIndicator* activityIndicator = new NativeUI::ActivityIndicator();
 		NativeUI::Label* loading;
@@ -41,7 +56,6 @@ namespace GUI
 
 		spacer1 = new NativeUI::VerticalLayout();
 		spacer1->fillSpaceVertically();
-
 		spacer2 = new NativeUI::VerticalLayout();
 		spacer2->fillSpaceVertically();
 
@@ -57,15 +71,16 @@ namespace GUI
 		{
 			mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		}
+
 		mainLayout->addChild(spacer2);
-
 		activityIndicator->show();
-
-
 
 		this->setMainWidget(mainLayout);
 	}
 
+	/**
+	 * \brief This function sets _isWP7 bool value
+	 */
 	void LoadingScreen::_setPlatform()
 	{
 		char buffer[Model::BUFF_SIZE];
@@ -80,6 +95,4 @@ namespace GUI
 			_isWP7 = true;
 		}
 	}
-
-	LoadingScreen::~LoadingScreen() {}
 }

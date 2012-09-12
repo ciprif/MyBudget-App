@@ -22,10 +22,27 @@ namespace GUI
 	class LoadingScreen : public NativeUI::Screen
 	{
 	public:
+		/**
+		 * \brief No parameter constructor
+		 */
 		LoadingScreen();
+
+		/**
+		 * \brief Destructor
+		 */
 		~LoadingScreen();
 	private:
+		/**
+		 * \brief This function calls the UI creation functions
+		 */
+		void _createUI();
+
+		/**
+		 * \brief This function sets _isWP7 bool value
+		 */
 		void _setPlatform();
+
+		// _isWP7 true if the platform is Windows Phone 7, false otherwise; used for platform specific UI sizes.
 		bool _isWP7;
 	};
 }

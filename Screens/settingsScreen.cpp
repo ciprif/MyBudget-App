@@ -21,12 +21,14 @@
 #include "../Logical/settingsManager.h"
 
 //global count variable
-
 short clickCount;
 
 namespace GUI
 {
-	SettingsScreen::SettingsScreen() : _debtValue(0.0), _isAllItems(true), _isFromDate(false), _isMontly(false)
+	/**
+	 * \brief No parameters constructor.
+	 */
+	SettingsScreen::SettingsScreen() : _debtValue(0.0), _isAllItems(true), _isFromDate(false), _isMonthly(false)
 	{
 		_coin = COINS[0]; //Default value
 
@@ -35,30 +37,150 @@ namespace GUI
 		_createUI();
 	}
 
+	/**
+	 * \brief Destructor
+	 */
 	SettingsScreen::~SettingsScreen()
 	{
 		_allItems->removeCheckBoxListener(this);
 		_monthly->removeCheckBoxListener(this);
 		_fromDate->removeCheckBoxListener(this);
-		if(_isWP7) _numberPicker->removeNumberPickerListener(this);
 		_datePicker->removeDatePickerListener(this);
+		if(_isWP7) _numberPicker->removeNumberPickerListener(this);
 	}
 
-	void SettingsScreen::_setPlatform()
+	/**
+	 * \brief Sets the observer reference
+	 * @param obs Logical::Observer* pointer to the application wide observer
+	 */
+	void SettingsScreen::setObserver(Logical::Observer* obj)
 	{
-		char buffer[BUFF_SIZE];
-		maGetSystemProperty("mosync.device.OS", buffer, BUFF_SIZE);
+		_observerReference = obj;
 
-		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		_updateValues();
+	}
+
+	/**
+	 * \brief The button click event handler, inherited from the NativeUI::ButtonListener class
+	 * @param button NativeUI::Widget* pointer to the button that triggered the event
+	 */
+	void SettingsScreen::buttonClicked(NativeUI::Widget* b)
+	{
+		if(b == _coinChangeToggle)
 		{
-			_isWP7 = false;
+			if(clickCount % 2 == 0)
+			{
+				_expendCoinList();
+			}
+			else
+			{
+				_collapseCoinList();
+			}
+		}
+	}
+
+	/**
+	 * \brief The list view item clicked event handler, inherited from NativeUI::ListViewListener class
+	 * @param listView NativeUI::ListView* pointer to the list view that triggered the event
+	 * @param index int the index of the clicked list view item
+	 */
+	void SettingsScreen::listViewItemClicked(NativeUI::ListView* l, int index)
+	{
+		if(l == _coinsList)
+		{
+			_coin = COINS[index];
+
+			MAUtil::String coinLabelText = "The current coin: ";
+			coinLabelText += _coin;
+			coinLabelText += " (not applied)";
+			_coinLabel->setText(coinLabelText);
+
+			_collapseCoinList();
+		}
+	}
+
+	/**
+	 * \brief This function handles the options menu item selected event from a screen, inherited
+	 * 	      from the NativeUI::Screen class
+	 * @param screen NativeUI::Screen* pointer to the screen that triggers the event
+	 * @param index int index for the button that was clicked
+	 */
+	void SettingsScreen::optionsMenuItemSelected(NativeUI::Screen*, int index)
+	{
+		if(index == _saveButtonIndex)
+		{
+			Model::DateStruct d;
+			_saveDateSettings(d);
+
+			_saveCoinSettings();
+
+			_saveDebtSettings();
+
+			_observerReference->requestSaveSettings(_isAllItems, _isMonthly, _isFromDate, _debtValue, d, _coin);
+		}
+		else if(index == _restoreButtonIndex)
+		{
+			_updateValues(); //reset values with the saved ones observer
+		}
+	}
+
+	/**
+	 * \brief This function handles the checkbox state changed event, inherited from the NativeUI::CheckBoxListener class
+	 * @param checkBox NativeUI::CheckBox* pointer to the CheckBox that triggered the event
+	 * @param state bool true or false, indicating the current state of the checkbox
+	 */
+	void SettingsScreen::checkBoxStateChanged(NativeUI::CheckBox* checkBox, bool state)
+	{
+		if(state == true)
+		{
+			if(checkBox == _monthly)
+			{
+				_handleMonthlyCheckboxStateChenged();
+			}
+			else if(checkBox == _allItems)
+			{
+				_handleAllItemsCheckboxStateChenged();
+			}
+			else if(checkBox == _fromDate)
+			{
+				_handleFromDateCheckboxStateChenged();
+			}
+
 		}
 		else
 		{
-			_isWP7 = true;
+			if(_isAllItems && checkBox == _allItems) checkBox->setState(true);
+			if(_isMonthly && checkBox == _monthly) checkBox->setState(true);
+			if(_isFromDate && checkBox == _fromDate) checkBox->setState(true);
 		}
 	}
 
+	/**
+	 * \brief This function handles the number picker value changed event, inherited
+	 * 		  from the NativeUI::NumberPickerListener class
+	 * @param numberPicker NativeUI::NumberPicker* pointer to the number picker that triggered the event
+	 * @param value int the current value of the picker
+	 */
+	void SettingsScreen::numberPickerValueChanged(NativeUI::NumberPicker* picker, int value)
+	{
+		if(picker == _numberPicker)
+		{
+			_dayValue = value;
+		}
+	}
+
+	/**
+	 * \brief This function is used for creating the options menu related controls
+	 */
+	void SettingsScreen::createOptionsMenu()
+	{
+		_saveButtonIndex = addOptionsMenuItem("Save", MAW_OPTIONS_MENU_ICON_CONSTANT_SAVE, false);
+		_restoreButtonIndex = addOptionsMenuItem("Restore", MAW_OPTIONS_MENU_ICON_CONSTANT_CLOSE_CLEAR_CANCEL, false);
+	}
+
+	/**
+	 * \brief This function calls the UI creation functions
+	 */
 	void SettingsScreen::_createUI()
 	{
 		MAExtent size = maGetScrSize();
@@ -82,7 +204,7 @@ namespace GUI
 		else
 		{
 			_mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
-			_itemWidth = screenWidth * 0.95;
+			_itemWidth = (int)(screenWidth * 0.95);
 			this->setMainWidget(_mainLayout);
 		}
 
@@ -97,6 +219,36 @@ namespace GUI
 		addScreenListener(this);
 	}
 
+	/**
+	 * \brief This function synchronizes the values from the settings screen UI with those stored in the repository
+	 */
+	void SettingsScreen::_updateValues()
+	{
+		_coin = _observerReference->requestCoin();
+		_isAllItems = _observerReference->requestIsShowAll();
+		_isMonthly = _observerReference->requestIsMonthly();
+		_isFromDate = _observerReference->requestIsShowFromDate();
+		_debtValue = _observerReference->requestDebtValue();
+
+		MAUtil::String* coinLabelText = new MAUtil::String();
+
+		*coinLabelText = "The current coin: ";
+
+		coinLabelText->append(_coin.c_str(), _coin.length());
+		_coinLabel->setText(*coinLabelText);
+		delete coinLabelText;
+
+		_resetDateValue();
+
+		_dayValue = _observerReference->requestFromDate()._day;
+
+		_resetDebtValue();
+	}
+
+	/**
+	 * \brief This functions creates the coin setting sections
+	 * @return NativeUI::VerticalLayout* pointer to the newly created layout
+	 */
 	NativeUI::VerticalLayout* SettingsScreen::_createCoinSettingsLayout()
 	{
 		NativeUI::VerticalLayout* parentLayout = new NativeUI::VerticalLayout();
@@ -140,35 +292,10 @@ namespace GUI
 		return parentLayout;
 	}
 
-	NativeUI::VerticalLayout* SettingsScreen::_createDebtValueSettingsLayout()
-	{
-		NativeUI::VerticalLayout* debtValueSettingsParent = new NativeUI::VerticalLayout();
-		debtValueSettingsParent->wrapContentVertically();
-
-		MAUtil::String debtValueLabelText = "The current debt value: ";
-		debtValueLabelText += MAUtil::doubleToString(_debtValue, 2);
-		debtValueLabelText += " ";
-		debtValueLabelText += _coin;
-
-		_debtValueLabel = new NativeUI::Label(debtValueLabelText);
-		_debtValueLabel->setFontSize(_dialogFontSize);
-		if(!_isWP7) _debtValueLabel->fillSpaceHorizontally();
-		_debtValueLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
-
-		_newDebtValueEditBox = new NativeUI::EditBox();
-		_newDebtValueEditBox->setInputMode(NativeUI::EDIT_BOX_INPUT_MODE_NUMERIC);
-		_newDebtValueEditBox->setWidth(_itemWidth);
-		_newDebtValueEditBox->wrapContentVertically();
-		_newDebtValueEditBox->setPlaceholder("New debt value");
-
-		debtValueSettingsParent->addChild(_debtValueLabel);
-		debtValueSettingsParent->addChild(_newDebtValueEditBox);
-
-		if(!_isWP7) debtValueSettingsParent->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
-
-		return debtValueSettingsParent;
-	}
-
+	/**
+	 * \brief This function creates the transaction list section
+	 * @return NativeUI::VerticalLayout* pointer to the newly created layout
+	 */
 	NativeUI::VerticalLayout* SettingsScreen::_createTransactionListSettingsLayout()
 	{
 		NativeUI::VerticalLayout* transactionListSettings = new NativeUI::VerticalLayout();
@@ -190,13 +317,13 @@ namespace GUI
 		_fromDate->addCheckBoxListener(this);
 
 		NativeUI::HorizontalLayout* checkBoxLabelLayoutAll = new NativeUI::HorizontalLayout();
-		NativeUI::HorizontalLayout* checkBoxLabelLayoutMontly = new NativeUI::HorizontalLayout();
+		NativeUI::HorizontalLayout* checkBoxLabelLayoutMonthly = new NativeUI::HorizontalLayout();
 		NativeUI::HorizontalLayout* checkBoxLabelLayoutFromDate = new NativeUI::HorizontalLayout();
 
 		checkBoxLabelLayoutAll->setChildHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 		checkBoxLabelLayoutAll->fillSpaceHorizontally();
-		checkBoxLabelLayoutMontly->setChildHorizontalAlignment(MAW_ALIGNMENT_LEFT);
-		checkBoxLabelLayoutMontly->fillSpaceHorizontally();
+		checkBoxLabelLayoutMonthly->setChildHorizontalAlignment(MAW_ALIGNMENT_LEFT);
+		checkBoxLabelLayoutMonthly->fillSpaceHorizontally();
 		checkBoxLabelLayoutFromDate->setChildHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 		checkBoxLabelLayoutFromDate->fillSpaceHorizontally();
 
@@ -216,14 +343,14 @@ namespace GUI
 		checkBoxLabelLayoutAll->addChild(_allItems);
 		checkBoxLabelLayoutAll->addChild(checkBoxLabelAllItems);
 
-		checkBoxLabelLayoutMontly->addChild(_monthly);
-		checkBoxLabelLayoutMontly->addChild(checkBoxLabelMonthly);
+		checkBoxLabelLayoutMonthly->addChild(_monthly);
+		checkBoxLabelLayoutMonthly->addChild(checkBoxLabelMonthly);
 
 		checkBoxLabelLayoutFromDate->addChild(_fromDate);
 		checkBoxLabelLayoutFromDate->addChild(checkBoxLabelFromDate);
 
 		transactionListSettings->addChild(checkBoxLabelLayoutAll);
-		transactionListSettings->addChild(checkBoxLabelLayoutMontly);
+		transactionListSettings->addChild(checkBoxLabelLayoutMonthly);
 		transactionListSettings->addChild(checkBoxLabelLayoutFromDate);
 
 		_datePicker = new NativeUI::DatePicker();
@@ -253,22 +380,231 @@ namespace GUI
 		return transactionListSettings;
 	}
 
-	void SettingsScreen::_updateValues()
+	/**
+	 * \brief This function creates the debt value section
+	 * @return NativeUI::VerticalLayout* pointer to the newly created layout
+	 */
+	NativeUI::VerticalLayout* SettingsScreen::_createDebtValueSettingsLayout()
 	{
-		_coin = _observerReference->requestCoin();
-		_isAllItems = _observerReference->requestIsShowAll();
-		_isMontly = _observerReference->requestIsMonthly();
-		_isFromDate = _observerReference->requestIsShowFromDate();
-		_debtValue = _observerReference->requestDebtValue();
+		NativeUI::VerticalLayout* debtValueSettingsParent = new NativeUI::VerticalLayout();
+		debtValueSettingsParent->wrapContentVertically();
 
-		MAUtil::String* coinLabelText = new MAUtil::String();
+		MAUtil::String debtValueLabelText = "The current debt value: ";
+		debtValueLabelText += MAUtil::doubleToString(_debtValue, 2);
+		debtValueLabelText += " ";
+		debtValueLabelText += _coin;
 
-		*coinLabelText = "The current coin: ";
+		_debtValueLabel = new NativeUI::Label(debtValueLabelText);
+		_debtValueLabel->setFontSize(_dialogFontSize);
+		if(!_isWP7) _debtValueLabel->fillSpaceHorizontally();
+		_debtValueLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 
-		coinLabelText->append(_coin.c_str(), _coin.length());
-		_coinLabel->setText(*coinLabelText);
-		delete coinLabelText;
+		_newDebtValueEditBox = new NativeUI::EditBox();
+		_newDebtValueEditBox->setInputMode(NativeUI::EDIT_BOX_INPUT_MODE_NUMERIC);
+		_newDebtValueEditBox->setWidth(_itemWidth);
+		_newDebtValueEditBox->wrapContentVertically();
+		_newDebtValueEditBox->setPlaceholder("New debt value");
 
+		debtValueSettingsParent->addChild(_debtValueLabel);
+		debtValueSettingsParent->addChild(_newDebtValueEditBox);
+
+		if(!_isWP7) debtValueSettingsParent->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+
+		return debtValueSettingsParent;
+	}
+
+	/**
+	 * \brief This function sets _isWP7 bool value
+	 */
+	void SettingsScreen::_setPlatform()
+	{
+		char buffer[BUFF_SIZE];
+		maGetSystemProperty("mosync.device.OS", buffer, BUFF_SIZE);
+
+		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		{
+			_isWP7 = false;
+		}
+		else
+		{
+			_isWP7 = true;
+		}
+	}
+
+	/**
+	 * \brief This function is called in order to collapse the coin list
+	 */
+	void SettingsScreen::_collapseCoinList()
+	{
+		_coinSettingsLayout->removeChild(_coinsList);
+		_coinsList->removeListViewListener(this);
+		clickCount++;
+		clickCount %= 2;
+	}
+
+	/**
+	 * \brief This function is called in order to expend the coin list
+	 */
+	void SettingsScreen::_expendCoinList()
+	{
+		_coinSettingsLayout->addChild(_coinsList);
+		if(!_isWP7) _coinSettingsLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+		_coinsList->addListViewListener(this);
+		clickCount++;
+		clickCount %= 2;
+	}
+
+	/**
+	 * \brief This function is called to handle the AllItems checkBox state changed; called
+	 * 	 	  from the checkBoxStateChanged event handler
+	 */
+	void SettingsScreen::_handleAllItemsCheckboxStateChenged()
+	{
+		if(_transactionSettingsLayout->countChildWidgets() == 4)
+		{
+			_transactionSettingsLayout->removeChild(_transactionSettingsLayout->getChild(3));
+		}
+
+		if(_isFromDate) _fromDate->setState(false);
+		else if(_isMonthly) _monthly->setState(false);
+
+		_isMonthly = false;
+		_isAllItems = true;
+		_isFromDate = false;
+	}
+
+	/**
+	 * \brief This function is called to handle the Monthly checkBox state changed; called
+	 * 	 	  from the checkBoxStateChanged event handler
+	 */
+	void SettingsScreen::_handleMonthlyCheckboxStateChenged()
+	{
+		if(_transactionSettingsLayout->countChildWidgets() == 4)
+		{
+			if(_transactionSettingsLayout->getChild(3) == _datePicker)
+				_transactionSettingsLayout->removeChild(_datePicker);
+		}
+
+		if(_isWP7) _transactionSettingsLayout->addChild(_numberPicker);
+		else _transactionSettingsLayout->addChild(_numberPickerReplace);
+
+		if(_isAllItems) _allItems->setState(false);
+		else if(_isFromDate) _fromDate->setState(false);
+
+		_isMonthly = true;
+		_isAllItems = false;
+		_isFromDate = false;
+	}
+
+	/**
+	 * \brief This function is called to handle the FromDate checkBox state changed; called
+	 * 	 	  from the checkBoxStateChanged event handler
+	 */
+	void SettingsScreen::_handleFromDateCheckboxStateChenged()
+	{
+		if(_transactionSettingsLayout->countChildWidgets() == 4)
+		{
+			if(_transactionSettingsLayout->getChild(3) == _numberPicker && _isWP7)
+				_transactionSettingsLayout->removeChild(_numberPicker);
+			else if(_transactionSettingsLayout->getChild(3) == _numberPickerReplace)
+				_transactionSettingsLayout->removeChild(_numberPickerReplace);
+		}
+
+		_transactionSettingsLayout->addChild(_datePicker);
+
+		if(_isAllItems) _allItems->setState(false);
+		else if(_isMonthly) _monthly->setState(false);
+
+		_isMonthly = false;
+		_isAllItems = false;
+		_isFromDate = true;
+	}
+
+	/**
+	 * \brief This function stores the date settings that were updated from the SettingsScreen UI;
+	 * 		  Called from the save button clicked event handle;
+	 * @param d Model::DateStruct& the destination DateStruct
+	 *
+	 * \note This function does not actually save the values to the settings manager and repositories,
+	 * 		 it only stores the data into the structure.
+	 */
+	void SettingsScreen::_saveDateSettings(Model::DateStruct& d)
+	{
+		d._day = _datePicker->getDayOfMonth();
+		d._mounth = _datePicker->getMonth();
+		d._year = _datePicker->getYear();
+
+		if(_isMonthly)
+		{
+			if(_isWP7)
+			{
+				d._day = _dayValue;
+			}
+			else
+			{
+				d._day = MAUtil::stringToInteger(_numberPickerReplace->getText().c_str());
+			}
+
+			struct tm * dateTime = new tm;
+			split_time(maTime(), dateTime);
+
+			d._mounth = dateTime->tm_mon + 1;
+			d._year = dateTime->tm_year + 1900;
+		}
+		else if(_isAllItems)
+		{
+			d._day = 1;
+			d._mounth = 1;
+			d._year = 1601;
+		}
+	}
+
+	/**
+	 * \brief This function stores the coin settings that were updated from the SettingsScreen UI;
+	 * 		  Called from the save button clicked event handle;
+	 * @param d Model::DateStruct& the destination DateStruct
+	 *
+	 * \note This function does not actually save the values to the settings manager and repositories,
+	 * 		 it only stores the data into the structure.
+	 */
+	void SettingsScreen::_saveCoinSettings()
+	{
+		MAUtil::String coinLabelText = "The current coin: ";
+		coinLabelText += _coin;
+		_coinLabel->setText(coinLabelText);
+	}
+
+	/**
+	 * \brief This function stores the debt settings that were updated from the SettingsScreen UI;
+	 * 		  Called from the save button clicked event handle;
+	 * @param d Model::DateStruct& the destination DateStruct
+	 *
+	 * \note This function does not actually save the values to the settings manager and repositories,
+	 * 		 it only stores the data into the structure.
+	 */
+	void SettingsScreen::_saveDebtSettings()
+	{
+		if(_newDebtValueEditBox->getText().length() > 0) _debtValue = MAUtil::stringToDouble(_newDebtValueEditBox->getText().c_str());
+
+		MAUtil::String* debtValueLabelText = new MAUtil::String("The current debt value: ");
+		debtValueLabelText->append(MAUtil::doubleToString(_debtValue, 2).c_str(), MAUtil::doubleToString(_debtValue, 2).length());
+		debtValueLabelText->append(" ", 1);
+		debtValueLabelText->append(_coin.c_str(), _coin.length());
+
+		_debtValueLabel->setText(*debtValueLabelText);
+
+		delete debtValueLabelText;
+
+		_newDebtValueEditBox->setText("");
+		_newDebtValueEditBox->setPlaceholder("New debt value");
+	}
+
+	/**
+	 * \brief This function is called in order to synchronize the date values according to those stored
+	 * 		  in the repository
+	 */
+	void SettingsScreen::_resetDateValue()
+	{
 		if(_isAllItems)
 		{
 			if(_isWP7) checkBoxStateChanged(_allItems, true);
@@ -279,7 +615,7 @@ namespace GUI
 				_fromDate->setState(false);
 			}
 		}
-		else if(_isMontly)
+		else if(_isMonthly)
 		{
 			if(_isWP7) checkBoxStateChanged(_monthly, true);
 			else
@@ -305,9 +641,14 @@ namespace GUI
 			_datePicker->setMonth(_observerReference->requestFromDate()._mounth);
 			_datePicker->setYear(_observerReference->requestFromDate()._year);
 		}
+	}
 
-		_dayValue = _observerReference->requestFromDate()._day;
-
+	/**
+	 * \brief This function is called in order to synchronize the debt values according to those stored
+	 * 		  in the repository
+	 */
+	void SettingsScreen::_resetDebtValue()
+	{
 		MAUtil::String* debtValueLabelText = new MAUtil::String("The current debt value: ");
 		debtValueLabelText->append(MAUtil::doubleToString(_debtValue, 2).c_str(), MAUtil::doubleToString(_debtValue, 2).length());
 		debtValueLabelText->append(" ", 1);
@@ -315,195 +656,5 @@ namespace GUI
 
 		_debtValueLabel->setText(*debtValueLabelText);
 		delete debtValueLabelText;
-	}
-
-	void SettingsScreen::setObserver(Logical::Observer* obj)
-	{
-		_observerReference = obj;
-
-		_updateValues();
-	}
-
-	void SettingsScreen::buttonClicked(NativeUI::Widget* b)
-	{
-		if(b == _coinChangeToggle)
-		{
-			if(clickCount % 2 == 0)
-			{
-				_coinSettingsLayout->addChild(_coinsList);
-				if(!_isWP7) _coinSettingsLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
-				_coinsList->addListViewListener(this);
-				clickCount++;
-				clickCount %= 2;
-			}
-			else
-			{
-				_coinSettingsLayout->removeChild(_coinsList);
-				_coinsList->removeListViewListener(this);
-				clickCount++;
-				clickCount %= 2;
-			}
-		}
-	}
-
-	void SettingsScreen::listViewItemClicked(NativeUI::ListView* l, int index)
-	{
-		if(l == _coinsList)
-		{
-			_coin = COINS[index];
-
-			MAUtil::String coinLabelText = "The current coin: ";
-			coinLabelText += _coin;
-			coinLabelText += " (not applied)";
-			_coinLabel->setText(coinLabelText);
-
-			_coinSettingsLayout->removeChild(_coinsList);
-			_coinsList->removeListViewListener(this);
-
-			clickCount++;
-			clickCount %= 2;
-		}
-	}
-
-	void SettingsScreen::checkBoxStateChanged(NativeUI::CheckBox* checkBox, bool state)
-	{
-		if(state == true)
-		{
-			//checkBox->setState(true);
-			if(checkBox == _monthly)
-			{
-				if(_transactionSettingsLayout->countChildWidgets() == 4)
-				{
-					if(_transactionSettingsLayout->getChild(3) == _datePicker)
-						_transactionSettingsLayout->removeChild(_datePicker);
-				}
-
-				if(_isWP7) _transactionSettingsLayout->addChild(_numberPicker);
-				else _transactionSettingsLayout->addChild(_numberPickerReplace);
-
-				if(_isAllItems) _allItems->setState(false);
-				else if(_isFromDate) _fromDate->setState(false);
-
-				_isMontly = true;
-				_isAllItems = false;
-				_isFromDate = false;
-			}
-			else if(checkBox == _allItems)
-			{
-				if(_transactionSettingsLayout->countChildWidgets() == 4)
-				{
-					_transactionSettingsLayout->removeChild(_transactionSettingsLayout->getChild(3));
-				}
-
-				if(_isFromDate) _fromDate->setState(false);
-				else if(_isMontly) _monthly->setState(false);
-
-				_isMontly = false;
-				_isAllItems = true;
-				_isFromDate = false;
-			}
-			else if(checkBox == _fromDate)
-			{
-				if(_transactionSettingsLayout->countChildWidgets() == 4)
-				{
-					if(_transactionSettingsLayout->getChild(3) == _numberPicker && _isWP7)
-						_transactionSettingsLayout->removeChild(_numberPicker);
-					else if(_transactionSettingsLayout->getChild(3) == _numberPickerReplace)
-						_transactionSettingsLayout->removeChild(_numberPickerReplace);
-				}
-
-				_transactionSettingsLayout->addChild(_datePicker);
-
-				if(_isAllItems) _allItems->setState(false);
-				else if(_isMontly) _monthly->setState(false);
-
-				_isMontly = false;
-				_isAllItems = false;
-				_isFromDate = true;
-			}
-		}
-		else
-		{
-			if(_isAllItems && checkBox == _allItems) checkBox->setState(true);
-			if(_isMontly && checkBox == _monthly) checkBox->setState(true);
-			if(_isFromDate && checkBox == _fromDate) checkBox->setState(true);
-		}
-	}
-
-	void SettingsScreen::numberPickerValueChanged(NativeUI::NumberPicker* picker, int value)
-	{
-		if(picker == _numberPicker)
-		{
-			_dayValue = value;
-		}
-	}
-
-	void SettingsScreen::datePickerValueChanged(NativeUI::DatePicker* picker, const NativeUI::Date& selected)
-	{
-	}
-
-	void SettingsScreen::createOptionsMenu()
-	{
-		_saveButtonIndex = addOptionsMenuItem("Save", MAW_OPTIONS_MENU_ICON_CONSTANT_SAVE, false);
-		_restoreButtonIndex = addOptionsMenuItem("Restore", MAW_OPTIONS_MENU_ICON_CONSTANT_CLOSE_CLEAR_CANCEL, false);
-	}
-
-	void SettingsScreen::optionsMenuItemSelected(NativeUI::Screen*, int index)
-	{
-		if(index == _saveButtonIndex)
-		{
-			Model::DateStruct d;
-			d._day = _datePicker->getDayOfMonth();
-			d._mounth = _datePicker->getMonth();
-			d._year = _datePicker->getYear();
-
-			if(_isMontly)
-			{
-				if(_isWP7)
-				{
-					d._day = _dayValue;
-				}
-				else
-				{
-					d._day = MAUtil::stringToInteger(_numberPickerReplace->getText().c_str());
-				}
-
-				struct tm * dateTime = new tm;
-				split_time(maTime(), dateTime);
-
-				d._mounth = dateTime->tm_mon + 1;
-				d._year = dateTime->tm_year + 1900;
-			}
-			else if(_isAllItems)
-			{
-				d._day = 1;
-				d._mounth = 1;
-				d._year = 1601;
-			}
-
-			MAUtil::String coinLabelText = "The current coin: ";
-			coinLabelText += _coin;
-			_coinLabel->setText(coinLabelText);
-
-			if(_newDebtValueEditBox->getText().length() > 0) _debtValue = MAUtil::stringToDouble(_newDebtValueEditBox->getText().c_str());
-
-			MAUtil::String* debtValueLabelText = new MAUtil::String("The current debt value: ");
-			debtValueLabelText->append(MAUtil::doubleToString(_debtValue, 2).c_str(), MAUtil::doubleToString(_debtValue, 2).length());
-			debtValueLabelText->append(" ", 1);
-			debtValueLabelText->append(_coin.c_str(), _coin.length());
-
-			_debtValueLabel->setText(*debtValueLabelText);
-
-			delete debtValueLabelText;
-
-			_newDebtValueEditBox->setText("");
-			_newDebtValueEditBox->setPlaceholder("New debt value");
-
-			_observerReference->requestSaveSettings(_isAllItems, _isMontly, _isFromDate, _debtValue, d, _coin);
-		}
-		else if(index == _restoreButtonIndex)
-		{
-			_updateValues(); //reset values with the saved ones observer
-		}
 	}
 }
