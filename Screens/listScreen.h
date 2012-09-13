@@ -142,30 +142,124 @@ namespace GUI
 		 * @param index int index for the button that was clicked
 		 */
 		void optionsMenuItemSelected(NativeUI::Screen* screen, int index);
-		void optionsMenuClosed(NativeUI::Screen* screen);
 
+		/**
+		 * \brief This function handles the menu closed event, inherited from the NativeUI::Screen class
+		 * @param screen NativeUI::Screen* pointer to the screen that triggered the menu closed event
+		 *
+		 * \note This function has an empty body because it's not used in the current implementation
+		 */
+		void optionsMenuClosed(NativeUI::Screen* screen) {}
+
+		/**
+		 * \brief This function is used for setting the AddExpenseDialog reference
+		 * @param expensesDialog AddExpenseDialog* the pointer to the application wide expense dialog
+		 */
 		void setAddExpensesDialogReference(AddExpenseDialog* expensesDialog);
+
+		/**
+		 * \brief This function is used for setting the AddIncomeDialog reference
+		 * @param expensesDialog AddIncomeDialog* the pointer to the application wide expense dialog
+		 */
 		void setAddIncomeDialogReference(AddIncomeDialog* incomesDialog);
 
+		/**
+		 * \brief This function is used for seting the _startFromDate member
+		 * @param dateFrom const Model::DateStruct& the date object
+		 */
 		void setDateFrom(const Model::DateStruct& dateFrom);
 
+		/**
+		 * \brief This function is used for synchronizing the _debtBudget value
+		 * 	 	  with the value stored into the repository
+		 */
 		void updateDebtValue();
 
+		/**
+		 * \brief This function is used for handling the custom event triggered by the alert box
+		 * @param event const MAEvent& the event type
+		 */
 		void customEvent(const MAEvent& event);
 	private:
-		void _createUI();
 		/**
-		 *
+		 * \brief This function calls the UI creation functions
+		 */
+		void _createUI();
+
+		/**
+		 * \brief This function is used for sorting the list
 		 * @param criteria a pointer to a function used for sorting elements
 		 * @param left
 		 * @param right
 		 * @param value the value returned by the criteria function when the first param is "<" then the second one
 		 */
 		void _sortList(int (*criteria)(const Model::ListItemModel&, const Model::ListItemModel&), int left, int right, int value);
+
+		/**
+		 * \brief This function is used for clearing and repopulating the list
+		 */
 		void _clearAndRepopulateList();
+
+		/**
+		 * \brief This function sets _isWP7 bool value
+		 */
 		void _setPlatform();
 
+		/**
+		 * \brief This function is called to create a list item
+		 * @param obj const Model::ListItemModel& the model object for the list view item
+		 * @param index int the index of the item
+		 * @return NativeUI::VerticalLayout* the layout containing the listViewItem
+		 */
 		NativeUI::VerticalLayout* _createListItem(const Model::ListItemModel& obj, int index);
+
+		/**
+		 * \brief This function is used for creating an expense type listViewItem
+		 * @param details NativeUI::Label* pointer to the details label
+		 * @param typeLabel NativeUI::Label* pointer to the type label
+		 * @param sumLabel NativeUI::Label* pointer to the sum label
+		 */
+		void _createExpenseListViewItem(NativeUI::Label* details, NativeUI::Label* typeLabel,
+								        NativeUI::Label* sumLabel, const Model::ListItemModel& obj);
+
+		/**
+		 * \brief This function is used for creating an income type listViewItem
+		 * @param details NativeUI::Label* pointer to the details label
+		 * @param typeLabel NativeUI::Label* pointer to the type label
+		 * @param sumLabel NativeUI::Label* pointer to the sum label
+		 */
+		void _createIncomeListViewItem(NativeUI::Label* details, NativeUI::Label* typeLabel,
+									   NativeUI::Label* sumLabel, const Model::ListItemModel& obj);
+
+		/**
+		 * \brief This function handles the add expense button click event
+		 */
+		void _handleAddExpenseButtonClicked();
+
+		/**
+		 * \brief This function handles the add income button click event
+		 */
+		void _handleAddIncomeButtonClicked();
+
+		/**
+		 * \brief This function handles the sort by date button click event
+		 */
+		void _handleSortByDateButtonClicked();
+
+		/**
+		 * \brief This function handles the sort by type button click event
+		 */
+		void _handleSortByTypeButtonClicked();
+
+		/**
+		 * \brief This function handles the sort by amount button click event
+		 */
+		void _handleSortByAmountButtonClicked();
+
+		/**
+		 * \brief This function handles the clear list button click event
+		 */
+		void _handleClearListButtonClicked();
 
 		/** @todo add separate function for init and show on dialogs in order to make the options menu item selected code **/
 		MAUtil::Vector<Model::ListItemModel>* _itemsVector;

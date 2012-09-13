@@ -347,114 +347,88 @@ namespace GUI
 		{
 			if(_addExpenseIndex == index) //add expense screen
 			{
-				if(NULL != _addExpensesDialog)
-				{
-					_addExpensesDialog->setObserver(_observerReference);
-
-					_budgetTotalValue =  _observerReference->requestTotalBudget();
-					_budgetConsumedValue = _observerReference->requestConsumedBudget();
-
-					_addExpensesDialog->setAvailableBudget(_budgetTotalValue - _budgetConsumedValue);
-					_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
-					_addExpensesDialog->setCoin(_coin);
-					_addExpensesDialog->setLaunchedFromHomeScreen(false);
-					_addExpensesDialog->updateAmountSliderValue();
-					_addExpensesDialog->show();
-				}
+				_handleAddExpenseButtonClicked();
 			}
 			else if(_addIncomeIndex == index)
 			{
-				if(NULL != _addIncomeDialog)
-				{
-					_addIncomeDialog->setCoin(_coin);
-					_addIncomeDialog->setObserver(_observerReference);
-					_addIncomeDialog->setLaunchedFromHomeScreen(false);
-					_addIncomeDialog->show();
-				}
+				_handleAddIncomeButtonClicked();
 			}
 			else if(_sortByCategoryIndex == index)
 			{
-				if(_countClicksCategory % 2 == 0)
-					sortListByType(true);
-				else
-					sortListByType(false);
-
-				_countClicksCategory = (_countClicksCategory + 1) % 2;
-				_countClicksAmount = 0;
-				_countClicksDates = 0;
+				_handleSortByTypeButtonClicked();
 			}
 			else if(_sortByDateIndex == index)
 			{
-				if(_countClicksDates % 2 == 0)
-					sortListByDate(true);
-				else
-					sortListByDate(false);
-
-				_countClicksDates = (_countClicksDates + 1) % 2;
-				_countClicksAmount = 0;
-				_countClicksCategory = 0;
+				_handleSortByDateButtonClicked();
 			}
 			else if(_sortByAmountIndex == index)
 			{
-				if(_countClicksAmount % 2 == 0)
-					sortListByAmount(true);
-				else
-					sortListByAmount(false);
-
-				_countClicksAmount = (_countClicksAmount + 1) % 2;
-				_countClicksCategory = 0;
-				_countClicksDates = 0;
+				_handleSortByAmountButtonClicked();
 			}
 			else if(_clearListIndex == index)
 			{
-				maAlert("Alert!", "Are you sure you want to clear the list? Note that this action has a permanent effect.", "OK", "Cancel", NULL);
-				isFromRemove = true;
+				_handleClearListButtonClicked();
 			}
 		}
 	}
 
-	void ListScreen::_setPlatform()
+	/**
+	 * \brief This function is used for setting the AddExpenseDialog reference
+	 * @param expensesDialog AddExpenseDialog* the pointer to the application wide expense dialog
+	 */
+	void ListScreen::setAddExpensesDialogReference(AddExpenseDialog* expensesDialog)
 	{
-		char buffer[Model::BUFF_SIZE];
-		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
+		_addExpensesDialog = expensesDialog;
+		_addExpensesDialog->setListScreenRef(this);
+	}
 
-		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+	/**
+	 * \brief This function is used for setting the AddIncomeDialog reference
+	 * @param expensesDialog AddIncomeDialog* the pointer to the application wide expense dialog
+	 */
+	void ListScreen::setAddIncomeDialogReference(AddIncomeDialog* incomesDialog)
+	{
+		_addIncomeDialog = incomesDialog;
+		_addIncomeDialog->setListScreenRef(this);
+	}
+
+	/**
+	 * \brief This function is used for seting the _startFromDate member
+	 * @param dateFrom const Model::DateStruct& the date object
+	 */
+	void ListScreen::setDateFrom(const Model::DateStruct& dateFrom)
+	{
+		*_startFromDate = dateFrom;
+	}
+
+	/**
+	 * \brief This function is used for synchronizing the _debtBudget value
+	 * 	 	  with the value stored into the repository
+	 */
+	void ListScreen::updateDebtValue()
+	{
+		_debtBudget = _observerReference->requestDebtValue();
+	}
+
+	/**
+	 * \brief This function is used for handling the custom event triggered by the alert box
+	 * @param event const MAEvent& the event type
+	 */
+	void ListScreen::customEvent(const MAEvent& event)
+	{
+		if(event.type == EVENT_TYPE_ALERT)
 		{
-			_isWP7 = false;
-		}
-		else
-		{
-			_isWP7 = true;
+			if(1 == event.alertButtonIndex && isFromRemove)
+			{
+				_observerReference->requestClearTransactionList();
+				isFromRemove = false;
+			}
 		}
 	}
 
-	void ListScreen::_clearAndRepopulateList()
-	{
-		_listView->removeListViewListener(this);
-
-		delete _listView;
-
-		_listView = new NativeUI::ListView();
-		_listView->fillSpaceHorizontally();
-		_listView->fillSpaceVertically();
-		_listView->addListViewListener(this);
-
-		_mainLayout->addChild(_listView);
-
-		for(int i = 0; i < _detailsVector->size(); i++)
-			delete (*_detailsVector)[i];
-
-		delete _detailsVector;
-		_detailsVector = new MAUtil::Vector<NativeUI::Label*>();
-
-		for(int i = 0; i < _itemsVector->size(); i++)
-		{
-			_listView->addChild(_createListItem((*_itemsVector)[i], i));
-		}
-	}
-
-
-
+	/**
+	 * \brief This function calls the UI creation functions
+	 */
 	void ListScreen::_createUI()
 	{
 		_mainLayout = new NativeUI::HorizontalLayout();
@@ -472,117 +446,13 @@ namespace GUI
 		//populateList();
 	}
 
-
-
-	NativeUI::VerticalLayout* ListScreen::_createListItem(const Model::ListItemModel& obj, int index)
-	{
-		NativeUI::VerticalLayout* itemParent = new NativeUI::VerticalLayout();
-		if(_isWP7) itemParent->setWidth(_itemWidth);
-		else itemParent->fillSpaceHorizontally();
-
-		NativeUI::HorizontalLayout* visiblePart = new NativeUI::HorizontalLayout();
-		NativeUI::Label* typeLabel = new NativeUI::Label();
-		NativeUI::Label* sumLabel = new NativeUI::Label();
-
-		NativeUI::Label* details = new NativeUI::Label();
-
-		typeLabel->setFontSize(_dialogFontSize);
-		sumLabel->setFontSize(_dialogFontSize);
-		typeLabel->fillSpaceHorizontally();
-		sumLabel->fillSpaceHorizontally();
-
-		if(!_isWP7) sumLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
-
-		if(obj.IsExpense())
-		{
-			typeLabel->setText(obj.getExpenseObject().getCategory());
-			typeLabel->setFontColor(RED);
-
-			char amountString[10];
-			sprintf(amountString, "%.2f", obj.getExpenseObject().getAmount());
-			MAUtil::String aux(amountString);
-			aux += " ";
-			aux += _coin;
-			sumLabel->setText(aux);
-			aux.clear();
-			aux += "Description:\n";
-			aux += obj.getExpenseObject().getDescription();
-			aux += "\nDate:\n";
-			aux += Model::DateStructToString(obj.getExpenseObject().getDate());
-			aux += "\nTime:\n";
-			aux += Model::TimeStructToString(obj.getExpenseObject().getTime());
-			details->setText(aux);
-			details->setMaxNumberOfLines(10);
-
-			if(_isWP7) details->setWidth(_itemWidth);
-			else details->fillSpaceHorizontally();
-
-			details->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
-		}
-		else
-		{
-			typeLabel->setText(obj.getIncomeObject().getType());
-			typeLabel->setFontColor(GREEN);
-
-			char amountString[10];
-			sprintf(amountString, "%.2f", obj.getIncomeObject().getAmount());
-
-			MAUtil::String aux(amountString);
-			aux += " ";
-			aux += _coin;
-
-			sumLabel->setText(aux);
-
-			aux.clear();
-			aux += "Description:\n";
-			aux += obj.getIncomeObject().getDescription();
-			aux += "\nTransaction info:\n";
-			aux += obj.getIncomeObject().getTransactionInformation();
-			aux += "\nDate:\n";
-			aux += Model::DateStructToString(obj.getIncomeObject().getDate());
-			aux += "\nTime:\n";
-			aux += Model::TimeStructToString(obj.getIncomeObject().getTime());
-
-			details->setText(aux);
-			details->setMaxNumberOfLines(10);
-
-			if(_isWP7) details->setWidth(_itemWidth);
-			else details->fillSpaceHorizontally();
-
-			details->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
-		}
-
-		visiblePart->addChild(typeLabel);
-		visiblePart->addChild(sumLabel);
-
-		itemParent->addChild(visiblePart);
-
-		_detailsVector->add(details);
-
-		return itemParent;
-	}
-
-	void ListScreen::optionsMenuClosed(NativeUI::Screen* screen)
-	{
-		//Dance for me baby
-	}
-
-	void ListScreen::setAddExpensesDialogReference(AddExpenseDialog* expensesDialog)
-	{
-		_addExpensesDialog = expensesDialog;
-		_addExpensesDialog->setListScreenRef(this);
-	}
-	void ListScreen::setAddIncomeDialogReference(AddIncomeDialog* incomesDialog)
-	{
-		_addIncomeDialog = incomesDialog;
-		_addIncomeDialog->setListScreenRef(this);
-	}
-
-	void ListScreen::setDateFrom(const Model::DateStruct& dateFrom)
-	{
-		*_startFromDate = dateFrom;
-	}
-
+	/**
+	 * \brief This function is used for sorting the list
+	 * @param criteria a pointer to a function used for sorting elements
+	 * @param left
+	 * @param right
+	 * @param value the value returned by the criteria function when the first param is "<" then the second one
+	 */
 	void ListScreen::_sortList(int (*criteria)(const Model::ListItemModel&, const Model::ListItemModel&), int left, int right, int value)
 	{
 		for(int k = 0; k < _itemsVector->size(); k++)
@@ -630,21 +500,262 @@ namespace GUI
 			_sortList(criteria, i, right, value);
 	}
 
-	void ListScreen::updateDebtValue()
+	/**
+	 * \brief This function is used for clearing and repopulating the list
+	 */
+	void ListScreen::_clearAndRepopulateList()
 	{
-		_debtBudget = _observerReference->requestDebtValue();
+		_listView->removeListViewListener(this);
+
+		delete _listView;
+
+		_listView = new NativeUI::ListView();
+		_listView->fillSpaceHorizontally();
+		_listView->fillSpaceVertically();
+		_listView->addListViewListener(this);
+
+		_mainLayout->addChild(_listView);
+
+		for(int i = 0; i < _detailsVector->size(); i++)
+			delete (*_detailsVector)[i];
+
+		delete _detailsVector;
+		_detailsVector = new MAUtil::Vector<NativeUI::Label*>();
+
+		for(int i = 0; i < _itemsVector->size(); i++)
+		{
+			_listView->addChild(_createListItem((*_itemsVector)[i], i));
+		}
 	}
 
-	void ListScreen::customEvent(const MAEvent& event)
+	/**
+	 * \brief This function sets _isWP7 bool value
+	 */
+	void ListScreen::_setPlatform()
 	{
-		if(event.type == EVENT_TYPE_ALERT)
+		char buffer[Model::BUFF_SIZE];
+		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
+
+		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
 		{
-			if(1 == event.alertButtonIndex && isFromRemove)
-			{
-				_observerReference->requestClearTransactionList();
-				isFromRemove = false;
-			}
+			_isWP7 = false;
 		}
+		else
+		{
+			_isWP7 = true;
+		}
+	}
+
+	/**
+	 * \brief This function is called to create a list item
+	 * @param obj const Model::ListItemModel& the model object for the list view item
+	 * @param index int the index of the item
+	 * @return NativeUI::VerticalLayout* the layout containing the listViewItem
+	 */
+	NativeUI::VerticalLayout* ListScreen::_createListItem(const Model::ListItemModel& obj, int index)
+	{
+		NativeUI::VerticalLayout* itemParent = new NativeUI::VerticalLayout();
+		if(_isWP7) itemParent->setWidth(_itemWidth);
+		else itemParent->fillSpaceHorizontally();
+
+		NativeUI::HorizontalLayout* visiblePart = new NativeUI::HorizontalLayout();
+		NativeUI::Label* typeLabel = new NativeUI::Label();
+		NativeUI::Label* sumLabel = new NativeUI::Label();
+
+		NativeUI::Label* details = new NativeUI::Label();
+
+		typeLabel->setFontSize(_dialogFontSize);
+		sumLabel->setFontSize(_dialogFontSize);
+		typeLabel->fillSpaceHorizontally();
+		sumLabel->fillSpaceHorizontally();
+
+		if(!_isWP7) sumLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
+
+		if(obj.IsExpense())
+		{
+			_createExpenseListViewItem(details, typeLabel, sumLabel, obj);
+		}
+		else
+		{
+			_createIncomeListViewItem(details, typeLabel, sumLabel, obj);
+		}
+
+		visiblePart->addChild(typeLabel);
+		visiblePart->addChild(sumLabel);
+
+		itemParent->addChild(visiblePart);
+
+		_detailsVector->add(details);
+
+		return itemParent;
+	}
+
+	/**
+	 * \brief This function is used for creating an income type listViewItem
+	 * @param details NativeUI::Label* pointer to the details label
+	 * @param typeLabel NativeUI::Label* pointer to the type label
+	 * @param sumLabel NativeUI::Label* pointer to the sum label
+	 */
+	void ListScreen::_createIncomeListViewItem(NativeUI::Label* details,
+											   NativeUI::Label* typeLabel,
+											   NativeUI::Label* sumLabel,
+											   const Model::ListItemModel& obj)
+	{
+		typeLabel->setText(obj.getIncomeObject().getType());
+		typeLabel->setFontColor(GREEN);
+
+		char amountString[10];
+		sprintf(amountString, "%.2f", obj.getIncomeObject().getAmount());
+
+		MAUtil::String aux(amountString);
+		aux += " ";
+		aux += _coin;
+
+		sumLabel->setText(aux);
+
+		aux.clear();
+		aux += "Description:\n";
+		aux += obj.getIncomeObject().getDescription();
+		aux += "\nTransaction info:\n";
+		aux += obj.getIncomeObject().getTransactionInformation();
+		aux += "\nDate:\n";
+		aux += Model::DateStructToString(obj.getIncomeObject().getDate());
+		aux += "\nTime:\n";
+		aux += Model::TimeStructToString(obj.getIncomeObject().getTime());
+
+		details->setText(aux);
+		details->setMaxNumberOfLines(10);
+
+		if(_isWP7) details->setWidth(_itemWidth);
+		else details->fillSpaceHorizontally();
+
+		details->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
+	}
+
+	/**
+	 * \brief This function is used for creating an expense type listViewItem
+	 * @param details NativeUI::Label* pointer to the details label
+	 * @param typeLabel NativeUI::Label* pointer to the type label
+	 * @param sumLabel NativeUI::Label* pointer to the sum label
+	 */
+	void ListScreen::_createExpenseListViewItem(NativeUI::Label* details,
+											   NativeUI::Label* typeLabel,
+											   NativeUI::Label* sumLabel,
+											   const Model::ListItemModel& obj)
+	{
+		typeLabel->setText(obj.getExpenseObject().getCategory());
+		typeLabel->setFontColor(RED);
+
+		char amountString[10];
+		sprintf(amountString, "%.2f", obj.getExpenseObject().getAmount());
+		MAUtil::String aux(amountString);
+		aux += " ";
+		aux += _coin;
+		sumLabel->setText(aux);
+		aux.clear();
+		aux += "Description:\n";
+		aux += obj.getExpenseObject().getDescription();
+		aux += "\nDate:\n";
+		aux += Model::DateStructToString(obj.getExpenseObject().getDate());
+		aux += "\nTime:\n";
+		aux += Model::TimeStructToString(obj.getExpenseObject().getTime());
+		details->setText(aux);
+		details->setMaxNumberOfLines(10);
+
+		if(_isWP7) details->setWidth(_itemWidth);
+		else details->fillSpaceHorizontally();
+
+		details->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
+	}
+
+	/**
+	 * \brief This function handles the add expense button click event
+	 */
+	void ListScreen::_handleAddExpenseButtonClicked()
+	{
+
+		if(NULL != _addExpensesDialog)
+		{
+			_addExpensesDialog->setObserver(_observerReference);
+
+			_budgetTotalValue =  _observerReference->requestTotalBudget();
+			_budgetConsumedValue = _observerReference->requestConsumedBudget();
+
+			_addExpensesDialog->setAvailableBudget(_budgetTotalValue - _budgetConsumedValue);
+			_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
+			_addExpensesDialog->setCoin(_coin);
+			_addExpensesDialog->setLaunchedFromHomeScreen(false);
+			_addExpensesDialog->updateAmountSliderValue();
+			_addExpensesDialog->show();
+		}
+	}
+
+	/**
+	 * \brief This function handles the add income button click event
+	 */
+	void ListScreen::_handleAddIncomeButtonClicked()
+	{
+		if(NULL != _addIncomeDialog)
+		{
+			_addIncomeDialog->setCoin(_coin);
+			_addIncomeDialog->setObserver(_observerReference);
+			_addIncomeDialog->setLaunchedFromHomeScreen(false);
+			_addIncomeDialog->show();
+		}
+	}
+
+	/**
+	 * \brief This function handles the sort by date button click event
+	 */
+	void ListScreen::_handleSortByDateButtonClicked()
+	{
+		if(_countClicksDates % 2 == 0)
+			sortListByDate(true);
+		else
+			sortListByDate(false);
+
+		_countClicksDates = (_countClicksDates + 1) % 2;
+		_countClicksAmount = 0;
+		_countClicksCategory = 0;
+	}
+
+	/**
+	 * \brief This function handles the sort by type button click event
+	 */
+	void ListScreen::_handleSortByTypeButtonClicked()
+	{
+		if(_countClicksCategory % 2 == 0)
+			sortListByType(true);
+		else
+			sortListByType(false);
+
+		_countClicksCategory = (_countClicksCategory + 1) % 2;
+		_countClicksAmount = 0;
+		_countClicksDates = 0;
+	}
+
+	/**
+	 * \brief This function handles the sort by amount button click event
+	 */
+	void ListScreen::_handleSortByAmountButtonClicked()
+	{
+		if(_countClicksAmount % 2 == 0)
+			sortListByAmount(true);
+		else
+			sortListByAmount(false);
+
+		_countClicksAmount = (_countClicksAmount + 1) % 2;
+		_countClicksCategory = 0;
+		_countClicksDates = 0;
+	}
+
+	/**
+	 * \brief This function handles the clear list button click event
+	 */
+	void ListScreen::_handleClearListButtonClicked()
+	{
+		maAlert("Alert!", "Are you sure you want to clear the list? Note that this action has a permanent effect.", "OK", "Cancel", NULL);
+		isFromRemove = true;
 	}
 }
 
