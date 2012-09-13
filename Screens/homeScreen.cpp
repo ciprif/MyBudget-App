@@ -22,6 +22,9 @@
 
 namespace GUI
 {
+	/**
+	 * \brief Constructor
+	 */
 	HomeScreen::HomeScreen()
 	{
 		_budgetConsumedValue = 0;
@@ -47,27 +50,256 @@ namespace GUI
 		_createUI(screenHeight, screenWidth);
 	}
 
+	/**
+	 * \brief Destructor
+	 */
 	HomeScreen::~HomeScreen()
 	{
 		delete _valueMap;
 		delete _categoryGraphicsMap;
 	}
 
-	void HomeScreen::_setPlatform()
+	/**
+	 * This method is called when an options menu item is selected.
+	 * @param index The index on which the item is placed into the
+	 * OptionsMenu.
+	 * @param screen The screen that generated the event.
+	 */
+	void HomeScreen::optionsMenuItemSelected(NativeUI::Screen* screen, int index)
 	{
-		char buffer[Model::BUFF_SIZE];
-		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
+		if(screen == this)
+		{
+			if(_addExpenseIndex == index) //add expense screen
+			{
+				if(NULL != _addExpensesDialog)
+				{
+					_addExpensesDialog->setObserver(_observerReference);
 
-		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
-		{
-			_isWP7 = false;
-		}
-		else
-		{
-			_isWP7 = true;
+					_budgetTotalValue =  _observerReference->requestTotalBudget();
+					_budgetConsumedValue = _observerReference->requestConsumedBudget();
+
+					_addExpensesDialog->setAvailableBudget(_budgetTotalValue - _budgetConsumedValue);
+					/** @todo get this value from settings */
+					_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
+					_addExpensesDialog->setCoin(_coin);
+					_addExpensesDialog->updateAmountSliderValue();
+					_addExpensesDialog->setLaunchedFromHomeScreen(true);
+					_addExpensesDialog->show();
+				}
+			}
+			else if(_addIncomeIndex == index) //settings screen
+			{
+				if(NULL != _addIncomeDialog)
+				{
+					_addIncomeDialog->setCoin(_coin);
+					_addIncomeDialog->setObserver(_observerReference);
+					_addIncomeDialog->setLaunchedFromHomeScreen(true);
+					_addIncomeDialog->show();
+				}
+			}
 		}
 	}
 
+	/**
+	 * \brief This function creates the options menu
+	 */
+	void HomeScreen::createOptionsMenu()
+	{
+		if(_isWP7)
+		{
+			_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
+			_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
+		}
+		else
+		{
+			_addExpenseIndex = addOptionsMenuItem("Add expense");
+			_addIncomeIndex = addOptionsMenuItem("Add income");
+		}
+
+	}
+
+	/**
+	 * \brief This function sets the observer for this screen
+	 * @param observer the observer for this screen
+	 */
+	void HomeScreen::setObserver(Logical::Observer* observer)
+	{
+		_observerReference = observer;
+		updateValues();
+	}
+
+	/**
+	 * \brief This function updates the values for the graphics
+	 * @param value the value
+	 * @param isExpense true if the transaction is an expense -> the value will be withdrawn
+	 * @param category != "" if the transaction is an expense, will keep the category
+	 */
+	void HomeScreen::updateBudgetValues(const double& value, bool isExpense, const MAUtil::String& category)
+	{
+		if(isExpense)
+		{
+			(*_valueMap)[category] += value;
+			_budgetConsumedValue += value;
+			for(int i = 0; i < Model::NO_OF_CATEGORIES; i++)
+				_updateConsumeBar((*_categoryGraphicsMap)[Model::CATEGORY_LIST[i]], (*_valueMap)[Model::CATEGORY_LIST[i]]);
+			updateSimpleGraphic();
+		}
+		else
+		{
+			_budgetTotalValue += value;
+			updateSimpleGraphic();
+		}
+	}
+
+	/**
+	 * \brief This function updates the total budget value
+	 * @param const double& the new value
+	 */
+	void HomeScreen::updateTotalBudget(const double& value)
+	{
+		_budgetTotalValue = value;
+	}
+
+	/**
+	 * \brief This function updates the consumed budget value
+	 * @param const double& the new value
+	 */
+	void HomeScreen::updateConsumedBudget(const double& value)
+	{
+		_budgetConsumedValue = value;
+	}
+
+	/**
+	 * \brief This function updates the debt budget value
+	 * @param const double& the new value
+	 */
+	void HomeScreen::updateDebtBudget(const double& value)
+	{
+		_debtBudget = value;
+	}
+
+	/**
+	 * \brief This function is used fot updating the UI of the simple graphic
+	 */
+	void HomeScreen::updateSimpleGraphic()
+	{
+		if((_budgetTotalValue - _budgetConsumedValue) >= 0)
+		{
+			double valueWidth;
+
+			if(0 < _budgetTotalValue) valueWidth = (_budgetConsumedValue / _budgetTotalValue) * _parentLayoutWidth;
+
+			if((int)(_budgetTotalValue - _budgetConsumedValue) == 0)
+			{
+				_budgetSimpleGraphicConsumedBudgetLayout->setWidth(1);
+			}
+			else
+			{
+				if(0 == valueWidth) valueWidth = 1;
+				_budgetSimpleGraphicConsumedBudgetLayout->setWidth((int)valueWidth);
+			}
+
+			char budgetString[BUFFER_SIZE];
+			sprintf(budgetString, "Consumed %.2f / %.2f %s", _budgetConsumedValue, _budgetTotalValue, _coin.c_str());
+
+			_budgetLabel->setText(budgetString);
+			_budgetSimpleGraphicConsumedBudgetLayout->setBackgroundColor(YELLOW);
+			_budgetSimpleGraphicTotalBudgetLayout->setBackgroundColor(GREEN);
+		}
+		else
+		{
+			double valueWidth = ((_budgetConsumedValue / _budgetTotalValue) * _parentLayoutWidth) - _parentLayoutWidth;
+			_budgetSimpleGraphicConsumedBudgetLayout->setWidth((int)valueWidth);
+			_budgetSimpleGraphicConsumedBudgetLayout->setBackgroundColor(RED);
+			_budgetSimpleGraphicTotalBudgetLayout->setBackgroundColor(YELLOW);
+
+			char budgetString[BUFFER_SIZE];
+			sprintf(budgetString, "Consumed %.2f / %.2f %s", _budgetConsumedValue, _budgetTotalValue, _coin.c_str());
+
+			_budgetLabel->setText(budgetString);
+		}
+	}
+
+	/**
+	 * \brief This function is used for setting the addExpenses dialog reference
+	 * @param obj NativeUI::Dialog* the pointer to the application wide addExpenses dialog
+	 */
+	void HomeScreen::setAddExpensesDialogReference(NativeUI::Dialog* obj)
+	{
+		_addExpensesDialog = (AddExpenseDialog*)obj;
+		_addExpensesDialog->setHomeScreenRef(this);
+	}
+
+	/**
+	 * \brief This function is used for setting the addIncomes dialog reference
+	 * @param obj NativeUI::Dialog* the pointer to the application wide addIncomes dialog
+	 */
+	void HomeScreen::setAddIncomesDialogReference(NativeUI::Dialog* obj)
+	{
+		_addIncomeDialog = (AddIncomeDialog*)obj;
+		_addIncomeDialog->setHomeScreenRef(this);
+	}
+
+	/**
+	 * \brief This function notifies the homeScreen that the addExpensesDialog was successfully loaded
+	 * 		  and it stops the activity indicator
+	 */
+	void HomeScreen::addExpensesDialogLoaded()
+	{
+		_expensesDialogLoaded = true;
+		if(_incomesDialogLoaded)
+			_removeActivityIndicator();
+	}
+
+	/**
+	 * \brief This function notifies the homeScreen that the addIncomesDialog was successfully loaded
+	 * 		  and it stopes the activity indicator
+	 */
+	void HomeScreen::addIncomesDialogLoaded()
+	{
+		_incomesDialogLoaded = true;
+		if(_expensesDialogLoaded)
+			_removeActivityIndicator();
+	}
+
+	/**
+	 * \brief This function is used to set the new _coin value; it also updates the UI
+	 * @param const MAUtil::String& the new coin value
+	 */
+	void HomeScreen::setCoin(const MAUtil::String& coin)
+	{
+		_coin = coin;
+
+		char budgetString[BUFFER_SIZE];
+		sprintf(budgetString, "Consumed %.2f / %.2f %s", _budgetConsumedValue, _budgetTotalValue, _coin.c_str());
+
+		_budgetLabel->setText(budgetString);
+	}
+
+	/**
+	 * \brief This function is used for synchronizing the budget values
+	 */
+	void HomeScreen::updateValues()
+	{
+		_budgetTotalValue =  _observerReference->requestTotalBudget();
+		_budgetConsumedValue = _observerReference->requestConsumedBudget();
+		_debtBudget = _observerReference->requestDebtValue();
+
+		_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
+
+		for(int i = 0; i < Model::NO_OF_CATEGORIES; i++)
+		{
+			(*_valueMap)[Model::CATEGORY_LIST[i]] = _observerReference->requestCategoryAmount(Model::CATEGORY_LIST[i]);
+		}
+		updateBudgetValues(0, true, Model::CATEGORY_LIST[0]);
+	}
+
+	/**
+	 * \brief creates the main layout and sets some enviroment variables. This is the point where
+	 * 		  all the UI is initialized;
+	 * @param screenHeight the screen height.
+	 * @param screenWidth the screen width.
+	 */
 	void HomeScreen::_createUI(const int& screenHeight, const int& screenWidth)
 	{
 		//create the activity indicator
@@ -126,6 +358,10 @@ namespace GUI
 		createOptionsMenu();
 	}
 
+	/**
+	 * \brief This function creates the budget information label and the related parent controls.
+	 * @param height the height of the screen.
+	 */
 	void HomeScreen::_createBudgetLabel(int heigth)
 	{
 		_budgetLabel = new NativeUI::Label();
@@ -141,6 +377,11 @@ namespace GUI
 		_budgetLabel->setTextVerticalAlignment(MAW_ALIGNMENT_TOP);
 	}
 
+	/**
+	 * \brief This function creates the simple graphic bar the illustrates the amount consumed.
+	 * @param width the screen width
+	 * @param height the screen height
+	 */
 	void HomeScreen::_createSimpleExpensesGraphic(const int& width, const int& height)
 	{
 		_budgetSimpleGraphicParentLayout = new NativeUI::VerticalLayout();
@@ -171,6 +412,11 @@ namespace GUI
 		_mainLayout->addChild(_budgetSimpleGraphicParentLayout);
 	}
 
+	/**
+	 * \brief This function creates the detailed graphic, bar for each category of expense
+	 * @param width the width of the screen
+	 * @param height the height of the screen
+	 */
 	void HomeScreen::_createDetailedGraphic(const int& width, const int& height)
 	{
 		NativeUI::HorizontalLayout* customSpacer = new NativeUI::HorizontalLayout();
@@ -185,6 +431,15 @@ namespace GUI
 		}
 	}
 
+	/**
+	 * \brief This function creates a category graphic
+	 * @param category the category as a string
+	 * @param total the total budget
+	 * @param consumed the budget consumed of this category of expenses
+	 * @param width the width of the screen
+	 * @param height the height of the screen
+	 * @return NativeUI::VerticalLayout* the vertical layout containing the desired information
+	 */
 	NativeUI::VerticalLayout* HomeScreen::_createCategoryGraphic(const MAUtil::String& category, const double& total, const double& consumed, const int& width, const int& height, const int& index)
 	{
 		NativeUI::VerticalLayout* categoryGraphicParentLayout = new NativeUI::VerticalLayout();
@@ -220,90 +475,11 @@ namespace GUI
 		return categoryGraphicParentLayout;
 	}
 
-	void HomeScreen::createOptionsMenu()
-	{
-		if(_isWP7)
-		{
-			_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
-			_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
-		}
-		else
-		{
-			_addExpenseIndex = addOptionsMenuItem("Add expense");
-			_addIncomeIndex = addOptionsMenuItem("Add income");
-		}
-
-	}
-
-	void HomeScreen::_removeActivityIndicator()
-	{
-		_activityIndicator->hide();
-		if(!_isWP7) maWidgetDestroy(_activityIndicatorLayout->getWidgetHandle());
-	}
-
-	void HomeScreen::optionsMenuItemSelected(NativeUI::Screen* screen, int index)
-	{
-		if(screen == this)
-		{
-			if(_addExpenseIndex == index) //add expense screen
-			{
-				if(NULL != _addExpensesDialog)
-				{
-					_addExpensesDialog->setObserver(_observerReference);
-
-					_budgetTotalValue =  _observerReference->requestTotalBudget();
-					_budgetConsumedValue = _observerReference->requestConsumedBudget();
-
-					_addExpensesDialog->setAvailableBudget(_budgetTotalValue - _budgetConsumedValue);
-					/** @todo get this value from settings */
-					_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
-					_addExpensesDialog->setCoin(_coin);
-					_addExpensesDialog->updateAmountSliderValue();
-					_addExpensesDialog->setLaunchedFromHomeScreen(true);
-					_addExpensesDialog->show();
-				}
-			}
-			else if(_addIncomeIndex == index) //settings screen
-			{
-				if(NULL != _addIncomeDialog)
-				{
-					_addIncomeDialog->setCoin(_coin);
-					_addIncomeDialog->setObserver(_observerReference);
-					_addIncomeDialog->setLaunchedFromHomeScreen(true);
-					_addIncomeDialog->show();
-				}
-			}
-		}
-	}
-
-	void HomeScreen::optionsMenuClosed(NativeUI::Screen* screen)
-	{
-		//Dance for me baby
-	}
-
-	void HomeScreen::setObserver(Logical::Observer* observer)
-	{
-		_observerReference = observer;
-		updateValues();
-	}
-
-	void HomeScreen::updateBudgetValues(const double& value, bool isExpense, const MAUtil::String& category)
-	{
-		if(isExpense)
-		{
-			(*_valueMap)[category] += value;
-			_budgetConsumedValue += value;
-			for(int i = 0; i < Model::NO_OF_CATEGORIES; i++)
-				_updateConsumeBar((*_categoryGraphicsMap)[Model::CATEGORY_LIST[i]], (*_valueMap)[Model::CATEGORY_LIST[i]]);
-			updateSimpleGraphic();
-		}
-		else
-		{
-			_budgetTotalValue += value;
-			updateSimpleGraphic();
-		}
-	}
-
+	/**
+	 * \brief This function updates the UI for the consume bar of a certain category
+	 * @param consumeBar NativeUI::HorizontalLayout* pointer to the consumeBar
+	 * @param value const double& the new value
+	 */
 	void HomeScreen::_updateConsumeBar(NativeUI::HorizontalLayout* consumeBar, const double& value)
 	{
 		if(0 == value)
@@ -332,107 +508,30 @@ namespace GUI
 		}
 	}
 
-	void HomeScreen::updateSimpleGraphic()
+	/**
+	 * \brief This function hides the ativity indicator for WP7 and destroys it for the other platforms
+	 */
+	void HomeScreen::_removeActivityIndicator()
 	{
-		if((_budgetTotalValue - _budgetConsumedValue) >= 0)
+		_activityIndicator->hide();
+		if(!_isWP7) maWidgetDestroy(_activityIndicatorLayout->getWidgetHandle());
+	}
+
+	/**
+	 * This function sets _isWP7 bool value
+	 */
+	void HomeScreen::_setPlatform()
+	{
+		char buffer[Model::BUFF_SIZE];
+		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
+
+		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
 		{
-			double valueWidth;
-
-			if(0 < _budgetTotalValue) valueWidth = (_budgetConsumedValue / _budgetTotalValue) * _parentLayoutWidth;
-
-			if((int)(_budgetTotalValue - _budgetConsumedValue) == 0)
-			{
-				_budgetSimpleGraphicConsumedBudgetLayout->setWidth(1);
-			}
-			else
-			{
-				if(0 == valueWidth) valueWidth = 1;
-				_budgetSimpleGraphicConsumedBudgetLayout->setWidth((int)valueWidth);
-			}
-
-			char budgetString[BUFFER_SIZE];
-			sprintf(budgetString, "Consumed %.2f / %.2f %s", _budgetConsumedValue, _budgetTotalValue, _coin.c_str());
-
-			_budgetLabel->setText(budgetString);
-			_budgetSimpleGraphicConsumedBudgetLayout->setBackgroundColor(YELLOW);
-			_budgetSimpleGraphicTotalBudgetLayout->setBackgroundColor(GREEN);
+			_isWP7 = false;
 		}
 		else
 		{
-			double valueWidth = ((_budgetConsumedValue / _budgetTotalValue) * _parentLayoutWidth) - _parentLayoutWidth;
-			_budgetSimpleGraphicConsumedBudgetLayout->setWidth((int)valueWidth);
-			_budgetSimpleGraphicConsumedBudgetLayout->setBackgroundColor(RED);
-			_budgetSimpleGraphicTotalBudgetLayout->setBackgroundColor(YELLOW);
-
-			char budgetString[BUFFER_SIZE];
-			sprintf(budgetString, "Consumed %.2f / %.2f %s", _budgetConsumedValue, _budgetTotalValue, _coin.c_str());
-
-			_budgetLabel->setText(budgetString);
+			_isWP7 = true;
 		}
-	}
-
-	void HomeScreen::updateTotalBudget(const double& value)
-	{
-		_budgetTotalValue = value;
-	}
-
-	void HomeScreen::updateConsumedBudget(const double& value)
-	{
-		_budgetConsumedValue = value;
-	}
-
-	void HomeScreen::updateDebtBudget(const double& value)
-	{
-		_debtBudget = value;
-	}
-
-	void HomeScreen::updateValues()
-	{
-		_budgetTotalValue =  _observerReference->requestTotalBudget();
-		_budgetConsumedValue = _observerReference->requestConsumedBudget();
-		_debtBudget = _observerReference->requestDebtValue();
-
-		_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
-
-		for(int i = 0; i < Model::NO_OF_CATEGORIES; i++)
-		{
-			(*_valueMap)[Model::CATEGORY_LIST[i]] = _observerReference->requestCategoryAmount(Model::CATEGORY_LIST[i]);
-		}
-		updateBudgetValues(0, true, Model::CATEGORY_LIST[0]);
-	}
-
-	void HomeScreen::setAddExpensesDialogReference(NativeUI::Dialog* obj)
-	{
-		_addExpensesDialog = (AddExpenseDialog*)obj;
-		_addExpensesDialog->setHomeScreenRef(this);
-	}
-
-	void HomeScreen::setAddIncomesDialogReference(NativeUI::Dialog* obj)
-	{
-		_addIncomeDialog = (AddIncomeDialog*)obj;
-		_addIncomeDialog->setHomeScreenRef(this);
-	}
-
-	void HomeScreen::addExpensesDialogLoaded()
-	{
-		_expensesDialogLoaded = true;
-		if(_incomesDialogLoaded)
-			_removeActivityIndicator();
-	}
-	void HomeScreen::addIncomesDialogLoaded()
-	{
-		_incomesDialogLoaded = true;
-		if(_expensesDialogLoaded)
-			_removeActivityIndicator();
-	}
-
-	void HomeScreen::setCoin(const MAUtil::String& coin)
-	{
-		_coin = coin;
-
-		char budgetString[BUFFER_SIZE];
-		sprintf(budgetString, "Consumed %.2f / %.2f %s", _budgetConsumedValue, _budgetTotalValue, _coin.c_str());
-
-		_budgetLabel->setText(budgetString);
 	}
 }

@@ -261,41 +261,45 @@ namespace GUI
 		 */
 		void _handleClearListButtonClicked();
 
-		/** @todo add separate function for init and show on dialogs in order to make the options menu item selected code **/
-		MAUtil::Vector<Model::ListItemModel>* _itemsVector;
-		MAUtil::Vector<NativeUI::Label*>* _detailsVector;
-		NativeUI::HorizontalLayout* _mainLayout;
-		NativeUI::ListView* _listView;
+		// Member data
+		double _budgetTotalValue;
+		double _budgetConsumedValue;
+		double _debtBudget;
 
-		MAUtil::String _coin;
-
-		Logical::Observer* _observerReference;
 		int _itemWidth;
-
 		int _addIncomeIndex;
 		int _addExpenseIndex;
 		int _clearListIndex;
 		int _sortByDateIndex;
 		int _sortByCategoryIndex;
 		int _sortByAmountIndex;
-
-		AddExpenseDialog* _addExpensesDialog;
-		AddIncomeDialog* _addIncomeDialog;
-
-		double _budgetTotalValue;
-		double _budgetConsumedValue;
-		double _debtBudget;
-
-		Model::DateStruct* _startFromDate;
-
 		int _countClicksDates;
 		int _countClicksAmount;
 		int _countClicksCategory;
 
 		bool _isWP7;
 
-		//int (*criteria)(const Model::ListItemModel&, const Model::ListItemModel&);
-		MAUtil::Vector<int> _characteristicArrayForSorting;
+		MAUtil::String _coin;
+
+		// DateStruct object used as date reference
+		Model::DateStruct* _startFromDate;
+
+		// Vector of ListItemModel items; the data of the list
+		MAUtil::Vector<Model::ListItemModel>* _itemsVector;
+
+		// Vector of the detailed parts of list view items; revealed on click
+		MAUtil::Vector<NativeUI::Label*>* _detailsVector;
+
+		//Observer reference
+		Logical::Observer* _observerReference;
+
+		// UI related variables
+		NativeUI::HorizontalLayout* _mainLayout;
+		NativeUI::ListView* _listView;
+
+		// Dialogs references
+		AddExpenseDialog* _addExpensesDialog;
+		AddIncomeDialog* _addIncomeDialog;
 	};
 }
 

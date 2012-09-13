@@ -431,6 +431,8 @@ namespace GUI
 	 */
 	void ListScreen::_createUI()
 	{
+		SetSizeRelatedVariables();
+
 		_mainLayout = new NativeUI::HorizontalLayout();
 		_listView = new NativeUI::ListView();
 		_listView->fillSpaceHorizontally();

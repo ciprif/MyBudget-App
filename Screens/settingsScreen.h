@@ -240,10 +240,10 @@ namespace GUI
 		 */
 		void _resetDebtValue();
 
-		//Observer reference
+		// Observer reference
 		Logical::Observer* _observerReference;
 
-		//UI related variables
+		// UI related variables
 		NativeUI::Label* _debtValueLabel;
 		NativeUI::Label* _coinLabel;
 		NativeUI::Button* _coinChangeToggle;
