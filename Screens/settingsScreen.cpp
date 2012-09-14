@@ -226,7 +226,7 @@ namespace GUI
 	{
 		_coin = _observerReference->requestCoin();
 		_isAllItems = _observerReference->requestIsShowAll();
-		_isMonthly = _observerReference->requestIsMonthly();
+		_isMonthly = _observerReference->requestIsShowMonthly();
 		_isFromDate = _observerReference->requestIsShowFromDate();
 		_debtValue = _observerReference->requestDebtValue();
 
