@@ -79,7 +79,6 @@ namespace GUI
 					_budgetConsumedValue = _observerReference->requestConsumedBudget();
 
 					_addExpensesDialog->setAvailableBudget(_budgetTotalValue - _budgetConsumedValue);
-					/** @todo get this value from settings */
 					_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
 					_addExpensesDialog->setCoin(_coin);
 					_addExpensesDialog->updateAmountSliderValue();
@@ -105,7 +104,7 @@ namespace GUI
 	 */
 	void HomeScreen::createOptionsMenu()
 	{
-		if(_isIOS)
+		if(!_isIOS)
 		{
 			if(_isWP7)
 			{
@@ -187,7 +186,7 @@ namespace GUI
 	{
 		if((_budgetTotalValue - _budgetConsumedValue) >= 0)
 		{
-			double valueWidth;
+			double valueWidth = 0;
 
 			if(0 < _budgetTotalValue) valueWidth = (_budgetConsumedValue / _budgetTotalValue) * _parentLayoutWidth;
 
@@ -210,7 +209,8 @@ namespace GUI
 		}
 		else
 		{
-			double valueWidth = ((_budgetConsumedValue / _budgetTotalValue) * _parentLayoutWidth) - _parentLayoutWidth;
+			double valueWidth = 0;
+			if(0 != _budgetTotalValue) valueWidth = ((_budgetConsumedValue / _budgetTotalValue) * _parentLayoutWidth) - _parentLayoutWidth;
 			_budgetSimpleGraphicConsumedBudgetLayout->setWidth((int)valueWidth);
 			_budgetSimpleGraphicConsumedBudgetLayout->setBackgroundColor(RED);
 			_budgetSimpleGraphicTotalBudgetLayout->setBackgroundColor(YELLOW);
@@ -397,7 +397,8 @@ namespace GUI
 		_budgetSimpleGraphicConsumedBudgetLayout = new NativeUI::HorizontalLayout();
 		_budgetSimpleGraphicConsumedBudgetLayout->setBackgroundColor(YELLOW);
 
-		double valueWidth = (_budgetConsumedValue / _budgetTotalValue) * width;
+		double valueWidth = 0;
+		if(0 != _budgetTotalValue) double valueWidth = (_budgetConsumedValue / _budgetTotalValue) * width;
 
 		_budgetSimpleGraphicConsumedBudgetLayout->setHeight(height);
 		_budgetSimpleGraphicConsumedBudgetLayout->setWidth((int)valueWidth);
@@ -457,7 +458,8 @@ namespace GUI
 		categoryLabel->setFontSize(_dialogFontSize);
 
 		consumeBar->setBackgroundColor(YELLOW);
-		double valueWidth = (consumed / total) * width;
+		double valueWidth = 0;
+		if(0 != total) valueWidth = (consumed / total) * width;
 		consumeBar->setSize((int)valueWidth, (int)height);
 
 		if((int)valueWidth == 0)
@@ -491,7 +493,7 @@ namespace GUI
 			double valueWidth = 0.0;
 
 			if(0 < _budgetTotalValue) valueWidth = (value / _budgetTotalValue) * _categoryGraphicWidth;
-			else valueWidth = (value / _budgetConsumedValue) * _categoryGraphicWidth;
+			else if(0 != _budgetConsumedValue) valueWidth = (value / _budgetConsumedValue) * _categoryGraphicWidth;
 
 			if(valueWidth > _categoryGraphicWidth)
 			{
