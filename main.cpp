@@ -67,7 +67,7 @@ public:
 		_observer->setListScreenRef(_listScreen);
 		_observer->setSettingsScreenRef(_settingsScreen);
 
-		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		if(strcmp(buffer, "iPhone OS") == 0 || strcmp(buffer, "Android") == 0)
 		{
 			_parentScreen = new NativeUI::TabScreen();
 			_parentScreen->setTitle("MyBudget");

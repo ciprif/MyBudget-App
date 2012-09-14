@@ -21,6 +21,7 @@ namespace Repositories
 	{
 		_DBExpenses = maFileOpen(EXPENSES_FILE, MA_ACCESS_READ_WRITE);
 		_DBIncomes = maFileOpen(INCOMES_FILE, MA_ACCESS_READ_WRITE);
+
 		if(!maFileExists(_DBExpenses))
 		{
 			maFileCreate(_DBExpenses);
@@ -59,6 +60,8 @@ namespace Repositories
 	void DBManager::readExpenses()
 	{
 		_DBExpenses = maFileOpen(EXPENSES_FILE, MA_ACCESS_READ);
+
+		if(!maFileExists(_DBExpenses)) return;
 
 		if(NULL != _expensesFileContent)
 			delete _expensesFileContent;
@@ -144,6 +147,8 @@ namespace Repositories
 	void DBManager::readIncomes()
 	{
 		_DBIncomes = maFileOpen(INCOMES_FILE, MA_ACCESS_READ);
+
+		if(!maFileExists(_DBIncomes)) return;
 
 		if(NULL != _incomesFileContent)
 			delete _incomesFileContent;
@@ -294,6 +299,9 @@ namespace Repositories
 		expenseContent.append("|", 1);
 
 		_DBExpenses = maFileOpen(EXPENSES_FILE, MA_ACCESS_READ_WRITE);
+
+		if(!maFileExists(_DBExpenses)) return;
+
 		maFileSeek(_DBExpenses, 0, SEEK_END);
 		maFileWrite(_DBExpenses, expenseContent.c_str(), expenseContent.length());
 		maFileClose(_DBExpenses);
@@ -326,6 +334,9 @@ namespace Repositories
 		incomeContent.append("|", 1);
 
 		_DBIncomes = maFileOpen(INCOMES_FILE, MA_ACCESS_READ_WRITE);
+
+		if(!maFileExists(_DBIncomes)) return;
+
 		maFileSeek(_DBIncomes, 0, SEEK_END);
 		maFileWrite(_DBIncomes, incomeContent.c_str(), incomeContent.length());
 		maFileClose(_DBIncomes);

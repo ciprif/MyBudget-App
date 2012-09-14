@@ -166,7 +166,7 @@ namespace GUI
 		NativeUI::VerticalLayout* _createDebtValueSettingsLayout();
 
 		/**
-		 * \brief This function sets _isWP7 bool value
+		 * \brief This function sets the _isWP7 and _isIOS bool values
 		 */
 		void _setPlatform();
 
@@ -283,8 +283,8 @@ namespace GUI
 		// _dayValue stores the selected day value
 		int _dayValue;
 
-		// _isWP7 true if the platform is Windows Phone 7, false otherwise; used for platform specific UI sizes.
 		bool _isWP7;
+		bool _isIOS;
 	};
 }
 

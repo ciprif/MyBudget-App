@@ -198,7 +198,7 @@ namespace GUI
 		void _removeActivityIndicator();
 
 		/**
-		 * This function sets _isWP7 bool value
+		 * \brief This function sets the _isWP7 and _isIOS bool values
 		 */
 		void _setPlatform();
 
@@ -217,6 +217,7 @@ namespace GUI
 		bool _expensesDialogLoaded;
 		bool _progressBarActive;
 		bool _isWP7;
+		bool _isIOS;
 
 		// Observer reference
 		Logical::Observer* _observerReference;
