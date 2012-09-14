@@ -237,7 +237,6 @@ namespace GUI
 	 */
 	void AddExpenseDialog::show()
 	{
-		lprintfln("show");
 		MAUtil::Vector<NativeUI::CheckBox*>::iterator it;
 		for(it = checkBoxVector->begin(); it != checkBoxVector->end(); it++)
 		{
@@ -247,6 +246,8 @@ namespace GUI
 
 		it = checkBoxVector->begin();
 		(*it)->setState(true);
+
+		_categoryValue = Model::CATEGORY_LIST[0];
 
 		_amountSlider->setValue(0);
 		_descriptionToggleButton->setCheckedState(false);
@@ -553,8 +554,8 @@ namespace GUI
 		NativeUI::RelativeLayout* captureButtonWrapper = new NativeUI::RelativeLayout();
 		NativeUI::RelativeLayout* selectButtonWrapper = new NativeUI::RelativeLayout();
 
-		captureButtonWrapper->setSize(_imageButtonWidth, _imageButtonHeight + 0.2 * _imageButtonHeight);
-		selectButtonWrapper->setSize(_imageButtonWidth, _imageButtonHeight + 0.2 * _imageButtonHeight);
+		captureButtonWrapper->setSize(_imageButtonWidth, (int)(_imageButtonHeight + 0.2 * _imageButtonHeight));
+		selectButtonWrapper->setSize(_imageButtonWidth, (int)(_imageButtonHeight + 0.2 * _imageButtonHeight));
 
 		NativeUI::Label* captureLabel = new NativeUI::Label();
 		NativeUI::Label* selectLabel = new NativeUI::Label();
