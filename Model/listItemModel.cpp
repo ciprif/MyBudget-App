@@ -12,12 +12,19 @@
 
 namespace Model
 {
+	/**
+	 * \brief Constructor
+	 */
 	ListItemModel::ListItemModel() : income(NULL), expense(NULL)
 	{
 		isExpense = false;
 		isIncome = false;
 	}
 
+	/**
+	 * \brief The copy constructor
+	 * @param obj const ListItemModel& the source object
+	 */
 	ListItemModel::ListItemModel(const ListItemModel& obj)
 	{
 		isExpense = obj.isExpense;
@@ -28,12 +35,19 @@ namespace Model
 			income = new IncomeObject(*obj.income);
 	}
 
+	/**
+	 * \brief The destructor
+	 */
 	ListItemModel::~ListItemModel()
 	{
 		if(NULL != expense) delete expense;
 		if(NULL != income) delete income;
 	}
 
+	/**
+	 * \brief Setter for the expense object
+	 * @param obj const ExpenseObject& the new ExpenseObject value
+	 */
 	void ListItemModel::setExpense(const ExpenseObject& obj)
 	{
 		if(!isIncome)
@@ -45,6 +59,10 @@ namespace Model
 		}
 	}
 
+	/**
+	 * \brief Setter for the income object
+	 * @param obj const IncomeObject& the new IncomeObject value
+	 */
 	void ListItemModel::setIncome(const IncomeObject& obj)
 	{
 		if(!isExpense)
@@ -56,6 +74,47 @@ namespace Model
 		}
 	}
 
+	/**
+	 * \brief Getter for the ExpenseObject
+	 * @return const ExpenseObject&
+	 */
+	const ExpenseObject& ListItemModel::getExpenseObject() const
+	{
+		return *expense;
+	}
+
+	/**
+	 * \brief Getter for the IncomeObject
+	 * @return const IncomeObject&
+	 */
+	const IncomeObject& ListItemModel::getIncomeObject() const
+	{
+		return *income;
+	}
+
+	/**
+	 * \brief Returns true if the object contains an expense object
+	 * @return bool
+	 */
+	bool ListItemModel::IsExpense() const
+	{
+		return isExpense;
+	}
+
+	/**
+	 * \brief Returns true if the object contains an income object
+	 * @return bool
+	 */
+	bool ListItemModel::IsIncome() const
+	{
+		return isIncome;
+	}
+
+	/**
+	 * \brief The = operator override
+	 * @param obj const ListItemModel& the source object
+	 * @return
+	 */
 	ListItemModel& ListItemModel::operator=(const ListItemModel& obj)
 	{
 		delete expense;
@@ -78,10 +137,4 @@ namespace Model
 
 		return *this;
 	}
-
-	bool ListItemModel::IsExpense() const { return isExpense; }
-	bool ListItemModel::IsIncome() const { return isIncome; }
-
-	const ExpenseObject& ListItemModel::getExpenseObject() const { return *expense; }
-	const IncomeObject& ListItemModel::getIncomeObject() const { return *income; }
 }

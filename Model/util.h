@@ -15,6 +15,7 @@
 
 namespace GUI
 {
+	// UI related constants
 	const int GRAY = 0xC0C0C0;
 	const int GREEN = 0x00FF00;
 	const int YELLOW = 0xFFFF00;
@@ -44,16 +45,26 @@ namespace GUI
 	const int IMAGE_BUTTON_HEIGHT_MEDIUM = 70;
 	const int IMAGE_BUTTON_HEIGHT_SMALL = 40;
 
+	// Static variables set by calling the SetSizeRelatedVariables() function; This are used for scaling the UI in order to make it
+	// work and look properly on as many screen sizes as posible
 	static int _dialogFontSize, _dialogSmallFontSize, _descriptionBoxHeight, _dialogButtonWidth, _imageButtonWidth, _imageButtonHeight;
 	static int _screenType;
 
-	static void DetermineScreenSize(int screenHeight, int screenWidth)
+	/**
+	 * \brief Static function used for determining the screen size
+	 * @param screenHeight const int& the screen physical height
+	 * @param screenWidth const int& the screen physical width
+	 */
+	static void DetermineScreenSize(const int& screenHeight, const int& screenWidth)
 	{
 		if(480 > screenHeight && 320 > screenWidth) _screenType = 0;
 		else if(480 < screenHeight && 640 > screenHeight && 320 < screenWidth && 480 > screenWidth) _screenType = 1;
 		else _screenType = 2;
 	}
 
+	/**
+	 * \brief Static funtion used for setting the UI variables related to the screen size
+	 */
 	static void SetSizeRelatedVariables()
 	{
 		MAExtent size = maGetScrSize();
@@ -94,12 +105,24 @@ namespace GUI
 
 namespace Model
 {
+	// The number of expenses categories
 	const int NO_OF_CATEGORIES = 5;
+
+	// The number of incomes type
 	const int NO_OF_INCOMES = 4;
+
+	// The list of income types
 	const MAUtil::String INCOME_TYPES_LIST[] = { "Bank Transfer", "Salary", "Debt", "Other" };
+
+	// The list of expense categories
 	const MAUtil::String CATEGORY_LIST[] = { "Food", "Clothes", "Bills", "Fun", "Other" };
+
+	// A buffer size
 	const int BUFF_SIZE = 1024;
 
+	/**
+	 * \brief This structure is used for storing the date values
+	 */
 	struct DateStruct
 	{
 		int _year;
@@ -109,12 +132,20 @@ namespace Model
 		DateStruct() : _day(1), _mounth(1), _year(1601) {}
 	};
 
+	/**
+	 * \brief This structure is used for storing the time values
+	 */
 	struct TimeStruct
 	{
 		int _hour;
 		int _minutes;
 	};
 
+	/**
+	 * \brief Static function used for converting DateStruct objects to MAUtil::String
+	 * @param date const DateStruct& the date object
+	 * @return MAUtil::String the string representation of a date object
+	 */
 	static MAUtil::String DateStructToString(const DateStruct& date)
 	{
 		MAUtil::String s;
@@ -127,6 +158,11 @@ namespace Model
 		return s;
 	}
 
+	/**
+	 * \brief Static function used for converting TimeStruct objects to MAUtil::String
+	 * @param date const TimeStruct& the date object
+	 * @return MAUtil::String the string representation of a time object
+	 */
 	static MAUtil::String TimeStructToString(const TimeStruct& time)
 	{
 		MAUtil::String s;
@@ -137,6 +173,12 @@ namespace Model
 		return s;
 	}
 
+	/**
+	 * \brief Static function used for comparing 2 DateStruct objects
+	 * @param date1 const DateStruct&
+	 * @param date2 const DateStruct&
+	 * @return 1 if date1 > date2, -1 if date1 < date2, 0 if date1 = date2
+	 */
 	static int CompareDateObjects(const DateStruct& date1, const DateStruct& date2)
 	{
 		if(date1._year > date2._year) return 1;
