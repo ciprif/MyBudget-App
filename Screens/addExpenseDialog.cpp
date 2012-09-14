@@ -30,6 +30,9 @@ NativeUI::CheckBox* recursiveStateChangedCB;
 
 namespace GUI
 {
+	/**
+	 * \brief Constructor
+	 */
 	AddExpenseDialog::AddExpenseDialog()
 	{
 		_coin = DEFAULT_COIN;
@@ -40,6 +43,13 @@ namespace GUI
 		SetSizeRelatedVariables();
 		_createUI();
 	}
+
+	/**
+	 * \brief Constructor with 3 parameters
+	 * @param availableBudget const Double& the availabale budget
+	 * @param posibleDeptValue const Double& the posible debt value
+	 * @param coin const MAUtil::String& the coin
+	 */
 	AddExpenseDialog::AddExpenseDialog(const double& availableBudget, const double& posibleDeptValue, const MAUtil::String& coin)
 	{
 		_coin = coin;
@@ -51,6 +61,9 @@ namespace GUI
 		_createUI();
 	}
 
+	/**
+	 * \brief Destructor
+	 */
 	AddExpenseDialog::~AddExpenseDialog()
 	{
 		_addButton->removeButtonListener(this);
@@ -68,21 +81,245 @@ namespace GUI
 		}
 	}
 
-	void AddExpenseDialog::_setPlatform()
+	 /**
+	 * This method is called if the touch-up event was inside the
+	 * bounds of the button.
+	 * Platform: iOS, Android, Windows Phone.
+	 * @param button The button object that generated the event.
+	 */
+	void AddExpenseDialog::buttonClicked(Widget* button)
 	{
-		char buffer[BUFF_SIZE];
-		maGetSystemProperty("mosync.device.OS", buffer, BUFF_SIZE);
-
-		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		if(button == _addButton)
 		{
-			_isWP7 = false;
+			double value = (double)_amountSlider->getValue();
+			if(0 < value)
+			{
+				this->hide();
+				if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
+				else _listScreenRef->createOptionsMenu();
+
+				NativeUI::Date d = _datePicker->getDate();
+
+				Model::DateStruct date;
+				date._year = d.year;
+				date._mounth = d.month;
+				date._day = d.day;
+
+				Model::TimeStruct time;
+				time._hour = _timePicker->getHour();
+				time._minutes = _timePicker->getMinute();
+
+				_observerReference->requestExpenseAddition(value, _categoryValue, _descriptionEditBox->getText(), "", date, time);
+			}
+			else
+			{
+				maAlert("Alert!", "The value of the income must be higher than 0!", NULL, NULL, NULL);
+			}
+		}
+		else if(button == _cancelButton)
+		{
+			this->hide();
+			if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
+			else _listScreenRef->createOptionsMenu();
 		}
 		else
 		{
-			_isWP7 = true;
+			maAlert("Alert!", "Feature is not yet available. Please wait for a future update.", NULL, NULL, NULL);
 		}
 	}
 
+	/**
+	 * This method is called when the state of the check box was changed
+	 * by the user.
+	 * @param checkBox The check box object that generated the event.
+	 * @param state True if the check box is checked, false otherwise.
+	 */
+	void AddExpenseDialog::checkBoxStateChanged(NativeUI::CheckBox* checkBox, bool state)
+	{
+		if(state == true)
+		{
+			for(int i = 0; i < checkBoxVector->size(); i++)
+			{
+				if((*checkBoxVector)[i] != checkBox)
+					(*checkBoxVector)[i]->setState(false);
+				else
+				{
+					_categoryValue = Model::CATEGORY_LIST[i];
+				}
+			}
+		}
+		else
+		{
+			bool checked = false;
+			for(int i = 0; i < checkBoxVector->size(); i++)
+				if((*checkBoxVector)[i]->isChecked())
+				{
+					checked = true;
+					break;
+				}
+			if(!checked)
+				checkBox->setState(true);
+		}
+	}
+
+	/**
+	 * This method is called when the state of the toggle button was changed
+	 * by the user.
+	 * @param toggleButton The toggle button object that generated the event.
+	 * @param state True if the toggle button is checked, false otherwise.
+	 */
+	void AddExpenseDialog::toggleButtonStateChanged(NativeUI::ToggleButton* toggleButton, bool state)
+	{
+		if(toggleButton == _descriptionToggleButton)
+		{
+			if(true == state)
+			{
+				_descriptionBoxParent->addChild(_descriptionEditBox);
+			}
+			else
+			{
+				_descriptionBoxParent->removeChild(_descriptionEditBox);
+				_descriptionEditBox->setText("");
+			}
+		}
+		else if(toggleButton == _imageAtachementToggleButton)
+		{
+			if(true == state)
+			{
+				_imageBoxAndToggleLayout->addChild(_imageButtonsParentLayout);
+			}
+			else
+			{
+				_imageBoxAndToggleLayout->removeChild(_imageButtonsParentLayout);
+			}
+		}
+	}
+
+	/**
+	 * \brief This function is used for setting the HomeScreen reference
+	 * @param homeScreenRef HomeScreen* pointer to the HomeScreen screen
+	 */
+	void AddExpenseDialog::setHomeScreenRef(HomeScreen* homeScreenRef)
+	{
+		_homeScreenRef = homeScreenRef;
+		//at this part the dialog is loaded
+		_homeScreenRef->addExpensesDialogLoaded();
+	}
+
+	/**
+	 * \brief This function is used for setting the ListScreen reference
+	 * @param homeScreenRef ListScreen* pointer to the HomeScreen screen
+	 */
+	void AddExpenseDialog::setListScreenRef(ListScreen* listScreenRef)
+	{
+		_listScreenRef = listScreenRef;
+	}
+
+	/**
+	 * \brief This function is called when the state of the slider is changed by the user.
+	 * 		  Inherited from the NativeUI::SliderListener class
+	 * @param s NativeUI::Slider* pointer to the object that triggered the event
+	 * @param sliderValue int the new value of the slider object
+	 */
+	void AddExpenseDialog::sliderValueChanged(NativeUI::Slider* s, int sliderValue)
+	{
+		if(_amountSlider == s)
+		{
+			char budgetString[BUFFER_SIZE];
+			sprintf(budgetString, "The value of the expense: %d %s", sliderValue, _coin.c_str());
+
+			_amountLabel->setText(budgetString);
+		}
+	}
+
+	/**
+	 * \brief This function is used for showing the UI. Inherited from the NativeUI::Dialog class
+	 */
+	void AddExpenseDialog::show()
+	{
+		lprintfln("show");
+		MAUtil::Vector<NativeUI::CheckBox*>::iterator it;
+		for(it = checkBoxVector->begin(); it != checkBoxVector->end(); it++)
+		{
+			NativeUI::CheckBox* cb = *it;
+			cb->setState(false);
+		}
+
+		it = checkBoxVector->begin();
+		(*it)->setState(true);
+
+		_amountSlider->setValue(0);
+		_descriptionToggleButton->setCheckedState(false);
+		_imageAtachementToggleButton->setCheckedState(false);
+
+		_imageBoxAndToggleLayout->removeChild(_imageButtonsParentLayout);
+		_descriptionBoxParent->removeChild(_descriptionEditBox);
+		_descriptionEditBox->setText("");
+
+		if(_launcedFromHomeScreen) _homeScreenRef->removeOptionsMenu();
+		else _listScreenRef->removeOptionsMenu();
+
+		NativeUI::Dialog::show();
+	}
+
+	/**
+	 * \brief This function is used for setting the observer reference
+	 * @param obs Logical::Observer* pointer to the application wide observer
+	 */
+	void AddExpenseDialog::setObserver(Logical::Observer* obs)
+	{
+		_observerReference = obs;
+	}
+
+	/**
+	 * \brief This function is used for setting the _coin value
+	 * @param coin const MAUtil::String& the new coin value
+	 */
+	void AddExpenseDialog::setCoin(const MAUtil::String& coin)
+	{
+		_coin = coin;
+	}
+
+	/**
+	 * \brief This function is used for setting the available budget
+	 * @param availableBudget const double& the new value
+	 */
+	void AddExpenseDialog::setAvailableBudget(const double& availableBudget)
+	{
+		_availableBudget = availableBudget;
+	}
+
+	/**
+	 * \brief This function is used for setting the posible debt value
+	 * @param value const double& the new value
+	 */
+	void AddExpenseDialog::setAcceptedDebtValue(const double& value)
+	{
+		_acceptedDept = value;
+	}
+
+	/**
+	 * \brief This function is used for updating the maximum value of the amount slider
+	 */
+	void AddExpenseDialog::updateAmountSliderValue()
+	{
+		_amountSlider->setMaximumValue((int)(_availableBudget + _acceptedDept));
+	}
+
+	/**
+	 * \brief This function is used for setting the _launcedFromHomeScreen boolean
+	 * @param value bool true if the this dialog was launched from the home screen, false otherwise
+	 */
+	void AddExpenseDialog::setLaunchedFromHomeScreen(bool value)
+	{
+		_launcedFromHomeScreen = value;
+	}
+
+
+
+	/**
+	 * \brief This function is used for triggering the UI creation
+	 */
 	void AddExpenseDialog::_createUI()
 	{
 		MAExtent size = maGetScrSize();
@@ -112,6 +349,10 @@ namespace GUI
 		setMainWidget(parent);
 	}
 
+	/**
+	 * \brief This function is used for creating the checkbox group; note that this will behave like
+	 * 		  a radio button control
+	 */
 	NativeUI::VerticalLayout* AddExpenseDialog::_createCheckBoxGroup()
 	{
 		if(NULL == checkBoxVector)
@@ -145,6 +386,10 @@ namespace GUI
 		return checkBoxGroupParentLayout;
 	}
 
+	/**
+	 * \brief This function is used for creating the buttons from the bottom of the dialog
+	 * @return NativeUI::HorizontalLayout* the newly created layout
+	 */
 	NativeUI::HorizontalLayout* AddExpenseDialog::_createBottomButtonBar()
 	{
 		NativeUI::HorizontalLayout* buttonGroup = new NativeUI::HorizontalLayout();
@@ -170,6 +415,11 @@ namespace GUI
 		return buttonGroup;
 	}
 
+	/**
+	 * \brief This function is used for creating the amount bars (sliders and related UI elements)
+	 * @param maxVal const int& the maximal value for the slider
+	 * @return NativeUI::HorizontalLayout* the newly created layout
+	 */
 	NativeUI::HorizontalLayout* AddExpenseDialog::_createAmountBar(const int& maxVal)
 	{
 		NativeUI::HorizontalLayout* amountBar = new NativeUI::HorizontalLayout();
@@ -198,44 +448,83 @@ namespace GUI
 		return amountBar;
 	}
 
-	void AddExpenseDialog::_createDescriptionBox() //this is void because _descriptionBoxParent needs to be accessed from another function call. A return for NativeUI::VerticalLayout* would be redundant
+	/**
+	 * \brief This function is used for creating the spacer from the bottom of the dialog
+	 * @return NativeUI::HorizontalLayout* the newly created layout
+	 */
+	NativeUI::HorizontalLayout* AddExpenseDialog::_createBottomSpacer()
 	{
-		_descriptionBoxParent = new NativeUI::VerticalLayout();
+		NativeUI::HorizontalLayout* line = new NativeUI::HorizontalLayout();
+		line->fillSpaceHorizontally();
+		line->setHeight(DIALOG_BOTTOM_LINE_HEIGHT);
 
-		NativeUI::VerticalLayout* descritionToggleAndLabelParent = new NativeUI::VerticalLayout();
-		NativeUI::Label* descriptionToggleLabel = new NativeUI::Label();
-
-		_descriptionToggleButton = new NativeUI::ToggleButton();
-		_descriptionToggleButton->fillSpaceHorizontally();
-		_descriptionToggleButton->setCheckedState(false);
-
-		_descriptionEditBox = new NativeUI::EditBox();
-
-		descriptionToggleLabel->setText("Description:");
-		descriptionToggleLabel->setFontSize(_dialogFontSize);
-
-		descritionToggleAndLabelParent->addChild(descriptionToggleLabel);
-		descritionToggleAndLabelParent->addChild(_descriptionToggleButton);
-
-		//_descriptionEditBox->setMaxLines(DESCRIPTION_EDIT_BOX_LINES);
-		switch(_screenType)
-		{
-		case 0:
-			_descriptionEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_SMALL);
-			break;
-		case 1:
-			_descriptionEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_MEDIUM);
-			break;
-		default:
-			_descriptionEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE);
-			break;
-		}
-
-		_descriptionEditBox->fillSpaceHorizontally();
-		_descriptionToggleButton->addToggleButtonListener(this);
-		_descriptionBoxParent->addChild(descritionToggleAndLabelParent);
+		return line;
 	}
 
+
+	/**
+	 * \brief This function is used for creating the datePicker and related controls
+	 * @return NativeUI::HorizontalLayout* the newly created layout
+	 */
+	NativeUI::HorizontalLayout* AddExpenseDialog::_createDatePicker()
+	{
+		NativeUI::HorizontalLayout* datePickerBar = new NativeUI::HorizontalLayout();
+		datePickerBar->fillSpaceHorizontally();
+
+		NativeUI::VerticalLayout* labelDPParentLayout = new NativeUI::VerticalLayout();
+		labelDPParentLayout->fillSpaceHorizontally();
+		labelDPParentLayout->fillSpaceVertically();
+
+		_datePicker = new NativeUI::DatePicker();
+		_datePicker->fillSpaceHorizontally();
+
+		_datePicker->setDayOfMonth(Logical::DEFAULT_DAY);
+		_datePicker->setMonth(Logical::DEFAULT_MONTH);
+		_datePicker->setYear(Logical::DEFAULT_YEAR);
+
+		NativeUI::Label* datePickerLabel = new NativeUI::Label();
+		datePickerLabel->setFontSize(_dialogFontSize);
+		datePickerLabel->setText("Chose a date:");
+
+		labelDPParentLayout->addChild(datePickerLabel);
+		labelDPParentLayout->addChild(_datePicker);
+
+		datePickerBar->addChild(labelDPParentLayout);
+
+		return datePickerBar;
+	}
+
+	/**
+	 * \brief This function is used for creating the timePicker and related controls
+	 * @return NativeUI::HorizontalLayout* the newly created layout
+	 */
+	NativeUI::HorizontalLayout* AddExpenseDialog::_createTimePicker()
+	{
+		NativeUI::HorizontalLayout* timePickerBar = new NativeUI::HorizontalLayout();
+		timePickerBar->fillSpaceHorizontally();
+
+		NativeUI::VerticalLayout* labelTPParentLayout = new NativeUI::VerticalLayout();
+		labelTPParentLayout->fillSpaceHorizontally();
+		labelTPParentLayout->fillSpaceVertically();
+
+		_timePicker = new NativeUI::TimePicker();
+		_timePicker->fillSpaceHorizontally();
+
+		NativeUI::Label* timePickerLabel = new NativeUI::Label();
+		timePickerLabel->setFontSize(_dialogFontSize);
+		timePickerLabel->setText("Chose a time:");
+
+		labelTPParentLayout->addChild(timePickerLabel);
+		labelTPParentLayout->addChild(_timePicker);
+
+		timePickerBar->addChild(labelTPParentLayout);
+
+		return timePickerBar;
+	}
+
+	/**
+	 * \brief This function is used for creating the image related box (capture and folder buttons)
+	 */
 	void AddExpenseDialog::_createImageBox()
 	{
 		NativeUI::VerticalLayout* imageToggleAndLabelParent = new NativeUI::VerticalLayout();
@@ -317,239 +606,62 @@ namespace GUI
 		_imageBoxAndToggleLayout->addChild(imageToggleAndLabelParent);
 	}
 
-	NativeUI::HorizontalLayout* AddExpenseDialog::_createDatePicker()
+	/**
+	 * \brief This function is used for creating the description
+	 */
+	void AddExpenseDialog::_createDescriptionBox() //this is void because _descriptionBoxParent needs to be accessed from another function call. A return for NativeUI::VerticalLayout* would be redundant
 	{
-		NativeUI::HorizontalLayout* datePickerBar = new NativeUI::HorizontalLayout();
-		datePickerBar->fillSpaceHorizontally();
+		_descriptionBoxParent = new NativeUI::VerticalLayout();
 
-		NativeUI::VerticalLayout* labelDPParentLayout = new NativeUI::VerticalLayout();
-		labelDPParentLayout->fillSpaceHorizontally();
-		labelDPParentLayout->fillSpaceVertically();
+		NativeUI::VerticalLayout* descritionToggleAndLabelParent = new NativeUI::VerticalLayout();
+		NativeUI::Label* descriptionToggleLabel = new NativeUI::Label();
 
-		_datePicker = new NativeUI::DatePicker();
-		_datePicker->fillSpaceHorizontally();
-
-		_datePicker->setDayOfMonth(Logical::DEFAULT_DAY);
-		_datePicker->setMonth(Logical::DEFAULT_MONTH);
-		_datePicker->setYear(Logical::DEFAULT_YEAR);
-
-		NativeUI::Label* datePickerLabel = new NativeUI::Label();
-		datePickerLabel->setFontSize(_dialogFontSize);
-		datePickerLabel->setText("Chose a date:");
-
-		labelDPParentLayout->addChild(datePickerLabel);
-		labelDPParentLayout->addChild(_datePicker);
-
-		datePickerBar->addChild(labelDPParentLayout);
-
-		return datePickerBar;
-	}
-
-	NativeUI::HorizontalLayout* AddExpenseDialog::_createTimePicker()
-	{
-		NativeUI::HorizontalLayout* timePickerBar = new NativeUI::HorizontalLayout();
-		timePickerBar->fillSpaceHorizontally();
-
-		NativeUI::VerticalLayout* labelTPParentLayout = new NativeUI::VerticalLayout();
-		labelTPParentLayout->fillSpaceHorizontally();
-		labelTPParentLayout->fillSpaceVertically();
-
-		_timePicker = new NativeUI::TimePicker();
-		_timePicker->fillSpaceHorizontally();
-
-		NativeUI::Label* timePickerLabel = new NativeUI::Label();
-		timePickerLabel->setFontSize(_dialogFontSize);
-		timePickerLabel->setText("Chose a time:");
-
-		labelTPParentLayout->addChild(timePickerLabel);
-		labelTPParentLayout->addChild(_timePicker);
-
-		timePickerBar->addChild(labelTPParentLayout);
-
-		return timePickerBar;
-	}
-	NativeUI::HorizontalLayout* AddExpenseDialog::_createBottomSpacer()
-	{
-		NativeUI::HorizontalLayout* line = new NativeUI::HorizontalLayout();
-		line->fillSpaceHorizontally();
-		line->setHeight(DIALOG_BOTTOM_LINE_HEIGHT);
-
-		return line;
-	}
-
-	void AddExpenseDialog::setHomeScreenRef(HomeScreen* homeScreenRef)
-	{
-		_homeScreenRef = homeScreenRef;
-		//at this part the dialog is loaded
-		_homeScreenRef->addExpensesDialogLoaded();
-	}
-
-	void AddExpenseDialog::setListScreenRef(ListScreen* listScreenRef)
-	{
-		_listScreenRef = listScreenRef;
-	}
-
-	void AddExpenseDialog::buttonClicked(Widget* button)
-	{
-		if(button == _addButton)
-		{
-			double value = (double)_amountSlider->getValue();
-			if(0 < value)
-			{
-				this->hide();
-				if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
-				else _listScreenRef->createOptionsMenu();
-
-				NativeUI::Date d = _datePicker->getDate();
-
-				Model::DateStruct date;
-				date._year = d.year;
-				date._mounth = d.month;
-				date._day = d.day;
-
-				Model::TimeStruct time;
-				time._hour = _timePicker->getHour();
-				time._minutes = _timePicker->getMinute();
-
-				_observerReference->requestExpenseAddition(value, _categoryValue, _descriptionEditBox->getText(), "", date, time);
-			}
-			else
-			{
-				maAlert("Alert!", "The value of the income must be higher than 0!", NULL, NULL, NULL);
-			}
-		}
-		else if(button == _cancelButton)
-		{
-			this->hide();
-			if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
-			else _listScreenRef->createOptionsMenu();
-		}
-		else
-		{
-			maAlert("Alert!", "Feature is not yet available. Please wait for a future update.", NULL, NULL, NULL);
-		}
-	}
-
-	void AddExpenseDialog::checkBoxStateChanged(NativeUI::CheckBox* checkBox, bool state)
-	{
-		if(state == true)
-		{
-			for(int i = 0; i < checkBoxVector->size(); i++)
-			{
-				if((*checkBoxVector)[i] != checkBox)
-					(*checkBoxVector)[i]->setState(false);
-				else
-				{
-					_categoryValue = Model::CATEGORY_LIST[i];
-				}
-			}
-		}
-		else
-		{
-			bool checked = false;
-			for(int i = 0; i < checkBoxVector->size(); i++)
-				if((*checkBoxVector)[i]->isChecked())
-				{
-					checked = true;
-					break;
-				}
-			if(!checked)
-				checkBox->setState(true);
-		}
-	}
-
-	void AddExpenseDialog::toggleButtonStateChanged(NativeUI::ToggleButton* toggleButton, bool state)
-	{
-		if(toggleButton == _descriptionToggleButton)
-		{
-			if(true == state)
-			{
-				_descriptionBoxParent->addChild(_descriptionEditBox);
-			}
-			else
-			{
-				_descriptionBoxParent->removeChild(_descriptionEditBox);
-				_descriptionEditBox->setText("");
-			}
-		}
-		else if(toggleButton == _imageAtachementToggleButton)
-		{
-			if(true == state)
-			{
-				_imageBoxAndToggleLayout->addChild(_imageButtonsParentLayout);
-			}
-			else
-			{
-				_imageBoxAndToggleLayout->removeChild(_imageButtonsParentLayout);
-			}
-		}
-	}
-
-	void AddExpenseDialog::show()
-	{
-		lprintfln("show");
-		MAUtil::Vector<NativeUI::CheckBox*>::iterator it;
-		for(it = checkBoxVector->begin(); it != checkBoxVector->end(); it++)
-		{
-			NativeUI::CheckBox* cb = *it;
-			cb->setState(false);
-		}
-
-		it = checkBoxVector->begin();
-		(*it)->setState(true);
-
-		_amountSlider->setValue(0);
+		_descriptionToggleButton = new NativeUI::ToggleButton();
+		_descriptionToggleButton->fillSpaceHorizontally();
 		_descriptionToggleButton->setCheckedState(false);
-		_imageAtachementToggleButton->setCheckedState(false);
 
-		_imageBoxAndToggleLayout->removeChild(_imageButtonsParentLayout);
-		_descriptionBoxParent->removeChild(_descriptionEditBox);
-		_descriptionEditBox->setText("");
+		_descriptionEditBox = new NativeUI::EditBox();
 
-		if(_launcedFromHomeScreen) _homeScreenRef->removeOptionsMenu();
-		else _listScreenRef->removeOptionsMenu();
+		descriptionToggleLabel->setText("Description:");
+		descriptionToggleLabel->setFontSize(_dialogFontSize);
 
-		NativeUI::Dialog::show();
-	}
+		descritionToggleAndLabelParent->addChild(descriptionToggleLabel);
+		descritionToggleAndLabelParent->addChild(_descriptionToggleButton);
 
-	void AddExpenseDialog::setObserver(Logical::Observer* obs)
-	{
-		_observerReference = obs;
-	}
-
-	void AddExpenseDialog::sliderValueChanged(NativeUI::Slider* s, int sliderValue)
-	{
-		if(_amountSlider == s)
+		//_descriptionEditBox->setMaxLines(DESCRIPTION_EDIT_BOX_LINES);
+		switch(_screenType)
 		{
-			char budgetString[BUFFER_SIZE];
-			sprintf(budgetString, "The value of the expense: %d %s", sliderValue, _coin.c_str());
-
-			_amountLabel->setText(budgetString);
+		case 0:
+			_descriptionEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_SMALL);
+			break;
+		case 1:
+			_descriptionEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_MEDIUM);
+			break;
+		default:
+			_descriptionEditBox->setHeight(DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE);
+			break;
 		}
+
+		_descriptionEditBox->fillSpaceHorizontally();
+		_descriptionToggleButton->addToggleButtonListener(this);
+		_descriptionBoxParent->addChild(descritionToggleAndLabelParent);
 	}
 
-	void AddExpenseDialog::setAvailableBudget(const double& availableBudget)
+	/**
+	 * \brief This function is used for setting the _isWP7 bool value
+	 */
+	void AddExpenseDialog::_setPlatform()
 	{
-		_availableBudget = availableBudget;
-	}
+		char buffer[BUFF_SIZE];
+		maGetSystemProperty("mosync.device.OS", buffer, BUFF_SIZE);
 
-	void AddExpenseDialog::updateAmountSliderValue()
-	{
-		_amountSlider->setMaximumValue((int)(_availableBudget + _acceptedDept));
-	}
-
-	void AddExpenseDialog::setAcceptedDebtValue(const double& value)
-	{
-		_acceptedDept = value;
-	}
-
-	void AddExpenseDialog::setCoin(const MAUtil::String& coin)
-	{
-		_coin = coin;
-	}
-
-	void AddExpenseDialog::setLaunchedFromHomeScreen(bool value)
-	{
-		_launcedFromHomeScreen = value;
+		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		{
+			_isWP7 = false;
+		}
+		else
+		{
+			_isWP7 = true;
+		}
 	}
 }

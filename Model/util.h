@@ -91,6 +91,7 @@ namespace GUI
 		}
 	}
 }
+
 namespace Model
 {
 	const int NO_OF_CATEGORIES = 5;
