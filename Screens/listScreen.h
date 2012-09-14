@@ -201,7 +201,7 @@ namespace GUI
 		void _clearAndRepopulateList();
 
 		/**
-		 * \brief This function sets _isWP7 bool value
+		 * \brief This function sets the _isWP7 and _isIOS bool values
 		 */
 		void _setPlatform();
 
@@ -278,6 +278,7 @@ namespace GUI
 		int _countClicksCategory;
 
 		bool _isWP7;
+		bool _isIOS;
 
 		MAUtil::String _coin;
 

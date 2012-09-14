@@ -174,8 +174,11 @@ namespace GUI
 	 */
 	void SettingsScreen::createOptionsMenu()
 	{
-		_saveButtonIndex = addOptionsMenuItem("Save", MAW_OPTIONS_MENU_ICON_CONSTANT_SAVE, false);
-		_restoreButtonIndex = addOptionsMenuItem("Restore", MAW_OPTIONS_MENU_ICON_CONSTANT_CLOSE_CLEAR_CANCEL, false);
+		if(!_isIOS)
+		{
+			_saveButtonIndex = addOptionsMenuItem("Save", MAW_OPTIONS_MENU_ICON_CONSTANT_SAVE, false);
+			_restoreButtonIndex = addOptionsMenuItem("Restore", MAW_OPTIONS_MENU_ICON_CONSTANT_CLOSE_CLEAR_CANCEL, false);
+		}
 	}
 
 	/**
@@ -413,20 +416,28 @@ namespace GUI
 		return debtValueSettingsParent;
 	}
 
+
 	/**
-	 * \brief This function sets _isWP7 bool value
+	 * \brief This function sets the _isWP7 and _isIOS bool values
 	 */
 	void SettingsScreen::_setPlatform()
 	{
 		char buffer[BUFF_SIZE];
 		maGetSystemProperty("mosync.device.OS", buffer, BUFF_SIZE);
 
-		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		if(strcmp(buffer, "iPhone OS") == 0)
 		{
 			_isWP7 = false;
+			_isIOS = true;
+		}
+		else if(strcmp(buffer, "Android") == 0)
+		{
+			_isWP7 = false;
+			_isIOS = false;
 		}
 		else
 		{
+			_isIOS = false;
 			_isWP7 = true;
 		}
 	}

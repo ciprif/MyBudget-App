@@ -105,17 +105,19 @@ namespace GUI
 	 */
 	void HomeScreen::createOptionsMenu()
 	{
-		if(_isWP7)
+		if(_isIOS)
 		{
-			_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
-			_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
+			if(_isWP7)
+			{
+				_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
+				_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
+			}
+			else
+			{
+				_addExpenseIndex = addOptionsMenuItem("Add expense");
+				_addIncomeIndex = addOptionsMenuItem("Add income");
+			}
 		}
-		else
-		{
-			_addExpenseIndex = addOptionsMenuItem("Add expense");
-			_addIncomeIndex = addOptionsMenuItem("Add income");
-		}
-
 	}
 
 	/**
@@ -517,20 +519,28 @@ namespace GUI
 		if(!_isWP7) maWidgetDestroy(_activityIndicatorLayout->getWidgetHandle());
 	}
 
+
 	/**
-	 * This function sets _isWP7 bool value
+	 * \brief This function sets the _isWP7 and _isIOS bool values
 	 */
 	void HomeScreen::_setPlatform()
 	{
 		char buffer[Model::BUFF_SIZE];
 		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
 
-		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		if(strcmp(buffer, "iPhone OS") == 0)
 		{
 			_isWP7 = false;
+			_isIOS = true;
+		}
+		else if(strcmp(buffer, "Android") == 0)
+		{
+			_isWP7 = false;
+			_isIOS = false;
 		}
 		else
 		{
+			_isIOS = false;
 			_isWP7 = true;
 		}
 	}

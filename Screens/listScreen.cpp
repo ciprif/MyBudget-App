@@ -317,22 +317,25 @@ namespace GUI
 	 */
 	void ListScreen::createOptionsMenu()
 	{
-		if(_isWP7)
+		if(!_isIOS)
 		{
-			_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
-			_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
-		}
-		else
-		{
-			_addExpenseIndex = addOptionsMenuItem("Add expense");
-			_addIncomeIndex = addOptionsMenuItem("Add income");
-		}
+			if(_isWP7)
+			{
+				_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
+				_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
+			}
+			else
+			{
+				_addExpenseIndex = addOptionsMenuItem("Add expense");
+				_addIncomeIndex = addOptionsMenuItem("Add income");
+			}
 
-		_clearListIndex = addOptionsMenuItem("Clear list", MAW_OPTIONS_MENU_ICON_CONSTANT_DELETE, false);
+			_clearListIndex = addOptionsMenuItem("Clear list", MAW_OPTIONS_MENU_ICON_CONSTANT_DELETE, false);
 
-		_sortByDateIndex = addOptionsMenuItem("Sort by date");
-		_sortByCategoryIndex = addOptionsMenuItem("Sort by category");
-		_sortByAmountIndex = addOptionsMenuItem("Sort by amount");
+			_sortByDateIndex = addOptionsMenuItem("Sort by date");
+			_sortByCategoryIndex = addOptionsMenuItem("Sort by category");
+			_sortByAmountIndex = addOptionsMenuItem("Sort by amount");
+		}
 	}
 
 	/**
@@ -531,19 +534,26 @@ namespace GUI
 	}
 
 	/**
-	 * \brief This function sets _isWP7 bool value
+	 * \brief This function sets the _isWP7 and _isIOS bool values
 	 */
 	void ListScreen::_setPlatform()
 	{
 		char buffer[Model::BUFF_SIZE];
 		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
 
-		if(strcmp(buffer, "iOS") == 0 || strcmp(buffer, "Android") == 0)
+		if(strcmp(buffer, "iPhone OS") == 0)
 		{
 			_isWP7 = false;
+			_isIOS = true;
+		}
+		else if(strcmp(buffer, "Android") == 0)
+		{
+			_isWP7 = false;
+			_isIOS = false;
 		}
 		else
 		{
+			_isIOS = false;
 			_isWP7 = true;
 		}
 	}
