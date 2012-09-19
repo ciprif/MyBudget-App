@@ -1,8 +1,25 @@
-/*
- * addExpenseDialog.h
+/* Copyright (C) 2011 MoSync AB
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License,
+version 2, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
+*/
+
+/**
  *
- *  Created on: Jun 19, 2012
- *      Author: Cipri
+ * \file addExpenseDialog.h
+ * \author Ciprian Filipas
+ * \date Jun 19, 2012
  */
 
 #ifndef ADDEXPENSEDIALOG_H_
@@ -17,6 +34,7 @@
 #include <MAUtil/Vector.h>
 #include "../Model/util.h"
 
+// Forward declarations
 namespace NativeUI
 {
 	class HorizontalLayout;
@@ -42,6 +60,9 @@ namespace GUI
 	class HomeScreen;
 	class ListScreen;
 
+	/**
+	 * \brief Class for the dialog shown when the user requires an expense addition
+	 */
 	class AddExpenseDialog : public NativeUI::Dialog, public NativeUI::CheckBoxListener,
 							 public NativeUI::ButtonListener, public NativeUI::ToggleButtonListener,
 							 NativeUI::SliderListener

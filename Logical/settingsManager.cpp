@@ -1,8 +1,24 @@
-/*
- * settingsManager.cpp
- *
- *  Created on: Jul 17, 2012
- *      Author: Cipri
+/* Copyright (C) 2011 MoSync AB
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License,
+version 2, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
+*/
+
+/**
+ * \file settingsManager.cpp
+ * \author Ciprian Filipas
+ * \date Jul 17, 2012
  */
 
 #include <maapi.h>
@@ -174,10 +190,10 @@ namespace Logical
 	 */
 	void SettingsManager::_readSettings()
 	{
-		char settingsFileContent[BUFF_SIZE];
+		char settingsFileContent[Model::BUFF_SIZE];
 		MAUtil::String content;
 
-		maFileRead(_settingsFile, settingsFileContent, BUFF_SIZE);
+		maFileRead(_settingsFile, settingsFileContent, Model::BUFF_SIZE);
 
 		content.append(settingsFileContent, strlen(settingsFileContent));
 
@@ -265,7 +281,7 @@ namespace Logical
 
 		maFileTruncate(_settingsFile, 0);
 
-		char buffer[BUFF_SIZE];
+		char buffer[Model::BUFF_SIZE];
 		MAUtil::String binaryMask;
 
 		if(_showAll) binaryMask = "100";

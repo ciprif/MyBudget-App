@@ -1,8 +1,24 @@
-/*
- * DBManager.cpp
- *
- *  Created on: Jun 26, 2012
- *      Author: Cipri
+/* Copyright (C) 2011 MoSync AB
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License,
+version 2, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
+*/
+
+/**
+ * \file DBManager.cpp
+ * \author Ciprian Filipas
+ * \date Jun 26, 2012
  */
 
 #include <maapi.h>
@@ -10,6 +26,7 @@
 #include <MAUtil/util.h>
 #include <MAFS/File.h>
 #include <conprint.h>
+#include "../Model/util.h"
 #include "DBManager.h"
 
 namespace Repositories
@@ -65,16 +82,16 @@ namespace Repositories
 
 		if(NULL != _expensesFileContent)
 			delete _expensesFileContent;
-		_expensesFileContent = new MAUtil::String("\0", 5*BUFF_SIZE);
+		_expensesFileContent = new MAUtil::String("\0", 5*Model::BUFF_SIZE);
 
-		char buffer[BUFF_SIZE];
+		char buffer[Model::BUFF_SIZE];
 		bool reading = true;
 		while(reading)
 		{
-			if(0 <= maFileRead(_DBExpenses, &buffer, BUFF_SIZE) && strlen(buffer) > 0)
+			if(0 <= maFileRead(_DBExpenses, &buffer, Model::BUFF_SIZE) && strlen(buffer) > 0)
 			{
 				_expensesFileContent->append(buffer, strlen(buffer));
-				memset(&buffer, 0, BUFF_SIZE);
+				memset(&buffer, 0, Model::BUFF_SIZE);
 			}
 			else reading = false;
 		}
@@ -152,16 +169,16 @@ namespace Repositories
 
 		if(NULL != _incomesFileContent)
 			delete _incomesFileContent;
-		_incomesFileContent = new MAUtil::String("\0", 5*BUFF_SIZE);
+		_incomesFileContent = new MAUtil::String("\0", 5*Model::BUFF_SIZE);
 
-		char buffer[BUFF_SIZE];
+		char buffer[Model::BUFF_SIZE];
 		bool reading = true;
 		while(reading)
 		{
-			if(0 <= maFileRead(_DBIncomes, &buffer, BUFF_SIZE) && strlen(buffer) > 0)
+			if(0 <= maFileRead(_DBIncomes, &buffer, Model::BUFF_SIZE) && strlen(buffer) > 0)
 			{
 				_incomesFileContent->append(buffer, strlen(buffer));
-				memset(&buffer, 0, BUFF_SIZE);
+				memset(&buffer, 0, Model::BUFF_SIZE);
 			}
 			else reading = false;
 		}
