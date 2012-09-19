@@ -215,11 +215,6 @@ namespace GUI
 		 */
 		void _removeActivityIndicator();
 
-		/**
-		 * \brief This function sets the _isWP7 and _isIOS bool values
-		 */
-		void _setPlatform();
-
 		// Member data
 		double _budgetTotalValue;
 		double _budgetConsumedValue;
@@ -234,8 +229,6 @@ namespace GUI
 		bool _incomesDialogLoaded;
 		bool _expensesDialogLoaded;
 		bool _progressBarActive;
-		bool _isWP7;
-		bool _isIOS;
 
 		// Observer reference
 		Logical::Observer* _observerReference;

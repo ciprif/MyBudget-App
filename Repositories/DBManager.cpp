@@ -26,7 +26,7 @@ MA 02110-1301, USA.
 #include <MAUtil/util.h>
 #include <MAFS/File.h>
 #include <conprint.h>
-#include "../Model/util.h"
+#include "../Model/ModelUtil.h"
 #include "DBManager.h"
 
 namespace Repositories

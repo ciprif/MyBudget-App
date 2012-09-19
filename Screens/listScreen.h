@@ -31,7 +31,7 @@ MA 02110-1301, USA.
 #include <MAUtil/Map.h>
 #include <MAUtil/Environment.h>
 #include "../Logical/observer.h"
-#include "../Model/util.h"
+#include "../Model/ModelUtil.h"
 
 // Forward declarations
 namespace Model
@@ -219,11 +219,6 @@ namespace GUI
 		void _clearAndRepopulateList();
 
 		/**
-		 * \brief This function sets the _isWP7 and _isIOS bool values
-		 */
-		void _setPlatform();
-
-		/**
 		 * \brief This function is called to create a list item
 		 * @param obj const Model::ListItemModel& the model object for the list view item
 		 * @param index int the index of the item
@@ -294,9 +289,6 @@ namespace GUI
 		int _countClicksDates;
 		int _countClicksAmount;
 		int _countClicksCategory;
-
-		bool _isWP7;
-		bool _isIOS;
 
 		MAUtil::String _coin;
 

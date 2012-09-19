@@ -22,7 +22,6 @@ MA 02110-1301, USA.
  */
 
 #include "incomeObject.h"
-#include "util.h"
 
 namespace Model
 {

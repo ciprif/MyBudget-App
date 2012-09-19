@@ -24,7 +24,7 @@ MA 02110-1301, USA.
 #ifndef SETTINGSMANAGER_H_
 #define SETTINGSMANAGER_H_
 
-#include "../Model/util.h"
+#include "../Model/ModelUtil.h"
 
 #define SETTINGS_FILE "settings.txt"
 

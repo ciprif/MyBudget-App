@@ -33,6 +33,7 @@ MA 02110-1301, USA.
 #include "addIncomeDialog.h"
 #include "../Logical/observer.h"
 #include "homeScreen.h"
+#include "GUIUtil.h"
 
 #include "MAHeaders.h"
 
@@ -61,7 +62,7 @@ namespace GUI
 		int screenWidth = EXTENT_X(size);
 		int screenHeight = EXTENT_Y(size);
 
-		_setPlatform();
+		DeterminePlatform();
 		SetSizeRelatedVariables();
 		_createUI(screenHeight, screenWidth);
 	}
@@ -120,9 +121,9 @@ namespace GUI
 	 */
 	void HomeScreen::createOptionsMenu()
 	{
-		if(!_isIOS)
+		if(!_IPhoneOS)
 		{
-			if(_isWP7)
+			if(_WindowsPhone7)
 			{
 				_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
 				_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
@@ -326,7 +327,7 @@ namespace GUI
 		//create the main layout
 		_mainLayout = new NativeUI::VerticalLayout();
 
-		if(_isWP7)
+		if(_WindowsPhone7)
 		{
 			_parentLayoutWidth = 8 * (screenWidth / 10);
 			_activityIndicator->fillSpaceHorizontally();
@@ -534,32 +535,6 @@ namespace GUI
 	void HomeScreen::_removeActivityIndicator()
 	{
 		_activityIndicator->hide();
-		if(!_isWP7) maWidgetDestroy(_activityIndicatorLayout->getWidgetHandle());
-	}
-
-
-	/**
-	 * \brief This function sets the _isWP7 and _isIOS bool values
-	 */
-	void HomeScreen::_setPlatform()
-	{
-		char buffer[Model::BUFF_SIZE];
-		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
-
-		if(strcmp(buffer, "iPhone OS") == 0)
-		{
-			_isWP7 = false;
-			_isIOS = true;
-		}
-		else if(strcmp(buffer, "Android") == 0)
-		{
-			_isWP7 = false;
-			_isIOS = false;
-		}
-		else
-		{
-			_isIOS = false;
-			_isWP7 = true;
-		}
+		if(!_WindowsPhone7) maWidgetDestroy(_activityIndicatorLayout->getWidgetHandle());
 	}
 }

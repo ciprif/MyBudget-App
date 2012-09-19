@@ -25,7 +25,7 @@ MA 02110-1301, USA.
 #define EXPENSEOBJECT_H_
 
 #include <MAUtil/String.h>
-#include "util.h"
+#include "ModelUtil.h"
 
 namespace Model
 {

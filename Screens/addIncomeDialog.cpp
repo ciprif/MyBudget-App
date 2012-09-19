@@ -38,7 +38,8 @@ MA 02110-1301, USA.
 #include "homeScreen.h"
 #include "listScreen.h"
 #include "MAHeaders.h"
-#include "../Model/util.h"
+#include "../Model/ModelUtil.h"
+#include "GUIUtil.h"
 
 #include "../Logical/settingsManager.h"
 
@@ -51,7 +52,7 @@ namespace GUI
 	{
 		_coin = GUI::DEFAULT_COIN;
 
-		_setPlatform();
+		DeterminePlatform();
 		SetSizeRelatedVariables();
 		_createUI();
 	}
@@ -64,7 +65,7 @@ namespace GUI
 	{
 		_coin = coin;
 
-		_setPlatform();
+		DeterminePlatform();
 		SetSizeRelatedVariables();
 		_createUI();
 	}
@@ -313,7 +314,7 @@ namespace GUI
 	void AddIncomeDialog::_createUI()
 	{
 		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
-		if(_isWP7) parent->setHeight(DIALOG_HEIGHT);
+		if(_WindowsPhone7) parent->setHeight(DIALOG_HEIGHT);
 		_mainLayout = new NativeUI::VerticalLayout();
 		_mainLayout->setScrollable(true);
 
@@ -598,23 +599,5 @@ namespace GUI
 		_descriptionEditBox->fillSpaceHorizontally();
 		_descriptionToggleButton->addToggleButtonListener(this);
 		_descriptionBoxParent->addChild(descritionToggleAndLabelParent);
-	}
-
-	/**
-	 * \brief This function is used for setting the _isWP7 bool value
-	 */
-	void AddIncomeDialog::_setPlatform()
-	{
-		char buffer[Model::BUFF_SIZE];
-		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
-
-		if(strcmp(buffer, "iPhone OS") == 0 || strcmp(buffer, "Android") == 0)
-		{
-			_isWP7 = false;
-		}
-		else
-		{
-			_isWP7 = true;
-		}
 	}
 }

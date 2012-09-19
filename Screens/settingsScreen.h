@@ -33,7 +33,7 @@ MA 02110-1301, USA.
 #include <MAUtil/String.h>
 
 #include "../Logical/observer.h"
-#include "../Model/util.h"
+#include "../Model/ModelUtil.h"
 
 // The list of coins or currencies
 const MAUtil::String COINS[] = { "EUR", "USD", "GBP", "CAD", "AUD", "JPY", "INR", "NZD",
@@ -184,11 +184,6 @@ namespace GUI
 		NativeUI::VerticalLayout* _createDebtValueSettingsLayout();
 
 		/**
-		 * \brief This function sets the _isWP7 and _isIOS bool values
-		 */
-		void _setPlatform();
-
-		/**
 		 * \brief This function is called in order to collapse the coin list
 		 */
 		void _collapseCoinList();
@@ -300,9 +295,6 @@ namespace GUI
 
 		// _dayValue stores the selected day value
 		int _dayValue;
-
-		bool _isWP7;
-		bool _isIOS;
 	};
 }
 

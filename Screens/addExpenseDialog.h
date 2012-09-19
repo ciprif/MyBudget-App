@@ -32,7 +32,7 @@ MA 02110-1301, USA.
 #include <NativeUI/SliderListener.h>
 #include <MAUtil/String.h>
 #include <MAUtil/Vector.h>
-#include "../Model/util.h"
+#include "../Model/ModelUtil.h"
 
 // Forward declarations
 namespace NativeUI
@@ -222,11 +222,6 @@ namespace GUI
 		 */
 		void _createDescriptionBox();
 
-		/**
-		 * \brief This function is used for setting the _isWP7 bool value
-		 */
-		void _setPlatform();
-
 		// References for HomeScreen and ListScreen; used for navigating back to the proper screen
 		HomeScreen* _homeScreenRef;
 		ListScreen* _listScreenRef;
@@ -262,7 +257,6 @@ namespace GUI
 		double _acceptedDept;
 
 		bool _launcedFromHomeScreen;
-		bool _isWP7;
 	};
 }
 
