@@ -1,8 +1,24 @@
-/*
- * addExpenseDialog.cpp
- *
- *  Created on: Jun 19, 2012
- *      Author: Cipri
+/* Copyright (C) 2011 MoSync AB
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License,
+version 2, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
+*/
+
+/**
+ * \file addExpenseDialog.cpp
+ * \author Ciprian Filipas
+ * \date Jun 19, 2012
  */
 
 #include <NativeUI/HorizontalLayout.h>
@@ -19,12 +35,12 @@
 #include <NativeUI/DatePicker.h>
 
 #include "../Logical/observer.h"
+#include "../Logical/settingsManager.h"
+#include "GUIUtil.h"
 #include "addExpenseDialog.h"
 #include "homeScreen.h"
 #include "listScreen.h"
 #include "MAHeaders.h"
-
-#include "../Logical/settingsManager.h"
 
 NativeUI::CheckBox* recursiveStateChangedCB;
 
@@ -39,7 +55,7 @@ namespace GUI
 		_availableBudget = MAX_VALUE;
 		_acceptedDept = MAX_VALUE;
 		checkBoxVector = NULL;
-		_setPlatform();
+		DeterminePlatform();
 		SetSizeRelatedVariables();
 		_createUI();
 	}
@@ -56,7 +72,7 @@ namespace GUI
 		_availableBudget = availableBudget;
 		_acceptedDept = posibleDeptValue;
 		checkBoxVector = NULL;
-		_setPlatform();
+		DeterminePlatform();
 		SetSizeRelatedVariables();
 		_createUI();
 	}
@@ -336,7 +352,7 @@ namespace GUI
 		int screenHeight = EXTENT_Y(size);
 
 		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
-		if(_isWP7) parent->setHeight(DIALOG_HEIGHT);
+		if(_WindowsPhone7) parent->setHeight(DIALOG_HEIGHT);
 		_mainLayout = new NativeUI::VerticalLayout();
 		_mainLayout->setScrollable(true);
 
@@ -654,23 +670,5 @@ namespace GUI
 		_descriptionEditBox->fillSpaceHorizontally();
 		_descriptionToggleButton->addToggleButtonListener(this);
 		_descriptionBoxParent->addChild(descritionToggleAndLabelParent);
-	}
-
-	/**
-	 * \brief This function is used for setting the _isWP7 bool value
-	 */
-	void AddExpenseDialog::_setPlatform()
-	{
-		char buffer[BUFF_SIZE];
-		maGetSystemProperty("mosync.device.OS", buffer, BUFF_SIZE);
-
-		if(strcmp(buffer, "iPhone OS") == 0 || strcmp(buffer, "Android") == 0)
-		{
-			_isWP7 = false;
-		}
-		else
-		{
-			_isWP7 = true;
-		}
 	}
 }

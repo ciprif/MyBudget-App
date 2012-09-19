@@ -1,8 +1,23 @@
-/*
- * settingsScreen.cpp
- *
- *  Created on: Jul 17, 2012
- *      Author: Cipri
+/* Copyright (C) 2011 MoSync AB
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License,
+version 2, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
+*/
+/**
+ * \file settingsScreen.cpp
+ * \author Ciprian Filipas
+ * \date Jul 17, 2012
  */
 
 #include <NativeUI/VerticalLayout.h>
@@ -17,6 +32,7 @@
 #include <NativeUI/NumberPicker.h>
 #include <NativeUI/DatePicker.h>
 
+#include "GUIUtil.h"
 #include "settingsScreen.h"
 #include "../Logical/settingsManager.h"
 
@@ -33,7 +49,7 @@ namespace GUI
 		_coin = COINS[0]; //Default value
 
 		clickCount = 0;
-		_setPlatform();
+		DeterminePlatform();
 		_createUI();
 	}
 
@@ -47,7 +63,7 @@ namespace GUI
 		_fromDate->removeCheckBoxListener(this);
 		_datePicker->removeDatePickerListener(this);
 		_newDebtValueEditBox->removeEditBoxListener(this);
-		if(_isWP7) _numberPicker->removeNumberPickerListener(this);
+		if(_WindowsPhone7) _numberPicker->removeNumberPickerListener(this);
 		else _numberPickerReplace->removeEditBoxListener(this);
 	}
 
@@ -186,7 +202,7 @@ namespace GUI
 	 */
 	void SettingsScreen::createOptionsMenu()
 	{
-		if(!_isIOS)
+		if(!_IPhoneOS)
 		{
 			_saveButtonIndex = addOptionsMenuItem("Save", MAW_OPTIONS_MENU_ICON_CONSTANT_SAVE, false);
 			_restoreButtonIndex = addOptionsMenuItem("Restore", MAW_OPTIONS_MENU_ICON_CONSTANT_CLOSE_CLEAR_CANCEL, false);
@@ -207,7 +223,7 @@ namespace GUI
 		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
 		_mainLayout = new NativeUI::VerticalLayout();
 
-		if(_isWP7)
+		if(_WindowsPhone7)
 		{
 			_itemWidth = 9 * (screenWidth / 10) - screenWidth / 30;
 
@@ -275,14 +291,14 @@ namespace GUI
 		coinLabelText += _coin;
 
 		_coinLabel->setText(coinLabelText);
-		if(!_isWP7) _coinLabel->fillSpaceHorizontally();
+		if(!_WindowsPhone7) _coinLabel->fillSpaceHorizontally();
 		lprintfln("settings screen dialog font size %d", _dialogFontSize);
 		_coinLabel->setFontSize(_dialogFontSize);
 		_coinLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 
 		NativeUI::VerticalLayout* toggleAndLabelParent = new NativeUI::VerticalLayout();
 
-		if(!_isWP7) toggleAndLabelParent->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+		if(!_WindowsPhone7) toggleAndLabelParent->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 
 		_coinChangeToggle = new NativeUI::Button();
 		_coinChangeToggle->setText("Change coin");
@@ -316,7 +332,7 @@ namespace GUI
 	{
 		NativeUI::VerticalLayout* transactionListSettings = new NativeUI::VerticalLayout();
 		transactionListSettings->wrapContentVertically();
-		if(!_isWP7)
+		if(!_WindowsPhone7)
 		{
 			transactionListSettings->fillSpaceHorizontally();
 			transactionListSettings->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
@@ -370,7 +386,7 @@ namespace GUI
 		transactionListSettings->addChild(checkBoxLabelLayoutFromDate);
 
 		_datePicker = new NativeUI::DatePicker();
-		if(_isWP7)
+		if(_WindowsPhone7)
 		{
 			_numberPicker = new NativeUI::NumberPicker();
 			_numberPicker->addNumberPickerListener(this);
@@ -413,7 +429,7 @@ namespace GUI
 
 		_debtValueLabel = new NativeUI::Label(debtValueLabelText);
 		_debtValueLabel->setFontSize(_dialogFontSize);
-		if(!_isWP7) _debtValueLabel->fillSpaceHorizontally();
+		if(!_WindowsPhone7) _debtValueLabel->fillSpaceHorizontally();
 		_debtValueLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 
 		_newDebtValueEditBox = new NativeUI::EditBox();
@@ -426,35 +442,9 @@ namespace GUI
 		debtValueSettingsParent->addChild(_debtValueLabel);
 		debtValueSettingsParent->addChild(_newDebtValueEditBox);
 
-		if(!_isWP7) debtValueSettingsParent->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+		if(!_WindowsPhone7) debtValueSettingsParent->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 
 		return debtValueSettingsParent;
-	}
-
-
-	/**
-	 * \brief This function sets the _isWP7 and _isIOS bool values
-	 */
-	void SettingsScreen::_setPlatform()
-	{
-		char buffer[BUFF_SIZE];
-		maGetSystemProperty("mosync.device.OS", buffer, BUFF_SIZE);
-
-		if(strcmp(buffer, "iPhone OS") == 0)
-		{
-			_isWP7 = false;
-			_isIOS = true;
-		}
-		else if(strcmp(buffer, "Android") == 0)
-		{
-			_isWP7 = false;
-			_isIOS = false;
-		}
-		else
-		{
-			_isIOS = false;
-			_isWP7 = true;
-		}
 	}
 
 	/**
@@ -474,7 +464,7 @@ namespace GUI
 	void SettingsScreen::_expendCoinList()
 	{
 		_coinSettingsLayout->addChild(_coinsList);
-		if(!_isWP7) _coinSettingsLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+		if(!_WindowsPhone7) _coinSettingsLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		_coinsList->addListViewListener(this);
 		clickCount++;
 		clickCount %= 2;
@@ -511,7 +501,7 @@ namespace GUI
 				_transactionSettingsLayout->removeChild(_datePicker);
 		}
 
-		if(_isWP7) _transactionSettingsLayout->addChild(_numberPicker);
+		if(_WindowsPhone7) _transactionSettingsLayout->addChild(_numberPicker);
 		else _transactionSettingsLayout->addChild(_numberPickerReplace);
 
 		if(_isAllItems) _allItems->setState(false);
@@ -530,7 +520,7 @@ namespace GUI
 	{
 		if(_transactionSettingsLayout->countChildWidgets() == 4)
 		{
-			if(_transactionSettingsLayout->getChild(3) == _numberPicker && _isWP7)
+			if(_transactionSettingsLayout->getChild(3) == _numberPicker && _WindowsPhone7)
 				_transactionSettingsLayout->removeChild(_numberPicker);
 			else if(_transactionSettingsLayout->getChild(3) == _numberPickerReplace)
 				_transactionSettingsLayout->removeChild(_numberPickerReplace);
@@ -562,7 +552,7 @@ namespace GUI
 
 		if(_isMonthly)
 		{
-			if(_isWP7)
+			if(_WindowsPhone7)
 			{
 				d._day = _dayValue;
 			}
@@ -633,7 +623,7 @@ namespace GUI
 	{
 		if(_isAllItems)
 		{
-			if(_isWP7) checkBoxStateChanged(_allItems, true);
+			if(_WindowsPhone7) checkBoxStateChanged(_allItems, true);
 			else
 			{
 				_allItems->setState(true);
@@ -643,7 +633,7 @@ namespace GUI
 		}
 		else if(_isMonthly)
 		{
-			if(_isWP7) checkBoxStateChanged(_monthly, true);
+			if(_WindowsPhone7) checkBoxStateChanged(_monthly, true);
 			else
 			{
 				_monthly->setState(true);
@@ -656,7 +646,7 @@ namespace GUI
 		}
 		else if(_isFromDate)
 		{
-			if(_isWP7) checkBoxStateChanged(_fromDate, true);
+			if(_WindowsPhone7) checkBoxStateChanged(_fromDate, true);
 			else
 			{
 				_fromDate->setState(true);

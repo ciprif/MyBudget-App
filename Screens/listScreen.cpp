@@ -1,16 +1,32 @@
-/*
- * expensesListScreen.cpp
- *
- *  Created on: Jun 18, 2012
- *      Author: Cipri
+/* Copyright (C) 2011 MoSync AB
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License,
+version 2, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
+*/
+/**
+ * \file expensesListScreen.cpp
+ * \author Ciprian Filipas
+ * \date Jun 18, 2012
  */
 
 #include "listScreen.h"
 #include <NativeUI/HorizontalLayout.h>
 #include <NativeUI/VerticalLayout.h>
 #include <MAUtil/Vector.h>
-
 #include <NativeUI/ListView.h>
+
+#include "GUIUtil.h"
 #include "../Model/expenseObject.h"
 #include "../Model/incomeObject.h"
 #include "../Model/listItemModel.h"
@@ -124,9 +140,9 @@ namespace GUI
 		int screenWidth = EXTENT_X(size);
 		int screenHeight = EXTENT_Y(size);
 
-		_setPlatform();
+		DeterminePlatform();
 
-		if(_isWP7) _itemWidth = 9 * (screenWidth / 10) - screenWidth / 30;
+		if(_WindowsPhone7) _itemWidth = 9 * (screenWidth / 10) - screenWidth / 30;
 		else _itemWidth = (int)(screenWidth * 0.95);
 
 		_createUI();
@@ -317,9 +333,9 @@ namespace GUI
 	 */
 	void ListScreen::createOptionsMenu()
 	{
-		if(!_isIOS)
+		if(!_IPhoneOS)
 		{
-			if(_isWP7)
+			if(_WindowsPhone7)
 			{
 				_addExpenseIndex = addOptionsMenuItem("Expense", "addIncome.png", true);
 				_addIncomeIndex = addOptionsMenuItem("Income", MAW_OPTIONS_MENU_ICON_CONSTANT_ADD, false);
@@ -534,31 +550,6 @@ namespace GUI
 	}
 
 	/**
-	 * \brief This function sets the _isWP7 and _isIOS bool values
-	 */
-	void ListScreen::_setPlatform()
-	{
-		char buffer[Model::BUFF_SIZE];
-		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
-
-		if(strcmp(buffer, "iPhone OS") == 0)
-		{
-			_isWP7 = false;
-			_isIOS = true;
-		}
-		else if(strcmp(buffer, "Android") == 0)
-		{
-			_isWP7 = false;
-			_isIOS = false;
-		}
-		else
-		{
-			_isIOS = false;
-			_isWP7 = true;
-		}
-	}
-
-	/**
 	 * \brief This function is called to create a list item
 	 * @param obj const Model::ListItemModel& the model object for the list view item
 	 * @param index int the index of the item
@@ -567,7 +558,7 @@ namespace GUI
 	NativeUI::VerticalLayout* ListScreen::_createListItem(const Model::ListItemModel& obj, int index)
 	{
 		NativeUI::VerticalLayout* itemParent = new NativeUI::VerticalLayout();
-		if(_isWP7) itemParent->setWidth(_itemWidth);
+		if(_WindowsPhone7) itemParent->setWidth(_itemWidth);
 		else itemParent->fillSpaceHorizontally();
 
 		NativeUI::HorizontalLayout* visiblePart = new NativeUI::HorizontalLayout();
@@ -581,7 +572,7 @@ namespace GUI
 		typeLabel->fillSpaceHorizontally();
 		sumLabel->fillSpaceHorizontally();
 
-		if(!_isWP7) sumLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
+		if(!_WindowsPhone7) sumLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
 
 		if(obj.IsExpense())
 		{
@@ -638,7 +629,7 @@ namespace GUI
 		details->setText(aux);
 		details->setMaxNumberOfLines(10);
 
-		if(_isWP7) details->setWidth(_itemWidth);
+		if(_WindowsPhone7) details->setWidth(_itemWidth);
 		else details->fillSpaceHorizontally();
 
 		details->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
@@ -674,7 +665,7 @@ namespace GUI
 		details->setText(aux);
 		details->setMaxNumberOfLines(10);
 
-		if(_isWP7) details->setWidth(_itemWidth);
+		if(_WindowsPhone7) details->setWidth(_itemWidth);
 		else details->fillSpaceHorizontally();
 
 		details->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);

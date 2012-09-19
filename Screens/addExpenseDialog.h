@@ -1,8 +1,25 @@
-/*
- * addExpenseDialog.h
+/* Copyright (C) 2011 MoSync AB
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License,
+version 2, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
+*/
+
+/**
  *
- *  Created on: Jun 19, 2012
- *      Author: Cipri
+ * \file addExpenseDialog.h
+ * \author Ciprian Filipas
+ * \date Jun 19, 2012
  */
 
 #ifndef ADDEXPENSEDIALOG_H_
@@ -16,8 +33,9 @@
 #include <NativeUI/EditBoxListener.h>
 #include <MAUtil/String.h>
 #include <MAUtil/Vector.h>
-#include "../Model/util.h"
+#include "../Model/ModelUtil.h"
 
+// Forward declarations
 namespace NativeUI
 {
 	class HorizontalLayout;
@@ -43,6 +61,9 @@ namespace GUI
 	class HomeScreen;
 	class ListScreen;
 
+	/**
+	 * \brief Class for the dialog shown when the user requires an expense addition
+	 */
 	class AddExpenseDialog : public NativeUI::Dialog, public NativeUI::CheckBoxListener,
 							 public NativeUI::ButtonListener, public NativeUI::ToggleButtonListener,
 							 public NativeUI::SliderListener, public NativeUI::EditBoxListener
@@ -209,11 +230,6 @@ namespace GUI
 		 */
 		void _createDescriptionBox();
 
-		/**
-		 * \brief This function is used for setting the _isWP7 bool value
-		 */
-		void _setPlatform();
-
 		// References for HomeScreen and ListScreen; used for navigating back to the proper screen
 		HomeScreen* _homeScreenRef;
 		ListScreen* _listScreenRef;
@@ -249,7 +265,6 @@ namespace GUI
 		double _acceptedDept;
 
 		bool _launcedFromHomeScreen;
-		bool _isWP7;
 	};
 }
 

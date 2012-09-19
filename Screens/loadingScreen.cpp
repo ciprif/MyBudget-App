@@ -1,8 +1,23 @@
-/*
- * loadingScreen.cpp
- *
- *  Created on: Aug 2, 2012
- *      Author: Cipri
+/* Copyright (C) 2011 MoSync AB
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License,
+version 2, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
+*/
+/**
+ * \file loadingScreen.cpp
+ * \author Ciprian Filipas
+ * \date Aug 2, 2012
  */
 
 
@@ -12,7 +27,8 @@
 #include <NativeUI/Label.h>
 
 #include "loadingScreen.h"
-#include "../Model/util.h"
+#include "../Model/ModelUtil.h"
+#include "GUIUtil.h"
 
 namespace GUI
 {
@@ -21,7 +37,7 @@ namespace GUI
 	 */
 	LoadingScreen::LoadingScreen()
 	{
-		_setPlatform();
+		DeterminePlatform();
 		_createUI();
 	}
 
@@ -43,7 +59,7 @@ namespace GUI
 		NativeUI::VerticalLayout* spacer2;
 		NativeUI::VerticalLayout* spacer3;
 
-		if(_isWP7)
+		if(_WindowsPhone7)
 		{
 			loading = new NativeUI::Label("Loading...");
 			loading->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
@@ -62,7 +78,7 @@ namespace GUI
 		mainLayout->addChild(spacer1);
 		mainLayout->addChild(activityIndicator);
 
-		if(_isWP7)
+		if(_WindowsPhone7)
 		{
 			mainLayout->addChild(loading);
 			mainLayout->addChild(spacer3);
@@ -76,23 +92,5 @@ namespace GUI
 		activityIndicator->show();
 
 		this->setMainWidget(mainLayout);
-	}
-
-	/**
-	 * \brief This function sets _isWP7 bool value
-	 */
-	void LoadingScreen::_setPlatform()
-	{
-		char buffer[Model::BUFF_SIZE];
-		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
-
-		if(strcmp(buffer, "iPhone OS") == 0 || strcmp(buffer, "Android") == 0)
-		{
-			_isWP7 = false;
-		}
-		else
-		{
-			_isWP7 = true;
-		}
 	}
 }

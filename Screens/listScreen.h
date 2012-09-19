@@ -1,8 +1,23 @@
-/*
- * listScreen.h
- *
- *  Created on: Jun 18, 2012
- *      Author: Cipri
+/* Copyright (C) 2011 MoSync AB
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License,
+version 2, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
+*/
+/**
+ * \file listScreen.h
+ * \author Ciprian Filipas
+ * \date Jun 18, 2012
  */
 
 #ifndef LISTSCREEN_H_
@@ -16,7 +31,7 @@
 #include <MAUtil/Map.h>
 #include <MAUtil/Environment.h>
 #include "../Logical/observer.h"
-#include "../Model/util.h"
+#include "../Model/ModelUtil.h"
 
 // Forward declarations
 namespace Model
@@ -40,6 +55,9 @@ namespace GUI
 	class AddExpenseDialog;
 	class AddIncomeDialog;
 
+	/**
+	 * \brief Class for the transactions screen
+	 */
 	class ListScreen : public NativeUI::Screen, public NativeUI::ListViewListener, public NativeUI::ScreenListener, public MAUtil::CustomEventListener
 	{
 	public:
@@ -201,11 +219,6 @@ namespace GUI
 		void _clearAndRepopulateList();
 
 		/**
-		 * \brief This function sets the _isWP7 and _isIOS bool values
-		 */
-		void _setPlatform();
-
-		/**
 		 * \brief This function is called to create a list item
 		 * @param obj const Model::ListItemModel& the model object for the list view item
 		 * @param index int the index of the item
@@ -276,9 +289,6 @@ namespace GUI
 		int _countClicksDates;
 		int _countClicksAmount;
 		int _countClicksCategory;
-
-		bool _isWP7;
-		bool _isIOS;
 
 		MAUtil::String _coin;
 
