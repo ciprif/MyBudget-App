@@ -64,7 +64,8 @@ namespace GUI
 		_transactionInformationToggleButton->removeToggleButtonListener(this);
 		_amountSliderThousands->removeSliderListener(this);
 		_amountSliderUnits->removeSliderListener(this);
-
+		_descriptionEditBox->removeEditBoxListener(this);
+		_transactionInformationEditBox->removeEditBoxListener(this);
 		MAUtil::Vector<NativeUI::CheckBox*>::iterator it;
 		for(it = _checkBoxVector->begin(); it != _checkBoxVector->end(); it++)
 		{
@@ -255,8 +256,10 @@ namespace GUI
 
 		_descriptionBoxParent->removeChild(_descriptionEditBox);
 		_descriptionEditBox->setText("");
+		_descriptionEditBox->addEditBoxListener(this);
 		_transactionInfoBoxParent->removeChild(_transactionInformationEditBox);
 		_transactionInformationEditBox->setText("");
+		_transactionInformationEditBox->addEditBoxListener(this);
 
 		NativeUI::Dialog::show();
 
@@ -289,6 +292,16 @@ namespace GUI
 	void AddIncomeDialog::setLaunchedFromHomeScreen(bool value)
 	{
 		_launcedFromHomeScreen = value;
+	}
+
+	/**
+	 * \brief This function handles the return press button event from the querty keyboard;
+	 * 		  this function is inherited from the NativeUI::EditBoxListener class.
+	 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
+	 */
+	void AddIncomeDialog::editBoxReturn(NativeUI::EditBox *editBox)
+	{
+		editBox->hideKeyboard();
 	}
 
 	/**

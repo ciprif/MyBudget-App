@@ -316,7 +316,15 @@ namespace GUI
 		_launcedFromHomeScreen = value;
 	}
 
-
+	/**
+	 * \brief This function handles the return press button event from the querty keyboard;
+	 * 		  this function is inherited from the NativeUI::EditBoxListener class.
+	 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
+	 */
+	void AddExpenseDialog::editBoxReturn(NativeUI::EditBox *editBox)
+	{
+		editBox->hideKeyboard();
+	}
 
 	/**
 	 * \brief This function is used for triggering the UI creation

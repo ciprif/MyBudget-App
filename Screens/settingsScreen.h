@@ -16,6 +16,7 @@
 #include <NativeUI/DatePickerListener.h>
 #include <NativeUI/ListViewListener.h>
 #include <MAUtil/String.h>
+#include <NativeUI/EditBoxListener.h>
 
 #include "../Logical/observer.h"
 #include "../Model/util.h"
@@ -50,9 +51,10 @@ namespace NativeUI
 
 namespace GUI
 {
-	class SettingsScreen : public NativeUI::Screen, public NativeUI::ScreenListener, public NativeUI::CheckBoxListener,
-						   public NativeUI::ButtonListener, public NativeUI::ListViewListener,
-						   public NativeUI::DatePickerListener, public NativeUI::NumberPickerListener
+	class SettingsScreen : public NativeUI::Screen, public NativeUI::ScreenListener,
+						   public NativeUI::CheckBoxListener, public NativeUI::ButtonListener,
+						   public NativeUI::ListViewListener, public NativeUI::DatePickerListener,
+						   public NativeUI::NumberPickerListener, public NativeUI::EditBoxListener
 	{
 	public:
 		/**
@@ -131,6 +133,13 @@ namespace GUI
 		 * @param selected const NativeUI::Date& the selected date
 		 */
 		void datePickerValueChanged(NativeUI::DatePicker* datePicker, const NativeUI::Date& selected) {}
+
+		/**
+		 * \brief This function handles the return press button event from the querty keyboard;
+		 * 		  this function is inherited from the NativeUI::EditBoxListener class.
+		 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
+		 */
+		void editBoxReturn(NativeUI::EditBox *editBox);
 
 		/**
 		 * \brief This function is used for creating the options menu related controls

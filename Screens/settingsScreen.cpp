@@ -46,7 +46,9 @@ namespace GUI
 		_monthly->removeCheckBoxListener(this);
 		_fromDate->removeCheckBoxListener(this);
 		_datePicker->removeDatePickerListener(this);
+		_newDebtValueEditBox->removeEditBoxListener(this);
 		if(_isWP7) _numberPicker->removeNumberPickerListener(this);
+		else _numberPickerReplace->removeEditBoxListener(this);
 	}
 
 	/**
@@ -170,6 +172,16 @@ namespace GUI
 	}
 
 	/**
+	 * \brief This function handles the return press button event from the querty keyboard;
+	 * 		  this function is inherited from the NativeUI::EditBoxListener class.
+	 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
+	 */
+	void SettingsScreen::editBoxReturn(NativeUI::EditBox *editBox)
+	{
+		editBox->hideKeyboard();
+	}
+
+	/**
 	 * \brief This function is used for creating the options menu related controls
 	 */
 	void SettingsScreen::createOptionsMenu()
@@ -256,6 +268,7 @@ namespace GUI
 	{
 		NativeUI::VerticalLayout* parentLayout = new NativeUI::VerticalLayout();
 		parentLayout->wrapContentVertically();
+
 		_coinLabel = new NativeUI::Label();
 
 		MAUtil::String coinLabelText = "The current coin: ";
@@ -372,6 +385,7 @@ namespace GUI
 			_numberPickerReplace->setInputMode(NativeUI::EDIT_BOX_INPUT_MODE_NUMERIC);
 			_numberPickerReplace->setWidth(_itemWidth);
 			_numberPickerReplace->wrapContentVertically();
+			_numberPickerReplace->addEditBoxListener(this);
 		}
 
 		_datePicker->addDatePickerListener(this);
@@ -407,6 +421,7 @@ namespace GUI
 		_newDebtValueEditBox->setWidth(_itemWidth);
 		_newDebtValueEditBox->wrapContentVertically();
 		_newDebtValueEditBox->setPlaceholder("New debt value");
+		_newDebtValueEditBox->addEditBoxListener(this);
 
 		debtValueSettingsParent->addChild(_debtValueLabel);
 		debtValueSettingsParent->addChild(_newDebtValueEditBox);

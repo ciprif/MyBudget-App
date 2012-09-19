@@ -14,6 +14,7 @@
 #include <NativeUI/ToggleButtonListener.h>
 #include <NativeUI/SliderListener.h>
 #include <NativeUI/DatePickerListener.h>
+#include <NativeUI/EditBoxListener.h>
 #include <MAUtil/String.h>
 #include <MAUtil/Vector.h>
 #include "../Model/util.h"
@@ -41,7 +42,8 @@ namespace GUI
 
 	class AddIncomeDialog : public NativeUI::Dialog, public NativeUI::CheckBoxListener,
 							public NativeUI::ButtonListener, public NativeUI::ToggleButtonListener,
-							public NativeUI::SliderListener, public NativeUI::DatePickerListener
+							public NativeUI::SliderListener, public NativeUI::DatePickerListener,
+							public NativeUI::EditBoxListener
 	{
 	public:
 		/**
@@ -134,6 +136,13 @@ namespace GUI
 		 * @param selected const NativeUI::Date& the selected date
 		 */
 		void datePickerValueChanged(NativeUI::DatePicker* datePicker, const NativeUI::Date& selectedDate){}
+
+		/**
+		 * \brief This function handles the return press button event from the querty keyboard;
+		 * 		  this function is inherited from the NativeUI::EditBoxListener class.
+		 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
+		 */
+		void editBoxReturn(NativeUI::EditBox *editBox);
 	private:
 		/**
 		 * \brief This function is used for triggering the UI creation

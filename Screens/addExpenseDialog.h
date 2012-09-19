@@ -13,6 +13,7 @@
 #include <NativeUI/ButtonListener.h>
 #include <NativeUI/ToggleButtonListener.h>
 #include <NativeUI/SliderListener.h>
+#include <NativeUI/EditBoxListener.h>
 #include <MAUtil/String.h>
 #include <MAUtil/Vector.h>
 #include "../Model/util.h"
@@ -44,7 +45,7 @@ namespace GUI
 
 	class AddExpenseDialog : public NativeUI::Dialog, public NativeUI::CheckBoxListener,
 							 public NativeUI::ButtonListener, public NativeUI::ToggleButtonListener,
-							 NativeUI::SliderListener
+							 public NativeUI::SliderListener, public NativeUI::EditBoxListener
 	{
 	public:
 		/**
@@ -148,6 +149,13 @@ namespace GUI
 		 * @param value bool true if the this dialog was launched from the home screen, false otherwise
 		 */
 		void setLaunchedFromHomeScreen(bool value);
+
+		/**
+		 * \brief This function handles the return press button event from the querty keyboard;
+		 * 		  this function is inherited from the NativeUI::EditBoxListener class.
+		 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
+		 */
+		void editBoxReturn(NativeUI::EditBox *editBox);
 	private:
 		/**
 		 * \brief This function is used for triggering the UI creation
