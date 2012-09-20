@@ -25,6 +25,8 @@ MA 02110-1301, USA.
 
 #include <NativeUI/Screen.h>
 #include <NativeUI/ScreenListener.h>
+#include <NativeUI/ButtonListener.h>
+#include <MAUtil/Environment.h>
 #include <MAUtil/String.h>
 
 #define BUFFER_SIZE 256
@@ -46,6 +48,7 @@ namespace NativeUI
 	class PanoramaView;
 	class Dialog;
 	class ActivityIndicator;
+	class Button;
 }
 
 namespace Logical
@@ -58,7 +61,8 @@ namespace GUI
 	/**
 	 * \brief Class for the home screen
 	 */
-	class HomeScreen : public NativeUI::Screen, public NativeUI::ScreenListener
+	class HomeScreen : public NativeUI::Screen, public NativeUI::ScreenListener, public NativeUI::ButtonListener,
+					   public MAUtil::CustomEventListener
 	{
 	public:
 		/**
@@ -72,7 +76,7 @@ namespace GUI
 		~HomeScreen();
 
 		/**
-		 * This method is called when the OptionsMenu is being closed
+		 * This function is called when the OptionsMenu is being closed
 		 * (either by the user canceling the menu with the back/menu
 		 * button, or when an item is selected.
 		 * @param screen The screen that generated the event.
@@ -91,6 +95,18 @@ namespace GUI
 		 * \brief This function creates the options menu
 		 */
 		void createOptionsMenu();
+
+		/**
+		 * \brief This function is called when a button is clicked.
+		 * @param button NativeUI::Widget* pointer to the button that triggered the event
+		 */
+		void buttonClicked(NativeUI::Widget* button);
+
+		/**
+		 * \brief This function is used for handling the custom event triggered by the alert box
+		 * @param event const MAEvent& the event type
+		 */
+		void customEvent(const MAEvent& event);
 
 		/**
 		 * \brief This function sets the observer for this screen
@@ -215,6 +231,16 @@ namespace GUI
 		 */
 		void _removeActivityIndicator();
 
+		/**
+		 *\brief This function shows the AddIncome dialog if needed
+		 */
+		void _createAddIncomeDialog();
+
+		/**
+		 *\brief This function shows the AddExpense dialog if needed
+		 */
+		void _createAddExpenseDialog();
+
 		// Member data
 		double _budgetTotalValue;
 		double _budgetConsumedValue;
@@ -248,6 +274,8 @@ namespace GUI
 
 		NativeUI::ActivityIndicator* _activityIndicator;
 		NativeUI::VerticalLayout* _activityIndicatorLayout;
+
+		NativeUI::Button* _optionsButton;
 
 		// Dialogs references
 		AddExpenseDialog* _addExpensesDialog;

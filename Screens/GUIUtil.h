@@ -28,6 +28,9 @@ MA 02110-1301, USA.
 
 namespace GUI
 {
+	const MAUtil::WString HOME_SCREEN_OPTIONS_BOX_BUTTONS_TITLES[] = { L"Add income", L"Add expense" };
+	const int HOME_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH = 2;
+
 	// UI related constants
 	const int GRAY = 0xC0C0C0;
 	const int GREEN = 0x00FF00;
@@ -108,12 +111,20 @@ namespace GUI
 			_imageButtonHeight = IMAGE_BUTTON_HEIGHT_MEDIUM;
 			break;
 		case 2:
-			_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE; /** @todo check if iPhone OS and make it _dialogFontSize - 5 */
-			_dialogSmallFontSize = DIALOG_FONT_SIZE_SMALL_SCREEN_LARGE;
-			_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE;
-			_dialogButtonWidth = DIALOG_BUTTON_WIDTH_SCREEN_LARGE;
-			_imageButtonWidth = IMAGE_BUTTON_WIDTH_LARGE;
-			_imageButtonHeight = IMAGE_BUTTON_HEIGHT_LARGE;
+			if(_IPhoneOS)
+			{
+				_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE - 10;
+				_dialogSmallFontSize = DIALOG_FONT_SIZE_SMALL_SCREEN_LARGE - 10;
+			}
+			else
+			{
+				_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE; /** @todo check if iPhone OS and make it _dialogFontSize - 5 */
+				_dialogSmallFontSize = DIALOG_FONT_SIZE_SMALL_SCREEN_LARGE;
+				_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE;
+				_dialogButtonWidth = DIALOG_BUTTON_WIDTH_SCREEN_LARGE;
+				_imageButtonWidth = IMAGE_BUTTON_WIDTH_LARGE;
+				_imageButtonHeight = IMAGE_BUTTON_HEIGHT_LARGE;
+			}
 			break;
 		}
 	}

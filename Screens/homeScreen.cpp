@@ -28,6 +28,7 @@ MA 02110-1301, USA.
 #include <NativeUI/PanoramaView.h>
 #include <NativeUI/ActivityIndicator.h>
 #include <NativeUI/RelativeLayout.h>
+#include <NativeUI/Button.h>
 
 #include "addExpenseDialog.h"
 #include "addIncomeDialog.h"
@@ -55,6 +56,9 @@ namespace GUI
 		{
 			_valueMap->insert(Model::CATEGORY_LIST[i], 0);
 		}
+		/* Attached this as Custom event listener in order to capture the button clicked event
+		   from an alert */
+		 MAUtil::Environment::getEnvironment().addCustomEventListener(this);
 
 		addScreenListener(this);
 
@@ -88,30 +92,11 @@ namespace GUI
 		{
 			if(_addExpenseIndex == index) //add expense screen
 			{
-				if(NULL != _addExpensesDialog)
-				{
-					_addExpensesDialog->setObserver(_observerReference);
-
-					_budgetTotalValue =  _observerReference->requestTotalBudget();
-					_budgetConsumedValue = _observerReference->requestConsumedBudget();
-
-					_addExpensesDialog->setAvailableBudget(_budgetTotalValue - _budgetConsumedValue);
-					_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
-					_addExpensesDialog->setCoin(_coin);
-					_addExpensesDialog->updateAmountSliderValue();
-					_addExpensesDialog->setLaunchedFromHomeScreen(true);
-					_addExpensesDialog->show();
-				}
+				_createAddExpenseDialog();
 			}
 			else if(_addIncomeIndex == index) //settings screen
 			{
-				if(NULL != _addIncomeDialog)
-				{
-					_addIncomeDialog->setCoin(_coin);
-					_addIncomeDialog->setObserver(_observerReference);
-					_addIncomeDialog->setLaunchedFromHomeScreen(true);
-					_addIncomeDialog->show();
-				}
+				_createAddIncomeDialog();
 			}
 		}
 	}
@@ -134,8 +119,79 @@ namespace GUI
 				_addIncomeIndex = addOptionsMenuItem("Add income");
 			}
 		}
+		else
+		{
+			if(NULL == _optionsButton)
+			{
+				_optionsButton = new NativeUI::Button();
+				_optionsButton->setBackgroundColor(255, 0, 0);
+				_optionsButton->fillSpaceHorizontally();
+				_optionsButton->setText("Options");
+				_optionsButton->addButtonListener(this);
+				_mainLayout->addChild(_optionsButton);
+			}
+		}
 	}
 
+
+	void HomeScreen::buttonClicked(NativeUI::Widget* button)
+	{
+		if(button == _optionsButton)
+		{
+			MAUtil::WString boxTitle(L"Options");
+			MAUtil::WString destructiveButton(L"");
+			MAUtil::WString cancelButton(L"Cancel");
+			int count = sizeof(int);
+			for(int i = 0; i < HOME_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH; i++)
+			{
+				count += (HOME_SCREEN_OPTIONS_BOX_BUTTONS_TITLES[i].length() * sizeof(wchar)) + sizeof(wchar);
+			}
+
+			char* buffer = new char[count];
+			*(int*) buffer = HOME_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH;
+
+			wchar_t* dest = (wchar_t*)(buffer + sizeof(int));
+
+			for(int i = 0; i < HOME_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH; i++)
+			{
+				const wchar_t* array = HOME_SCREEN_OPTIONS_BOX_BUTTONS_TITLES[i].pointer();
+				while (true)
+				{
+					*dest = *array;
+					dest++;
+					if(*array == 0)
+					{
+						break;
+					}
+					array++;
+				}
+			}
+
+			MAAddress memoryAdd = buffer;
+			maOptionsBox(boxTitle.pointer(), destructiveButton.pointer(),
+							 cancelButton.pointer(), memoryAdd, count);
+			delete[] buffer;
+		}
+	}
+
+	/**
+	 * \brief This function is used for handling the custom event triggered by the alert box
+	 * @param event const MAEvent& the event type
+	 */
+	void HomeScreen::customEvent(const MAEvent& event)
+	{
+		if(event.type == EVENT_TYPE_OPTIONS_BOX_BUTTON_CLICKED)
+		{
+			if(0 == event.optionsBoxButtonIndex) //add income
+			{
+				_createAddIncomeDialog();
+			}
+			else if(1 == event.optionsBoxButtonIndex) //add expense
+			{
+				_createAddExpenseDialog();
+			}
+		}
+	}
 	/**
 	 * \brief This function sets the observer for this screen
 	 * @param observer the observer for this screen
@@ -536,5 +592,40 @@ namespace GUI
 	{
 		_activityIndicator->hide();
 		if(!_WindowsPhone7) maWidgetDestroy(_activityIndicatorLayout->getWidgetHandle());
+	}
+
+	/**
+	 *\brief This function shows the AddIncome dialog if needed
+	 */
+	void HomeScreen::_createAddIncomeDialog()
+	{
+		if(NULL != _addIncomeDialog)
+		{
+			_addIncomeDialog->setCoin(_coin);
+			_addIncomeDialog->setObserver(_observerReference);
+			_addIncomeDialog->setLaunchedFromHomeScreen(true);
+			_addIncomeDialog->show();
+		}
+	}
+
+	/**
+	 *\brief This function shows the AddExpense dialog if needed
+	 */
+	void HomeScreen::_createAddExpenseDialog()
+	{
+		if(NULL != _addExpensesDialog)
+		{
+			_addExpensesDialog->setObserver(_observerReference);
+
+			_budgetTotalValue =  _observerReference->requestTotalBudget();
+			_budgetConsumedValue = _observerReference->requestConsumedBudget();
+
+			_addExpensesDialog->setAvailableBudget(_budgetTotalValue - _budgetConsumedValue);
+			_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
+			_addExpensesDialog->setCoin(_coin);
+			_addExpensesDialog->updateAmountSliderValue();
+			_addExpensesDialog->setLaunchedFromHomeScreen(true);
+			_addExpensesDialog->show();
+		}
 	}
 }
