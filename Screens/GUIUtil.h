@@ -31,6 +31,11 @@ namespace GUI
 	const MAUtil::WString HOME_SCREEN_OPTIONS_BOX_BUTTONS_TITLES[] = { L"Add income", L"Add expense" };
 	const int HOME_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH = 2;
 
+	const MAUtil::WString LIST_SCREEN_OPTIONS_BOX_BUTTONS_TITLES[] = { L"Add income", L"Add expense",
+																	   L"Sort by date", L"Sort by type",
+																	   L"Sort by amount" };
+	const int LIST_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH = 5;
+
 	// UI related constants
 	const int GRAY = 0xC0C0C0;
 	const int GREEN = 0x00FF00;

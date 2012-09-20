@@ -25,6 +25,7 @@ MA 02110-1301, USA.
 #include <NativeUI/VerticalLayout.h>
 #include <MAUtil/Vector.h>
 #include <NativeUI/ListView.h>
+#include <NativeUI/Button.h>
 
 #include "GUIUtil.h"
 #include "../Model/expenseObject.h"
@@ -352,6 +353,18 @@ namespace GUI
 			_sortByCategoryIndex = addOptionsMenuItem("Sort by category");
 			_sortByAmountIndex = addOptionsMenuItem("Sort by amount");
 		}
+		else
+		{
+			if(NULL == _optionsButton)
+			{
+				_optionsButton = new NativeUI::Button();
+				_optionsButton->setBackgroundColor(255, 0, 0);
+				_optionsButton->fillSpaceHorizontally();
+				_optionsButton->setText("Options");
+				_optionsButton->addButtonListener(this);
+				_mainLayout->addChild(_optionsButton);
+			}
+		}
 	}
 
 	/**
@@ -388,6 +401,51 @@ namespace GUI
 			{
 				_handleClearListButtonClicked();
 			}
+		}
+	}
+
+	/**
+	 * \brief This function handles the button click event.
+	 * @param button NativeUI::Widget* pointer to the button that triggered the event
+	 */
+	void ListScreen::buttonClicked(NativeUI::Widget* button)
+	{
+		if(button == _optionsButton)
+		{
+
+			MAUtil::WString boxTitle(L"Options");
+			MAUtil::WString destructiveButton(L"Clear list");
+			MAUtil::WString cancelButton(L"Cancel");
+			int count = sizeof(int);
+			for(int i = 0; i < LIST_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH; i++)
+			{
+				count += (LIST_SCREEN_OPTIONS_BOX_BUTTONS_TITLES[i].length() * sizeof(wchar)) + sizeof(wchar);
+			}
+
+			char* buffer = new char[count];
+			*(int*) buffer = LIST_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH;
+
+			wchar_t* dest = (wchar_t*)(buffer + sizeof(int));
+
+			for(int i = 0; i < LIST_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH; i++)
+			{
+				const wchar_t* array = LIST_SCREEN_OPTIONS_BOX_BUTTONS_TITLES[i].pointer();
+				while (true)
+				{
+					*dest = *array;
+					dest++;
+					if(*array == 0)
+					{
+						break;
+					}
+					array++;
+				}
+			}
+
+			MAAddress memoryAdd = buffer;
+			maOptionsBox(boxTitle.pointer(), destructiveButton.pointer(),
+							 cancelButton.pointer(), memoryAdd, count);
+			delete[] buffer;
 		}
 	}
 
@@ -441,6 +499,33 @@ namespace GUI
 			{
 				_observerReference->requestClearTransactionList();
 				isFromRemove = false;
+			}
+		}
+		else if(event.type == EVENT_TYPE_OPTIONS_BOX_BUTTON_CLICKED)
+		{
+			if(0 == event.optionsBoxButtonIndex) //add income
+			{
+				_handleAddIncomeButtonClicked();
+			}
+			else if(1 == event.optionsBoxButtonIndex) //add expense
+			{
+				_handleAddExpenseButtonClicked();
+			}
+			else if(2 == event.optionsBoxButtonIndex) //sort by date
+			{
+				_handleSortByDateButtonClicked();
+			}
+			else if(3 == event.optionsBoxButtonIndex) //sort by type
+			{
+				_handleSortByTypeButtonClicked();
+			}
+			else if(4 == event.optionsBoxButtonIndex) //sort by amount
+			{
+				_handleSortByAmountButtonClicked();
+			}
+			else if(5 == event.optionsBoxButtonIndex)
+			{
+				_handleClearListButtonClicked();
 			}
 		}
 	}

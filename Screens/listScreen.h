@@ -26,6 +26,7 @@ MA 02110-1301, USA.
 #include <NativeUI/Screen.h>
 #include <NativeUI/ScreenListener.h>
 #include <NativeUI/ListViewListener.h>
+#include <NativeUI/ButtonListener.h>
 #include <NativeUI/Label.h>
 #include <MAUtil/String.h>
 #include <MAUtil/Map.h>
@@ -47,6 +48,7 @@ namespace NativeUI
 	class VerticalLayout;
 	class ListView;
 	class ListViewItem;
+	class Button;
 }
 
 namespace GUI
@@ -58,7 +60,9 @@ namespace GUI
 	/**
 	 * \brief Class for the transactions screen
 	 */
-	class ListScreen : public NativeUI::Screen, public NativeUI::ListViewListener, public NativeUI::ScreenListener, public MAUtil::CustomEventListener
+	class ListScreen : public NativeUI::Screen, public NativeUI::ListViewListener,
+					   public NativeUI::ScreenListener, public MAUtil::CustomEventListener,
+					   public NativeUI::ButtonListener
 	{
 	public:
 		/**
@@ -129,6 +133,12 @@ namespace GUI
 		void listViewItemClicked(
 			NativeUI::ListView* listView,
 			int index);
+
+		/**
+		 * \brief This function handles the button click event.
+		 * @param button NativeUI::Widget* pointer to the button that triggered the event
+		 */
+		void buttonClicked(NativeUI::Widget* button);
 
 		/**
 		 * \brief This function is called from the observer in order to notify the
@@ -307,6 +317,7 @@ namespace GUI
 		// UI related variables
 		NativeUI::HorizontalLayout* _mainLayout;
 		NativeUI::ListView* _listView;
+		NativeUI::Button* _optionsButton;
 
 		// Dialogs references
 		AddExpenseDialog* _addExpensesDialog;
