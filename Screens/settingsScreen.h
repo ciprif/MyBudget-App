@@ -31,6 +31,7 @@ MA 02110-1301, USA.
 #include <NativeUI/DatePickerListener.h>
 #include <NativeUI/ListViewListener.h>
 #include <MAUtil/String.h>
+#include <MAUtil/Environment.h>
 #include <NativeUI/EditBoxListener.h>
 
 #include "../Logical/observer.h"
@@ -73,7 +74,8 @@ namespace GUI
 	class SettingsScreen : public NativeUI::Screen, public NativeUI::ScreenListener,
 						   public NativeUI::CheckBoxListener, public NativeUI::ButtonListener,
 						   public NativeUI::ListViewListener, public NativeUI::DatePickerListener,
-						   public NativeUI::NumberPickerListener, public NativeUI::EditBoxListener
+						   public NativeUI::NumberPickerListener, public NativeUI::EditBoxListener,
+						   public MAUtil::CustomEventListener
 	{
 	public:
 		/**
@@ -159,6 +161,12 @@ namespace GUI
 		 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
 		 */
 		void editBoxReturn(NativeUI::EditBox *editBox);
+
+		/**
+		 * \brief This function is used for handling the custom event triggered by the alert box
+		 * @param event const MAEvent& the event type
+		 */
+		void customEvent(const MAEvent& event);
 
 		/**
 		 * \brief This function is used for creating the options menu related controls
@@ -270,6 +278,7 @@ namespace GUI
 		NativeUI::Label* _debtValueLabel;
 		NativeUI::Label* _coinLabel;
 		NativeUI::Button* _coinChangeToggle;
+		NativeUI::Button* _optionsButton;
 		NativeUI::VerticalLayout* _coinSettingsLayout;
 		NativeUI::VerticalLayout* _transactionSettingsLayout;
 		NativeUI::VerticalLayout* _mainLayout;

@@ -48,6 +48,10 @@ namespace GUI
 	{
 		_coin = COINS[0]; //Default value
 
+		/* Attached this as Custom event listener in order to capture the button clicked event
+		   from an options box */
+		 MAUtil::Environment::getEnvironment().addCustomEventListener(this);
+
 		clickCount = 0;
 		DeterminePlatform();
 		_createUI();
@@ -94,6 +98,43 @@ namespace GUI
 			{
 				_collapseCoinList();
 			}
+		}
+		else if(b == _optionsButton)
+		{
+
+			MAUtil::WString boxTitle(L"Options");
+			MAUtil::WString destructiveButton(L"");
+			MAUtil::WString cancelButton(L"Cancel");
+			int count = sizeof(int);
+			for(int i = 0; i < SETTINGS_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH; i++)
+			{
+				count += (SETTINGS_SCREEN_OPTIONS_BOX_BUTTONS_TITLES[i].length() * sizeof(wchar)) + sizeof(wchar);
+			}
+
+			char* buffer = new char[count];
+			*(int*) buffer = SETTINGS_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH;
+
+			wchar_t* dest = (wchar_t*)(buffer + sizeof(int));
+
+			for(int i = 0; i < SETTINGS_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH; i++)
+			{
+				const wchar_t* array = SETTINGS_SCREEN_OPTIONS_BOX_BUTTONS_TITLES[i].pointer();
+				while (true)
+				{
+					*dest = *array;
+					dest++;
+					if(*array == 0)
+					{
+						break;
+					}
+					array++;
+				}
+			}
+
+			MAAddress memoryAdd = buffer;
+			maOptionsBox(boxTitle.pointer(), destructiveButton.pointer(),
+							 cancelButton.pointer(), memoryAdd, count);
+			delete[] buffer;
 		}
 	}
 
@@ -198,6 +239,30 @@ namespace GUI
 	}
 
 	/**
+	 * \brief This function is used for handling the custom event triggered by the alert box
+	 * @param event const MAEvent& the event type
+	 */
+	void SettingsScreen::customEvent(const MAEvent& event)
+	{
+		if(event.type == EVENT_TYPE_OPTIONS_BOX_BUTTON_CLICKED)
+		{
+			if(0 == event.optionsBoxButtonIndex) //add income
+			{
+				Model::DateStruct d;
+				_saveDateSettings(d);
+				_saveCoinSettings();
+				_saveDebtSettings();
+				_observerReference->requestSaveSettings(_isAllItems, _isMonthly, _isFromDate, _debtValue, d, _coin);
+
+			}
+			else if(1 == event.optionsBoxButtonIndex) //add expense
+			{
+				_updateValues();
+			}
+		}
+	}
+
+	/**
 	 * \brief This function is used for creating the options menu related controls
 	 */
 	void SettingsScreen::createOptionsMenu()
@@ -206,6 +271,18 @@ namespace GUI
 		{
 			_saveButtonIndex = addOptionsMenuItem("Save", MAW_OPTIONS_MENU_ICON_CONSTANT_SAVE, false);
 			_restoreButtonIndex = addOptionsMenuItem("Restore", MAW_OPTIONS_MENU_ICON_CONSTANT_CLOSE_CLEAR_CANCEL, false);
+		}
+		else
+		{
+			if(NULL == _optionsButton)
+			{
+				_optionsButton = new NativeUI::Button();
+				_optionsButton->setBackgroundColor(255, 0, 0);
+				_optionsButton->fillSpaceHorizontally();
+				_optionsButton->setText("Options");
+				_optionsButton->addButtonListener(this);
+				_mainLayout->addChild(_optionsButton);
+			}
 		}
 	}
 

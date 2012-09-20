@@ -57,7 +57,7 @@ namespace GUI
 			_valueMap->insert(Model::CATEGORY_LIST[i], 0);
 		}
 		/* Attached this as Custom event listener in order to capture the button clicked event
-		   from an alert */
+		   from an options box */
 		 MAUtil::Environment::getEnvironment().addCustomEventListener(this);
 
 		addScreenListener(this);
@@ -192,6 +192,7 @@ namespace GUI
 			}
 		}
 	}
+
 	/**
 	 * \brief This function sets the observer for this screen
 	 * @param observer the observer for this screen

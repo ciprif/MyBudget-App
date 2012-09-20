@@ -28,6 +28,7 @@ MA 02110-1301, USA.
 
 namespace GUI
 {
+	// Options box related variables
 	const MAUtil::WString HOME_SCREEN_OPTIONS_BOX_BUTTONS_TITLES[] = { L"Add income", L"Add expense" };
 	const int HOME_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH = 2;
 
@@ -35,6 +36,9 @@ namespace GUI
 																	   L"Sort by date", L"Sort by type",
 																	   L"Sort by amount" };
 	const int LIST_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH = 5;
+
+	const MAUtil::WString SETTINGS_SCREEN_OPTIONS_BOX_BUTTONS_TITLES[] = { L"Save", L"Restore" };
+	const int SETTINGS_SCREEN_OPTIONS_BOX_BUTTONS_TITLES_LENGTH = 2;
 
 	// UI related constants
 	const int GRAY = 0xC0C0C0;
