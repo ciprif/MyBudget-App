@@ -48,10 +48,6 @@ namespace GUI
 	{
 		_coin = COINS[0]; //Default value
 
-		/* Attached this as Custom event listener in order to capture the button clicked event
-		   from an options box */
-		 MAUtil::Environment::getEnvironment().addCustomEventListener(this);
-
 		clickCount = 0;
 		DeterminePlatform();
 		_createUI();
@@ -68,6 +64,7 @@ namespace GUI
 		_datePicker->removeDatePickerListener(this);
 		_newDebtValueEditBox->removeEditBoxListener(this);
 		if(_WindowsPhone7) _numberPicker->removeNumberPickerListener(this);
+		if(_IPhoneOS) _optionsButton->removeButtonListener(this);
 		else _numberPickerReplace->removeEditBoxListener(this);
 	}
 
@@ -244,9 +241,11 @@ namespace GUI
 	 */
 	void SettingsScreen::customEvent(const MAEvent& event)
 	{
+		lprintfln("SettingsScreen");
 		if(event.type == EVENT_TYPE_OPTIONS_BOX_BUTTON_CLICKED)
 		{
-			if(0 == event.optionsBoxButtonIndex) //add income
+			lprintfln("%d", event.optionsBoxButtonIndex);
+			if(0 == event.optionsBoxButtonIndex) //save
 			{
 				Model::DateStruct d;
 				_saveDateSettings(d);
@@ -255,7 +254,7 @@ namespace GUI
 				_observerReference->requestSaveSettings(_isAllItems, _isMonthly, _isFromDate, _debtValue, d, _coin);
 
 			}
-			else if(1 == event.optionsBoxButtonIndex) //add expense
+			else if(1 == event.optionsBoxButtonIndex) //restore
 			{
 				_updateValues();
 			}

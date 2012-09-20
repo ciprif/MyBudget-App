@@ -70,6 +70,9 @@ namespace GUI
 	const int IMAGE_BUTTON_HEIGHT_MEDIUM = 70;
 	const int IMAGE_BUTTON_HEIGHT_SMALL = 40;
 
+	// Pointer to the active screen
+	static MAUtil::CustomEventListener* _activeScreen;
+
 	// Static variables set by calling the SetSizeRelatedVariables() function; This are used for scaling the UI in order to make it
 	// work and look properly on as many screen sizes as posible
 	static int _dialogFontSize, _dialogSmallFontSize, _descriptionBoxHeight, _dialogButtonWidth, _imageButtonWidth, _imageButtonHeight;

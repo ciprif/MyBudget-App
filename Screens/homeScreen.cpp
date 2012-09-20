@@ -56,9 +56,6 @@ namespace GUI
 		{
 			_valueMap->insert(Model::CATEGORY_LIST[i], 0);
 		}
-		/* Attached this as Custom event listener in order to capture the button clicked event
-		   from an options box */
-		 MAUtil::Environment::getEnvironment().addCustomEventListener(this);
 
 		addScreenListener(this);
 
@@ -180,6 +177,7 @@ namespace GUI
 	 */
 	void HomeScreen::customEvent(const MAEvent& event)
 	{
+		lprintfln("HomeScreen");
 		if(event.type == EVENT_TYPE_OPTIONS_BOX_BUTTON_CLICKED)
 		{
 			if(0 == event.optionsBoxButtonIndex) //add income

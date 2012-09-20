@@ -21,8 +21,8 @@ MA 02110-1301, USA.
  */
 
 #include "listScreen.h"
-#include <NativeUI/HorizontalLayout.h>
 #include <NativeUI/VerticalLayout.h>
+#include <NativeUI/HorizontalLayout.h>
 #include <MAUtil/Vector.h>
 #include <NativeUI/ListView.h>
 #include <NativeUI/Button.h>
@@ -109,10 +109,6 @@ namespace GUI
 	{
 		isFromRemove = false;
 
-		/* Attached this as Custom event listener in order to capture the button clicked event
-		   from an alert */
-		 MAUtil::Environment::getEnvironment().addCustomEventListener(this);
-
 		 // Initialize the vector of labels containing the details of a transaction
 		_detailsVector = new MAUtil::Vector<NativeUI::Label*>();
 
@@ -147,6 +143,12 @@ namespace GUI
 		else _itemWidth = (int)(screenWidth * 0.95);
 
 		_createUI();
+	}
+
+	ListScreen::~ListScreen()
+	{
+		_listView->removeListViewListener(this);
+		if(_IPhoneOS) _optionsButton->removeButtonListener(this);
 	}
 
 	/**
@@ -362,7 +364,7 @@ namespace GUI
 				_optionsButton->fillSpaceHorizontally();
 				_optionsButton->setText("Options");
 				_optionsButton->addButtonListener(this);
-				_mainLayout->addChild(_optionsButton);
+				_mainLayout->insertChild(_optionsButton, 1);
 			}
 		}
 	}
@@ -493,6 +495,7 @@ namespace GUI
 	 */
 	void ListScreen::customEvent(const MAEvent& event)
 	{
+		lprintfln("listscreen");
 		if(event.type == EVENT_TYPE_ALERT)
 		{
 			if(1 == event.alertButtonIndex && isFromRemove)
@@ -503,29 +506,26 @@ namespace GUI
 		}
 		else if(event.type == EVENT_TYPE_OPTIONS_BOX_BUTTON_CLICKED)
 		{
-			if(0 == event.optionsBoxButtonIndex) //add income
+			switch(event.optionsBoxButtonIndex)
 			{
-				_handleAddIncomeButtonClicked();
-			}
-			else if(1 == event.optionsBoxButtonIndex) //add expense
-			{
-				_handleAddExpenseButtonClicked();
-			}
-			else if(2 == event.optionsBoxButtonIndex) //sort by date
-			{
-				_handleSortByDateButtonClicked();
-			}
-			else if(3 == event.optionsBoxButtonIndex) //sort by type
-			{
-				_handleSortByTypeButtonClicked();
-			}
-			else if(4 == event.optionsBoxButtonIndex) //sort by amount
-			{
-				_handleSortByAmountButtonClicked();
-			}
-			else if(5 == event.optionsBoxButtonIndex)
-			{
+			case 0:
 				_handleClearListButtonClicked();
+				break;
+			case 1:
+				_handleAddIncomeButtonClicked();
+				break;
+			case 2:
+				_handleAddExpenseButtonClicked();
+				break;
+			case 3:
+				_handleSortByDateButtonClicked();
+				break;
+			case 4:
+				_handleSortByTypeButtonClicked();
+				break;
+			case 5:
+				_handleSortByAmountButtonClicked();
+				break;
 			}
 		}
 	}
@@ -537,14 +537,13 @@ namespace GUI
 	{
 		SetSizeRelatedVariables();
 
-		_mainLayout = new NativeUI::HorizontalLayout();
+		_mainLayout = new NativeUI::VerticalLayout();
 		_listView = new NativeUI::ListView();
 		_listView->fillSpaceHorizontally();
 		_listView->fillSpaceVertically();
 		_listView->addListViewListener(this);
 
-		_mainLayout->addChild(_listView);
-
+		_mainLayout->addChild(_listView);\
 		setMainWidget(_mainLayout);
 
 		createOptionsMenu();

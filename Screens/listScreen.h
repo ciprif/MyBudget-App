@@ -44,7 +44,6 @@ namespace Model
 
 namespace NativeUI
 {
-	class HorizontalLayout;
 	class VerticalLayout;
 	class ListView;
 	class ListViewItem;
@@ -69,6 +68,11 @@ namespace GUI
 		 * \brief No parameter constructor
 		 */
 		ListScreen();
+
+		/**
+		 * \brief The destructor
+		 */
+		~ListScreen();
 
 		/**
 		 * \brief This function populates the expenses list with values from the repository
@@ -315,7 +319,7 @@ namespace GUI
 		Logical::Observer* _observerReference;
 
 		// UI related variables
-		NativeUI::HorizontalLayout* _mainLayout;
+		NativeUI::VerticalLayout* _mainLayout;
 		NativeUI::ListView* _listView;
 		NativeUI::Button* _optionsButton;
 
