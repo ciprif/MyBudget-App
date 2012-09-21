@@ -94,6 +94,32 @@ namespace GUI
 	}
 
 	/**
+	 * \brief This function sets the _WindowsPhone7, _IPhoneOS and _Android bool values
+	 */
+	static void DeterminePlatform()
+	{
+		_Android = false;
+		_WindowsPhone7 = false;
+		_IPhoneOS = false;
+
+		char buffer[Model::BUFF_SIZE];
+		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
+
+		if(strcmp(buffer, "iPhone OS") == 0)
+		{
+			_IPhoneOS = true;
+		}
+		else if(strcmp(buffer, "Android") == 0)
+		{
+			_Android = true;
+		}
+		else
+		{
+			_WindowsPhone7 = true;
+		}
+	}
+
+	/**
 	 * \brief Static funtion used for setting the UI variables related to the screen size
 	 */
 	static void SetSizeRelatedVariables()
@@ -103,6 +129,7 @@ namespace GUI
 		int screenHeight = EXTENT_Y(size);
 
 		DetermineScreenSize(screenHeight, screenWidth);
+		DeterminePlatform();
 
 		switch(_screenType)
 		{
@@ -130,7 +157,7 @@ namespace GUI
 			}
 			else
 			{
-				_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE; /** @todo check if iPhone OS and make it _dialogFontSize - 5 */
+				_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE;
 				_dialogSmallFontSize = DIALOG_FONT_SIZE_SMALL_SCREEN_LARGE;
 				_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE;
 				_dialogButtonWidth = DIALOG_BUTTON_WIDTH_SCREEN_LARGE;
@@ -138,32 +165,6 @@ namespace GUI
 				_imageButtonHeight = IMAGE_BUTTON_HEIGHT_LARGE;
 			}
 			break;
-		}
-	}
-
-	/**
-	 * \brief This function sets the _WindowsPhone7, _IPhoneOS and _Android bool values
-	 */
-	static void DeterminePlatform()
-	{
-		_Android = false;
-		_WindowsPhone7 = false;
-		_IPhoneOS = false;
-
-		char buffer[Model::BUFF_SIZE];
-		maGetSystemProperty("mosync.device.OS", buffer, Model::BUFF_SIZE);
-
-		if(strcmp(buffer, "iPhone OS") == 0)
-		{
-			_IPhoneOS = true;
-		}
-		else if(strcmp(buffer, "Android") == 0)
-		{
-			_Android = true;
-		}
-		else
-		{
-			_WindowsPhone7 = true;
 		}
 	}
 }

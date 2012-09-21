@@ -105,7 +105,7 @@ namespace GUI
 	/**
 	 * \brief No parameter constructor
 	 */
-	ListScreen::ListScreen() : _listView(NULL)
+	ListScreen::ListScreen() : _listView(NULL), _optionsButton(NULL)
 	{
 		isFromRemove = false;
 
@@ -364,7 +364,7 @@ namespace GUI
 				_optionsButton->fillSpaceHorizontally();
 				_optionsButton->setText("Options");
 				_optionsButton->addButtonListener(this);
-				_mainLayout->insertChild(_optionsButton, 1);
+				_mainLayout->addChild(_optionsButton);
 			}
 		}
 	}

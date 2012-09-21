@@ -43,7 +43,7 @@ namespace GUI
 	/**
 	 * \brief Constructor
 	 */
-	HomeScreen::HomeScreen()
+	HomeScreen::HomeScreen() : _optionsButton(NULL)
 	{
 		_budgetConsumedValue = 0;
 		_budgetTotalValue = 0;

@@ -153,7 +153,7 @@ namespace GUI
 		 * @param datePicker NativeUI::DatePicker* pointer to the date picker that triggered the event
 		 * @param selected const NativeUI::Date& the selected date
 		 */
-		void datePickerValueChanged(NativeUI::DatePicker* datePicker, const NativeUI::Date& selected) {}
+		void datePickerValueChanged(NativeUI::DatePicker* datePicker, const NativeUI::Date& selected);
 
 		/**
 		 * \brief This function handles the return press button event from the querty keyboard;
@@ -161,6 +161,14 @@ namespace GUI
 		 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
 		 */
 		void editBoxReturn(NativeUI::EditBox *editBox);
+
+        /**
+         * This method is called when an edit box gains focus.
+         * The virtual keyboard is shown.
+         * Platform: Android, WP7 and iOS.
+         * @param editBox The edit box object that generated the event.
+         */
+        void editBoxEditingDidBegin(NativeUI::EditBox* editBox);
 
 		/**
 		 * \brief This function is used for handling the custom event triggered by the alert box

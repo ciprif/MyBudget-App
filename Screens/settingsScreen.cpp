@@ -44,7 +44,7 @@ namespace GUI
 	/**
 	 * \brief No parameters constructor.
 	 */
-	SettingsScreen::SettingsScreen() : _debtValue(0.0), _isAllItems(true), _isFromDate(false), _isMonthly(false)
+	SettingsScreen::SettingsScreen() : _debtValue(0.0), _isAllItems(true), _isFromDate(false), _isMonthly(false), _optionsButton(NULL)
 	{
 		_coin = COINS[0]; //Default value
 
@@ -98,7 +98,6 @@ namespace GUI
 		}
 		else if(b == _optionsButton)
 		{
-
 			MAUtil::WString boxTitle(L"Options");
 			MAUtil::WString destructiveButton(L"");
 			MAUtil::WString cancelButton(L"Cancel");
@@ -171,11 +170,12 @@ namespace GUI
 			_saveCoinSettings();
 
 			_saveDebtSettings();
-
+			_collapseCoinList();
 			_observerReference->requestSaveSettings(_isAllItems, _isMonthly, _isFromDate, _debtValue, d, _coin);
 		}
 		else if(index == _restoreButtonIndex)
 		{
+			_collapseCoinList();
 			_updateValues(); //reset values with the saved ones observer
 		}
 	}
@@ -187,6 +187,7 @@ namespace GUI
 	 */
 	void SettingsScreen::checkBoxStateChanged(NativeUI::CheckBox* checkBox, bool state)
 	{
+		_collapseCoinList();
 		if(state == true)
 		{
 			if(checkBox == _monthly)
@@ -219,10 +220,22 @@ namespace GUI
 	 */
 	void SettingsScreen::numberPickerValueChanged(NativeUI::NumberPicker* picker, int value)
 	{
+		_collapseCoinList();
 		if(picker == _numberPicker)
 		{
 			_dayValue = value;
 		}
+	}
+
+	/**
+	 * \brief This function handles the date picker value changed event, inherited
+	 * 		  from the NativeUI::DatePickerListener class
+	 * @param datePicker NativeUI::DatePicker* pointer to the date picker that triggered the event
+	 * @param selected const NativeUI::Date& the selected date
+	 */
+	void SettingsScreen::datePickerValueChanged(NativeUI::DatePicker* datePicker, const NativeUI::Date& selected)
+	{
+		_collapseCoinList();
 	}
 
 	/**
@@ -235,16 +248,25 @@ namespace GUI
 		editBox->hideKeyboard();
 	}
 
+    /**
+     * This method is called when an edit box gains focus.
+     * The virtual keyboard is shown.
+     * Platform: Android, WP7 and iOS.
+     * @param editBox The edit box object that generated the event.
+     */
+    void SettingsScreen::editBoxEditingDidBegin(NativeUI::EditBox* editBox)
+    {
+    	_collapseCoinList();
+    }
 	/**
 	 * \brief This function is used for handling the custom event triggered by the alert box
 	 * @param event const MAEvent& the event type
 	 */
 	void SettingsScreen::customEvent(const MAEvent& event)
 	{
-		lprintfln("SettingsScreen");
+		_collapseCoinList();
 		if(event.type == EVENT_TYPE_OPTIONS_BOX_BUTTON_CLICKED)
 		{
-			lprintfln("%d", event.optionsBoxButtonIndex);
 			if(0 == event.optionsBoxButtonIndex) //save
 			{
 				Model::DateStruct d;
