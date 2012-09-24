@@ -27,7 +27,7 @@ MA 02110-1301, USA.
 #include <NativeUI/TabScreen.h>
 #include <NativeUI/PanoramaView.h>
 #include <MAUtil/Environment.h>
-#include <NativeUI/TabScreenListener.h>
+#include <NativeUI/ButtonListener.h>
 #include <conprint.h>
 
 #include "Screens/homeScreen.h"
@@ -39,13 +39,14 @@ MA 02110-1301, USA.
 #include "Logical/observer.h"
 #include "Logical/settingsManager.h"
 #include "Screens/GUIUtil.h"
+#include "Screens/parentScreenIOS.h"
 
 using namespace MAUtil;
 
 /**
  * Moblet to be used as a template for a Native UI application.
  */
-class NativeUIMoblet : public Moblet, public NativeUI::TabScreenListener
+class NativeUIMoblet : public Moblet
 {
 public:
 	/**
@@ -92,7 +93,7 @@ public:
 		_observer->setListScreenRef(_listScreen);
 		_observer->setSettingsScreenRef(_settingsScreen);
 
-		if(GUI::_IPhoneOS || GUI::_Android)
+		if(GUI::_Android)
 		{
 			_parentScreen = new NativeUI::TabScreen();
 			_parentScreen->setTitle("MyBudget");
@@ -100,9 +101,11 @@ public:
 			((NativeUI::TabScreen*)_parentScreen)->addTab(_homeScreen);
 			((NativeUI::TabScreen*)_parentScreen)->addTab(_listScreen);
 			((NativeUI::TabScreen*)_parentScreen)->addTab(_settingsScreen);
-			((NativeUI::TabScreen*)_parentScreen)->addTabScreenListener(this);
-			GUI::_activeScreen = _homeScreen;
-			 MAUtil::Environment::getEnvironment().addCustomEventListener(GUI::_activeScreen);
+		}
+		else if(GUI::_IPhoneOS)
+		{
+			_parentScreen = new GUI::ParentScreenIOS(_homeScreen, _listScreen, _settingsScreen);
+			 MAUtil::Environment::getEnvironment().addCustomEventListener(((GUI::ParentScreenIOS*)_parentScreen)->getActiveScreen());
 		}
 		else
 		{
@@ -135,34 +138,6 @@ public:
 		{
 			// Call close to exit the application.
 			close();
-		}
-	}
-
-	/**
-     * This method is called when a tab screen has changed to a new tab. Is used for changing the custom event listener
-     * @param tabScreen The tab screen object that generated the event.
-     * @param tabScreenIndex The index of the new tab.
-     */
-	void tabScreenTabChanged(NativeUI::TabScreen* tabScreen, int tabScreenIndex)
-	{
-		if(tabScreen == _parentScreen)
-		{
-			MAUtil::Environment::getEnvironment().removeCustomEventListener(GUI::_activeScreen);
-			switch(tabScreenIndex)
-			{
-			case 0:
-				GUI::_activeScreen = _homeScreen;
-				MAUtil::Environment::getEnvironment().addCustomEventListener(_homeScreen);
-				break;
-			case 1:
-				GUI::_activeScreen = _listScreen;
-				MAUtil::Environment::getEnvironment().addCustomEventListener(_listScreen);
-				break;
-			case 2:
-				GUI::_activeScreen = _settingsScreen;
-				MAUtil::Environment::getEnvironment().addCustomEventListener(_settingsScreen);
-				break;
-			}
 		}
 	}
 
