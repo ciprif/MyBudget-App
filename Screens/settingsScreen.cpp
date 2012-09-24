@@ -335,6 +335,11 @@ namespace GUI
 			_mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 			_itemWidth = (int)(screenWidth * 0.95);
 			this->setMainWidget(_mainLayout);
+
+			if(LARGE_SCREEN != _screenType)
+			{
+				_mainLayout->setHeight(screenHeight + DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_MEDIUM);
+			}
 		}
 
 		_coinSettingsLayout = _createCoinSettingsLayout();
@@ -550,10 +555,13 @@ namespace GUI
 	 */
 	void SettingsScreen::_collapseCoinList()
 	{
-		_coinSettingsLayout->removeChild(_coinsList);
-		_coinsList->removeListViewListener(this);
-		clickCount++;
-		clickCount %= 2;
+
+		if(MAW_RES_OK == _coinSettingsLayout->removeChild(_coinsList))
+		{
+			_coinsList->removeListViewListener(this);
+			clickCount++;
+			clickCount %= 2;
+		}
 	}
 
 	/**

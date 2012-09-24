@@ -70,6 +70,10 @@ namespace GUI
 	const int IMAGE_BUTTON_HEIGHT_MEDIUM = 70;
 	const int IMAGE_BUTTON_HEIGHT_SMALL = 40;
 
+	const int SMALL_SCREEN = 0;
+	const int MEDIUM_SCREEN = 0;
+	const int LARGE_SCREEN = 0;
+
 	// Pointer to the active screen
 	static MAUtil::CustomEventListener* _activeScreen;
 
