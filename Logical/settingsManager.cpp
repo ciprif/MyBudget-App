@@ -40,9 +40,17 @@ namespace Logical
 	 */
 	SettingsManager::SettingsManager() : _coin("EUR"), _showAll(true), _showFromDate(false), _showMonthly(false), _debtValue(0.0)
 	{
-		_settingsFile = maFileOpen(SETTINGS_FILE, MA_ACCESS_READ_WRITE);
+		char path[Model::BUFF_SIZE];
 
-		if(maFileExists(_settingsFile))
+		maGetSystemProperty("mosync.path.local", path, Model::BUFF_SIZE);
+
+		_settingsFileCompletePath = new MAUtil::String(path);
+		(*_settingsFileCompletePath) += "/";
+		(*_settingsFileCompletePath) += SETTINGS_FILE;
+
+		_settingsFile = maFileOpen(_settingsFileCompletePath->c_str(), MA_ACCESS_READ_WRITE);
+
+		if(1 == maFileExists(_settingsFile))
 		{
 			LoadSettings();
 			maFileClose(_settingsFile);
@@ -277,7 +285,7 @@ namespace Logical
 	 */
 	void SettingsManager::_writeSettings()
 	{
-		_settingsFile = maFileOpen(SETTINGS_FILE, MA_ACCESS_READ_WRITE);
+		_settingsFile = maFileOpen(_settingsFileCompletePath->c_str(), MA_ACCESS_READ_WRITE);
 
 		maFileTruncate(_settingsFile, 0);
 

@@ -36,14 +36,27 @@ namespace Repositories
 	 */
 	DBManager::DBManager()
 	{
-		_DBExpenses = maFileOpen(EXPENSES_FILE, MA_ACCESS_READ_WRITE);
-		_DBIncomes = maFileOpen(INCOMES_FILE, MA_ACCESS_READ_WRITE);
+		char path[Model::BUFF_SIZE];
 
-		if(!maFileExists(_DBExpenses))
+		maGetSystemProperty("mosync.path.local", path, Model::BUFF_SIZE);
+
+		_incomesFileCompletePath = new MAUtil::String(path);
+		_expensesFileCompletePath = new MAUtil::String(path);
+
+		(*_incomesFileCompletePath) += "/";
+		(*_incomesFileCompletePath) += INCOMES_FILE;
+
+		(*_expensesFileCompletePath) += "/";
+		(*_expensesFileCompletePath) += EXPENSES_FILE;
+
+		_DBExpenses = maFileOpen(_expensesFileCompletePath->c_str(), MA_ACCESS_READ_WRITE);
+		_DBIncomes = maFileOpen(_incomesFileCompletePath->c_str(), MA_ACCESS_READ_WRITE);
+
+		if(0 == maFileExists(_DBExpenses))
 		{
 			maFileCreate(_DBExpenses);
 		}
-		if(!maFileExists(_DBIncomes))
+		if(0 == maFileExists(_DBIncomes))
 		{
 			maFileCreate(_DBIncomes);
 		}
@@ -76,9 +89,9 @@ namespace Repositories
 	 */
 	void DBManager::readExpenses()
 	{
-		_DBExpenses = maFileOpen(EXPENSES_FILE, MA_ACCESS_READ);
+		_DBExpenses = maFileOpen(_expensesFileCompletePath->c_str(), MA_ACCESS_READ);
 
-		if(!maFileExists(_DBExpenses)) return;
+		if(0 == maFileExists(_DBExpenses)) return;
 
 		if(NULL != _expensesFileContent)
 			delete _expensesFileContent;
@@ -163,9 +176,9 @@ namespace Repositories
 	 */
 	void DBManager::readIncomes()
 	{
-		_DBIncomes = maFileOpen(INCOMES_FILE, MA_ACCESS_READ);
+		_DBIncomes = maFileOpen(_incomesFileCompletePath->c_str(), MA_ACCESS_READ);
 
-		if(!maFileExists(_DBIncomes)) return;
+		if(0 == maFileExists(_DBIncomes)) return;
 
 		if(NULL != _incomesFileContent)
 			delete _incomesFileContent;
@@ -187,6 +200,7 @@ namespace Repositories
 
 		int offset = 0;
 		int position = _incomesFileContent->find("|", offset);
+
 		while(-1 != position)
 		{
 			MAUtil::String incomeString = _incomesFileContent->substr(offset, position - offset);
@@ -299,6 +313,9 @@ namespace Repositories
 	 */
 	void DBManager::addExpense(Model::ExpenseObject* obj)
 	{
+		_DBExpenses = maFileOpen(_expensesFileCompletePath->c_str(), MA_ACCESS_READ_WRITE);
+		if(0 == maFileExists(_DBExpenses)) return;
+
 		MAUtil::String expenseContent;
 		expenseContent.append(MAUtil::doubleToString(obj->getAmount()).c_str(), MAUtil::doubleToString(obj->getAmount()).length());
 		expenseContent.append("~", 1);
@@ -315,10 +332,6 @@ namespace Repositories
 		expenseContent.append(time.c_str(), time.length());
 		expenseContent.append("|", 1);
 
-		_DBExpenses = maFileOpen(EXPENSES_FILE, MA_ACCESS_READ_WRITE);
-
-		if(!maFileExists(_DBExpenses)) return;
-
 		maFileSeek(_DBExpenses, 0, SEEK_END);
 		maFileWrite(_DBExpenses, expenseContent.c_str(), expenseContent.length());
 		maFileClose(_DBExpenses);
@@ -334,6 +347,9 @@ namespace Repositories
 	 */
 	void DBManager::addIncome(Model::IncomeObject* obj)
 	{
+		_DBIncomes = maFileOpen(_incomesFileCompletePath->c_str(), MA_ACCESS_READ_WRITE);
+		if(0 == maFileExists(_DBIncomes)) return;
+
 		MAUtil::String incomeContent;
 		incomeContent.append(MAUtil::doubleToString(obj->getAmount()).c_str(), MAUtil::doubleToString(obj->getAmount()).length());
 		incomeContent.append("~", 1);
@@ -349,10 +365,6 @@ namespace Repositories
 		MAUtil::String time = Model::TimeStructToString(obj->getTime());
 		incomeContent.append(time.c_str(), time.length());
 		incomeContent.append("|", 1);
-
-		_DBIncomes = maFileOpen(INCOMES_FILE, MA_ACCESS_READ_WRITE);
-
-		if(!maFileExists(_DBIncomes)) return;
 
 		maFileSeek(_DBIncomes, 0, SEEK_END);
 		maFileWrite(_DBIncomes, incomeContent.c_str(), incomeContent.length());
@@ -451,11 +463,11 @@ namespace Repositories
 	 */
 	void DBManager::clearFiles()
 	{
-		_DBIncomes = maFileOpen(INCOMES_FILE, MA_ACCESS_READ_WRITE);
+		_DBIncomes = maFileOpen(_incomesFileCompletePath->c_str(), MA_ACCESS_READ_WRITE);
 		maFileTruncate(_DBIncomes, 0);
 		maFileClose(_DBIncomes);
 
-		_DBExpenses = maFileOpen(EXPENSES_FILE, MA_ACCESS_READ_WRITE);
+		_DBExpenses = maFileOpen(_expensesFileCompletePath->c_str(), MA_ACCESS_READ_WRITE);
 		maFileTruncate(_DBExpenses, 0);
 		maFileClose(_DBExpenses);
 

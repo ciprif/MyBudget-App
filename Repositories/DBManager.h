@@ -186,6 +186,9 @@ namespace Repositories
 		MAUtil::String* _expensesFileContent;
 		MAUtil::String* _incomesFileContent;
 
+		MAUtil::String* _incomesFileCompletePath;
+		MAUtil::String* _expensesFileCompletePath;
+
 		// The budget values
 		double _totalBudget;
 		double _consumedBudget;

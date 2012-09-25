@@ -152,6 +152,8 @@ namespace Logical
 		MAUtil::String _coin;
 		Model::DateStruct _date;
 
+		MAUtil::String* _settingsFileCompletePath;
+
 		bool _showAll;
 		bool _showMonthly;
 		bool _showFromDate;

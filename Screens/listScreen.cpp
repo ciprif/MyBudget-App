@@ -293,7 +293,6 @@ namespace GUI
 			else
 			{
 				((NativeUI::VerticalLayout*)listView->getChild(index))->removeChild((*_detailsVector)[index]);
-				((NativeUI::VerticalLayout*)listView->getChild(index))->getChild(1)->setBackgroundColor(0);
 				((NativeUI::VerticalLayout*)listView->getChild(index))->getChild(0)->setBackgroundColor(0);
 			}
 		}

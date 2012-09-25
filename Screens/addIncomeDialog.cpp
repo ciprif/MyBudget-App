@@ -101,7 +101,6 @@ namespace GUI
 	{
 		if(button == _addButton)
 		{
-			//@todo change the path from hardcoded version to actual value
 			double value = _amountSliderThousands->getValue() * 1000 + _amountSliderUnits->getValue()*9;
 
 			if(0 < value)
