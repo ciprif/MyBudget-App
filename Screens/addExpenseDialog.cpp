@@ -111,8 +111,11 @@ namespace GUI
 			if(0 < value)
 			{
 				this->hide();
-				if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
-				else _listScreenRef->createOptionsMenu();
+				if(_WindowsPhone7)
+				{
+					if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
+					else _listScreenRef->createOptionsMenu();
+				}
 
 				NativeUI::Date d = _datePicker->getDate();
 
@@ -135,8 +138,11 @@ namespace GUI
 		else if(button == _cancelButton)
 		{
 			this->hide();
-			if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
-			else _listScreenRef->createOptionsMenu();
+			if(_WindowsPhone7)
+			{
+				if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
+				else _listScreenRef->createOptionsMenu();
+			}
 		}
 		else
 		{
@@ -273,8 +279,11 @@ namespace GUI
 		_descriptionBoxParent->removeChild(_descriptionEditBox);
 		_descriptionEditBox->setText("");
 
-		if(_launcedFromHomeScreen) _homeScreenRef->removeOptionsMenu();
-		else _listScreenRef->removeOptionsMenu();
+		if(_WindowsPhone7)
+		{
+			if(_launcedFromHomeScreen) _homeScreenRef->removeOptionsMenu();
+			else _listScreenRef->removeOptionsMenu();
+		}
 
 		NativeUI::Dialog::show();
 	}
