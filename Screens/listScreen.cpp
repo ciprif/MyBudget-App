@@ -254,6 +254,15 @@ namespace GUI
 		_listView->addListViewListener(this);
 
 		_mainLayout->addChild(_listView);
+
+		for(int i = 0; i < _detailsVector->size(); i++)
+				delete (*_detailsVector)[i];
+
+		delete _itemsVector;
+		delete _detailsVector;
+
+		_itemsVector = new MAUtil::Vector<Model::ListItemModel>();
+		_detailsVector = new MAUtil::Vector<NativeUI::Label*>();
 	}
 
 	/**
@@ -609,8 +618,19 @@ namespace GUI
 	 */
 	void ListScreen::_clearAndRepopulateList()
 	{
-		_listView->removeListViewListener(this);
+		for(int i = 0; i < _detailsVector->size(); i++)
+		{
+			maWidgetDestroy((*_detailsVector)[i]->getWidgetHandle());
+			delete (*_detailsVector)[i];
+		}
 
+		for(int i = 0; i < _listView->countChildWidgets(); i++)
+		{
+			_listView->removeChild(_listView->getChild(i));
+			maWidgetDestroy(_listView->getChild(i)->getWidgetHandle());
+		}
+
+		_listView->removeListViewListener(this);
 		delete _listView;
 
 		_listView = new NativeUI::ListView();
@@ -619,9 +639,6 @@ namespace GUI
 		_listView->addListViewListener(this);
 
 		_mainLayout->addChild(_listView);
-
-		for(int i = 0; i < _detailsVector->size(); i++)
-			delete (*_detailsVector)[i];
 
 		delete _detailsVector;
 		_detailsVector = new MAUtil::Vector<NativeUI::Label*>();
@@ -840,8 +857,9 @@ namespace GUI
 	 */
 	void ListScreen::_handleClearListButtonClicked()
 	{
-		maAlert("Alert!", "Are you sure you want to clear the list? Note that this action has a permanent effect.", "OK", "Cancel", NULL);
+		maAlert("Alert!", "Are you sure you want to clear the list? Note that this action has a permanent effect.", "OK", NULL, "Cancel");
 		isFromRemove = true;
+		_observerReference->requestClearTransactionList();
 	}
 }
 

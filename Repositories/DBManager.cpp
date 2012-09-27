@@ -349,7 +349,6 @@ namespace Repositories
 	{
 		_DBIncomes = maFileOpen(_incomesFileCompletePath->c_str(), MA_ACCESS_READ_WRITE);
 		if(0 == maFileExists(_DBIncomes)) return;
-
 		MAUtil::String incomeContent;
 		incomeContent.append(MAUtil::doubleToString(obj->getAmount()).c_str(), MAUtil::doubleToString(obj->getAmount()).length());
 		incomeContent.append("~", 1);
