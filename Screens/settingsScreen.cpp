@@ -164,7 +164,8 @@ namespace GUI
 	{
 		if(index == _saveButtonIndex)
 		{
-			maAlert("Alert!", "Are you sure you want to save these settings?", "OK", NULL, "Cancel");
+			if(_WindowsPhone7) maAlert("Alert!", "Are you sure you want to save these settings?", "OK", "", "Cancel");
+			else maAlert("Alert!", "Are you sure you want to save these settings?", "OK", "Cancel", "");
 		}
 		else if(index == _restoreButtonIndex)
 		{

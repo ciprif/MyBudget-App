@@ -867,7 +867,8 @@ namespace GUI
 	 */
 	void ListScreen::_handleClearListButtonClicked()
 	{
-		maAlert("Alert!", "Are you sure you want to clear the list? Note that this action has a permanent effect.", "OK", NULL, "Cancel");
+		if(_WindowsPhone7) maAlert("Alert!", "Are you sure you want to clear the list? Note that this action has a permanent effect.", "OK", "", "Cancel");
+		else maAlert("Alert!", "Are you sure you want to clear the list? Note that this action has a permanent effect.", "OK", "Cancel", "");
 		isFromRemove = true;
 	}
 }

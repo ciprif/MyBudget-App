@@ -129,7 +129,7 @@ namespace GUI
 			}
 			else
 			{
-				maAlert("Alert!", "The value of the income must be higher than 0!", "OK", NULL, NULL);
+				maAlert("Alert!", "The value of the income must be higher than 0!", "OK", "", "");
 			}
 		}
 		else if(button == _cancelButton)
@@ -140,7 +140,7 @@ namespace GUI
 		}
 		else
 		{
-			maAlert("Alert!", "Feature is not yet available. Please wait for a future update.", "OK", NULL, NULL);
+			maAlert("Alert!", "Feature is not yet available. Please wait for a future update.", "OK", "", "");
 		}
 	}
 

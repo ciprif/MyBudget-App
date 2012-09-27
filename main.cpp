@@ -101,6 +101,8 @@ public:
 			((NativeUI::TabScreen*)_parentScreen)->addTab(_homeScreen);
 			((NativeUI::TabScreen*)_parentScreen)->addTab(_listScreen);
 			((NativeUI::TabScreen*)_parentScreen)->addTab(_settingsScreen);
+			MAUtil::Environment::getEnvironment().addCustomEventListener(_listScreen);
+			MAUtil::Environment::getEnvironment().addCustomEventListener(_settingsScreen);
 		}
 		else if(GUI::_IPhoneOS)
 		{
