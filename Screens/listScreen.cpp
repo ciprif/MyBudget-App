@@ -245,27 +245,28 @@ namespace GUI
 	 */
 	void ListScreen::clearList()
 	{
+		for(int i = 0; i < _listView->countChildWidgets(); i++)
+		{
+			Widget* w = _listView->getChild(i);
+			if (w->countChildWidgets() > 1)
+			{
+				w->removeChild((*_detailsVector)[i]);
+			}
+		}
+
 		for(int i = 0; i < _detailsVector->size(); i++)
 		{
 			maWidgetDestroy((*_detailsVector)[i]->getWidgetHandle());
 			delete (*_detailsVector)[i];
 		}
 
-		for(int i = 0; i < _listView->countChildWidgets(); i++)
+		while(0 < _listView->countChildWidgets())
 		{
-			_listView->removeChild(_listView->getChild(i));
-			maWidgetDestroy(_listView->getChild(i)->getWidgetHandle());
+			NativeUI::Widget* w = _listView->getChild(_listView->countChildWidgets() - 1);
+			_listView->removeChild(w);
+			maWidgetDestroy(w->getWidgetHandle());
+			delete w;
 		}
-
-		_listView->removeListViewListener(this);
-		delete _listView;
-
-		_listView = new NativeUI::ListView();
-		_listView->fillSpaceHorizontally();
-		_listView->fillSpaceVertically();
-		_listView->addListViewListener(this);
-
-		_mainLayout->addChild(_listView);
 
 		delete _itemsVector;
 		delete _detailsVector;
@@ -512,7 +513,6 @@ namespace GUI
 	 */
 	void ListScreen::customEvent(const MAEvent& event)
 	{
-		lprintfln("listscreen");
 		if(event.type == EVENT_TYPE_ALERT)
 		{
 			if(1 == event.alertButtonIndex && isFromRemove)
@@ -560,7 +560,7 @@ namespace GUI
 		_listView->fillSpaceVertically();
 		_listView->addListViewListener(this);
 
-		_mainLayout->addChild(_listView);\
+		_mainLayout->addChild(_listView);
 		setMainWidget(_mainLayout);
 
 		createOptionsMenu();
@@ -627,27 +627,28 @@ namespace GUI
 	 */
 	void ListScreen::_clearAndRepopulateList()
 	{
+		for(int i = 0; i < _listView->countChildWidgets(); i++)
+		{
+			Widget* w = _listView->getChild(i);
+			if (w->countChildWidgets() > 1)
+			{
+				w->removeChild((*_detailsVector)[i]);
+			}
+		}
+
 		for(int i = 0; i < _detailsVector->size(); i++)
 		{
 			maWidgetDestroy((*_detailsVector)[i]->getWidgetHandle());
 			delete (*_detailsVector)[i];
 		}
 
-		for(int i = 0; i < _listView->countChildWidgets(); i++)
+		while(0 < _listView->countChildWidgets())
 		{
-			_listView->removeChild(_listView->getChild(i));
-			maWidgetDestroy(_listView->getChild(i)->getWidgetHandle());
+			NativeUI::Widget* w = _listView->getChild(_listView->countChildWidgets() - 1);
+			_listView->removeChild(w);
+			maWidgetDestroy(w->getWidgetHandle());
+			delete w;
 		}
-
-		_listView->removeListViewListener(this);
-		delete _listView;
-
-		_listView = new NativeUI::ListView();
-		_listView->fillSpaceHorizontally();
-		_listView->fillSpaceVertically();
-		_listView->addListViewListener(this);
-
-		_mainLayout->addChild(_listView);
 
 		delete _detailsVector;
 		_detailsVector = new MAUtil::Vector<NativeUI::Label*>();
@@ -868,7 +869,6 @@ namespace GUI
 	{
 		maAlert("Alert!", "Are you sure you want to clear the list? Note that this action has a permanent effect.", "OK", NULL, "Cancel");
 		isFromRemove = true;
-		_observerReference->requestClearTransactionList();
 	}
 }
 

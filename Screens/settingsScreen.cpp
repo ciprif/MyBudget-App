@@ -164,14 +164,7 @@ namespace GUI
 	{
 		if(index == _saveButtonIndex)
 		{
-			Model::DateStruct d;
-			_saveDateSettings(d);
-
-			_saveCoinSettings();
-
-			_saveDebtSettings();
-			_collapseCoinList();
-			_observerReference->requestSaveSettings(_isAllItems, _isMonthly, _isFromDate, _debtValue, d, _coin);
+			maAlert("Alert!", "Are you sure you want to save these settings?", "OK", NULL, "Cancel");
 		}
 		else if(index == _restoreButtonIndex)
 		{
@@ -202,7 +195,6 @@ namespace GUI
 			{
 				_handleFromDateCheckboxStateChenged();
 			}
-
 		}
 		else
 		{
@@ -264,9 +256,24 @@ namespace GUI
 	 */
 	void SettingsScreen::customEvent(const MAEvent& event)
 	{
-		_collapseCoinList();
-		if(event.type == EVENT_TYPE_OPTIONS_BOX_BUTTON_CLICKED)
+		if(event.type == EVENT_TYPE_ALERT)
 		{
+			_collapseCoinList();
+			if(1 == event.alertButtonIndex)
+			{
+				Model::DateStruct d;
+				_saveDateSettings(d);
+
+				_saveCoinSettings();
+
+				_saveDebtSettings();
+				_collapseCoinList();
+				_observerReference->requestSaveSettings(_isAllItems, _isMonthly, _isFromDate, _debtValue, d, _coin);
+			}
+		}
+		else if(event.type == EVENT_TYPE_OPTIONS_BOX_BUTTON_CLICKED)
+		{
+			_collapseCoinList();
 			if(0 == event.optionsBoxButtonIndex) //save
 			{
 				Model::DateStruct d;

@@ -115,6 +115,8 @@ public:
 			((NativeUI::PanoramaView*) _parentScreen)->addScreen(_homeScreen);
 			((NativeUI::PanoramaView*) _parentScreen)->addScreen(_listScreen);
 			((NativeUI::PanoramaView*) _parentScreen)->addScreen(_settingsScreen);
+			MAUtil::Environment::getEnvironment().addCustomEventListener(_listScreen);
+			MAUtil::Environment::getEnvironment().addCustomEventListener(_settingsScreen);
 		}
 
 		//Show the screen
