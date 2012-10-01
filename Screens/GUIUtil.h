@@ -154,6 +154,7 @@ namespace GUI
 			_imageButtonHeight = IMAGE_BUTTON_HEIGHT_MEDIUM;
 			break;
 		case 2:
+			_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE;
 			if(_IPhoneOS)
 			{
 				_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE - 10;
