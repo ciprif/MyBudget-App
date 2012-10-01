@@ -408,6 +408,7 @@ namespace GUI
 		_coinLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 
 		NativeUI::VerticalLayout* toggleAndLabelParent = new NativeUI::VerticalLayout();
+		toggleAndLabelParent->wrapContentVertically();
 
 		if(!_WindowsPhone7) toggleAndLabelParent->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 
