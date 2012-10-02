@@ -466,10 +466,13 @@ namespace GUI
 
 		checkBoxLabelLayoutAll->setChildHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 		checkBoxLabelLayoutAll->fillSpaceHorizontally();
+		checkBoxLabelLayoutAll->wrapContentVertically();
 		checkBoxLabelLayoutMonthly->setChildHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 		checkBoxLabelLayoutMonthly->fillSpaceHorizontally();
+		checkBoxLabelLayoutMonthly->wrapContentVertically();
 		checkBoxLabelLayoutFromDate->setChildHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 		checkBoxLabelLayoutFromDate->fillSpaceHorizontally();
+		checkBoxLabelLayoutFromDate->wrapContentVertically();
 
 		NativeUI::Label* checkBoxLabelAllItems = new NativeUI::Label();
 		checkBoxLabelAllItems->setText("All items");
