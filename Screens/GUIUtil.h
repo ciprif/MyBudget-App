@@ -159,6 +159,9 @@ namespace GUI
 			{
 				_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE - 10;
 				_dialogSmallFontSize = DIALOG_FONT_SIZE_SMALL_SCREEN_LARGE - 10;
+				_dialogButtonWidth = DIALOG_BUTTON_WIDTH_SCREEN_LARGE;
+				_imageButtonWidth = IMAGE_BUTTON_WIDTH_LARGE;
+				_imageButtonHeight = IMAGE_BUTTON_HEIGHT_LARGE;
 			}
 			else
 			{
