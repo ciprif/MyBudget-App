@@ -380,7 +380,7 @@ namespace GUI
 			{
 				_optionsButton = new NativeUI::Button();
 				_optionsButton->setBackgroundColor(255, 0, 0);
-				_optionsButton->setWidth( _itemWidth * 0.95);
+				_optionsButton->setWidth((int)(_itemWidth * 0.95));
 				_optionsButton->setText("Options");
 				_optionsButton->addButtonListener(this);
 				_mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
