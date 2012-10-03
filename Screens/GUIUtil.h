@@ -25,6 +25,7 @@ MA 02110-1301, USA.
 #define GUIUTIL_H_
 
 #include "../Model/ModelUtil.h"
+#include <MAUtil/Environment.h>
 
 namespace GUI
 {
@@ -56,6 +57,7 @@ namespace GUI
 	const int DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_SMALL = 100;
 	const int DESCRIPTION_EDIT_BOX_LINES = 10;
 	const int DIALOG_HEIGHT = 750;
+	const int DIALOG_HEIGHT_IOS = 840;
 	const int DIALOG_BUTTON_WIDTH_SCREEN_LARGE = 140;
 	const int DIALOG_BUTTON_WIDTH_SCREEN_MEDIUM = 100;
 	const int DIALOG_BUTTON_WIDTH_SCREEN_SMALL = 80;
@@ -69,10 +71,11 @@ namespace GUI
 	const int IMAGE_BUTTON_HEIGHT_LARGE = 100;
 	const int IMAGE_BUTTON_HEIGHT_MEDIUM = 70;
 	const int IMAGE_BUTTON_HEIGHT_SMALL = 40;
+	const int SPACER_HEIGHT_IOS = 30;
 
 	const int SMALL_SCREEN = 0;
-	const int MEDIUM_SCREEN = 0;
-	const int LARGE_SCREEN = 0;
+	const int MEDIUM_SCREEN = 1;
+	const int LARGE_SCREEN = 2;
 
 	// Pointer to the active screen
 	static MAUtil::CustomEventListener* _activeScreen;
@@ -137,7 +140,7 @@ namespace GUI
 
 		switch(_screenType)
 		{
-		case 0:
+		case SMALL_SCREEN:
 			_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_SMALL;
 			_dialogSmallFontSize = DIALOG_FONT_SIZE_SMALL_SCREEN_SMALL;
 			_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_SMALL;
@@ -145,7 +148,7 @@ namespace GUI
 			_imageButtonWidth = IMAGE_BUTTON_WIDTH_SMALL;
 			_imageButtonHeight = IMAGE_BUTTON_HEIGHT_SMALL;
 			break;
-		case 1:
+		case MEDIUM_SCREEN:
 			_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_MEDIUM;
 			_dialogSmallFontSize = DIALOG_FONT_SIZE_SMALL_SCREEN_MEDIUM;
 			_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_MEDIUM;
@@ -153,11 +156,15 @@ namespace GUI
 			_imageButtonWidth = IMAGE_BUTTON_WIDTH_MEDIUM;
 			_imageButtonHeight = IMAGE_BUTTON_HEIGHT_MEDIUM;
 			break;
-		case 2:
+		case LARGE_SCREEN:
+			_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE;
 			if(_IPhoneOS)
 			{
 				_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE - 10;
 				_dialogSmallFontSize = DIALOG_FONT_SIZE_SMALL_SCREEN_LARGE - 10;
+				_dialogButtonWidth = DIALOG_BUTTON_WIDTH_SCREEN_LARGE;
+				_imageButtonWidth = IMAGE_BUTTON_WIDTH_LARGE;
+				_imageButtonHeight = IMAGE_BUTTON_HEIGHT_LARGE;
 			}
 			else
 			{

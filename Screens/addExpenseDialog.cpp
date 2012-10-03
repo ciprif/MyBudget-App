@@ -361,26 +361,54 @@ namespace GUI
 		int screenHeight = EXTENT_Y(size);
 
 		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
-		if(_WindowsPhone7) parent->setHeight(DIALOG_HEIGHT);
-		_mainLayout = new NativeUI::VerticalLayout();
-		_mainLayout->setScrollable(true);
 
-		_mainLayout->addChild(_createCheckBoxGroup());
-		_mainLayout->addChild(_createAmountBar((int)(_availableBudget + _acceptedDept)));
+		if (_IPhoneOS)
+		{
+			parent->setHeight(DIALOG_HEIGHT_IOS);
+			NativeUI::RelativeLayout* relativeLayout = new NativeUI::RelativeLayout();
+			relativeLayout->setScrollable(true);
+			relativeLayout->addChild(parent);
+			parent->addChild(_createCheckBoxGroup());
+			parent->addChild(_createAmountBar((int)(_availableBudget + _acceptedDept)));
 
-		_mainLayout->addChild(_createDatePicker());
-		_mainLayout->addChild(_createTimePicker());
+			parent->addChild(_createDatePicker());
+			parent->addChild(_createTimePicker());
 
-		_createDescriptionBox();
-		_mainLayout->addChild(_descriptionBoxParent);
+			_createDescriptionBox();
+			parent->addChild(_descriptionBoxParent);
 
-		_createImageBox();
-		_mainLayout->addChild(_imageBoxAndToggleLayout);
-		_mainLayout->addChild(_createBottomSpacer());
-		_mainLayout->addChild(_createBottomButtonBar());
+			_createImageBox();
+			parent->addChild(_imageBoxAndToggleLayout);
+			parent->addChild(_createBottomSpacer());
+			parent->addChild(_createBottomButtonBar());
 
-		parent->addChild(_mainLayout);
-		setMainWidget(parent);
+			setMainWidget(relativeLayout);
+		}
+		else
+		{
+			if(_WindowsPhone7) parent->setHeight(DIALOG_HEIGHT);
+			_mainLayout = new NativeUI::VerticalLayout();
+			_mainLayout->setScrollable(true);
+
+			_mainLayout->addChild(_createCheckBoxGroup());
+			_mainLayout->addChild(_createAmountBar((int)(_availableBudget + _acceptedDept)));
+
+			_mainLayout->addChild(_createDatePicker());
+			_mainLayout->addChild(_createTimePicker());
+
+			_createDescriptionBox();
+			_mainLayout->addChild(_descriptionBoxParent);
+
+			_createImageBox();
+			_mainLayout->addChild(_imageBoxAndToggleLayout);
+			_mainLayout->addChild(_createBottomSpacer());
+			_mainLayout->addChild(_createBottomButtonBar());
+
+			parent->addChild(_mainLayout);
+			setMainWidget(parent);
+		}
+
+
 	}
 
 	/**
@@ -393,6 +421,7 @@ namespace GUI
 			checkBoxVector = new MAUtil::Vector<NativeUI::CheckBox*>();
 
 		NativeUI::VerticalLayout* checkBoxGroupParentLayout = new NativeUI::VerticalLayout();
+		checkBoxGroupParentLayout->wrapContentVertically();
 
 		NativeUI::Label* categoryLabel = new NativeUI::Label();
 		categoryLabel->setText("Choose a category:");
@@ -405,6 +434,7 @@ namespace GUI
 			checkBoxLabelLayout = new NativeUI::HorizontalLayout();
 			checkBoxLabelLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 			checkBoxLabelLayout->fillSpaceHorizontally();
+			checkBoxLabelLayout->wrapContentVertically();
 
 			NativeUI::Label* checkBoxLabel = new NativeUI::Label();
 			NativeUI::CheckBox* checkBox = new NativeUI::CheckBox();
@@ -458,10 +488,11 @@ namespace GUI
 	{
 		NativeUI::HorizontalLayout* amountBar = new NativeUI::HorizontalLayout();
 		amountBar->fillSpaceHorizontally();
+		amountBar->wrapContentVertically();
 
 		NativeUI::VerticalLayout* labelSliderParentLayout = new NativeUI::VerticalLayout();
 		labelSliderParentLayout->fillSpaceHorizontally();
-		labelSliderParentLayout->fillSpaceVertically();
+		labelSliderParentLayout->wrapContentVertically();
 
 		_amountSlider = new NativeUI::Slider();
 		_amountSlider->addSliderListener(this);
@@ -504,10 +535,11 @@ namespace GUI
 	{
 		NativeUI::HorizontalLayout* datePickerBar = new NativeUI::HorizontalLayout();
 		datePickerBar->fillSpaceHorizontally();
+		datePickerBar->wrapContentVertically();
 
 		NativeUI::VerticalLayout* labelDPParentLayout = new NativeUI::VerticalLayout();
 		labelDPParentLayout->fillSpaceHorizontally();
-		labelDPParentLayout->fillSpaceVertically();
+		labelDPParentLayout->wrapContentVertically();
 
 		_datePicker = new NativeUI::DatePicker();
 		_datePicker->fillSpaceHorizontally();
@@ -536,10 +568,11 @@ namespace GUI
 	{
 		NativeUI::HorizontalLayout* timePickerBar = new NativeUI::HorizontalLayout();
 		timePickerBar->fillSpaceHorizontally();
+		timePickerBar->wrapContentVertically();
 
 		NativeUI::VerticalLayout* labelTPParentLayout = new NativeUI::VerticalLayout();
 		labelTPParentLayout->fillSpaceHorizontally();
-		labelTPParentLayout->fillSpaceVertically();
+		labelTPParentLayout->wrapContentVertically();
 
 		_timePicker = new NativeUI::TimePicker();
 		_timePicker->fillSpaceHorizontally();
@@ -562,10 +595,13 @@ namespace GUI
 	void AddExpenseDialog::_createImageBox()
 	{
 		NativeUI::VerticalLayout* imageToggleAndLabelParent = new NativeUI::VerticalLayout();
+		imageToggleAndLabelParent->wrapContentVertically();
 		NativeUI::Label* imageToggleLabel = new NativeUI::Label();
 
 		_imageBoxAndToggleLayout = new NativeUI::VerticalLayout();
+		_imageBoxAndToggleLayout->wrapContentVertically();
 		_imageButtonsParentLayout = new NativeUI::HorizontalLayout();
+		_imageButtonsParentLayout->wrapContentVertically();
 		_imageAtachementToggleButton = new NativeUI::ToggleButton();
 
 		_imageAtachementToggleButton->fillSpaceHorizontally();
@@ -634,7 +670,7 @@ namespace GUI
 		_imageButtonsParentLayout->addChild(captureButtonWrapper);
 		_imageButtonsParentLayout->addChild(spacer);
 		_imageButtonsParentLayout->addChild(selectButtonWrapper);
-		_imageButtonsParentLayout->fillSpaceVertically();
+		_imageButtonsParentLayout->wrapContentVertically();
 		_imageButtonsParentLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 
 		_imageBoxAndToggleLayout->addChild(imageToggleAndLabelParent);
@@ -646,8 +682,10 @@ namespace GUI
 	void AddExpenseDialog::_createDescriptionBox() //this is void because _descriptionBoxParent needs to be accessed from another function call. A return for NativeUI::VerticalLayout* would be redundant
 	{
 		_descriptionBoxParent = new NativeUI::VerticalLayout();
+		_descriptionBoxParent->wrapContentVertically();
 
 		NativeUI::VerticalLayout* descritionToggleAndLabelParent = new NativeUI::VerticalLayout();
+		descritionToggleAndLabelParent->wrapContentVertically();
 		NativeUI::Label* descriptionToggleLabel = new NativeUI::Label();
 
 		_descriptionToggleButton = new NativeUI::ToggleButton();

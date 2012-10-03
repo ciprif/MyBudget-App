@@ -28,6 +28,7 @@ MA 02110-1301, USA.
 #include <conprint.h>
 #include <matime.h>
 
+#include "../Screens/GUIUtil.h"
 #include "settingsManager.h"
 
 namespace Logical
@@ -40,12 +41,14 @@ namespace Logical
 	 */
 	SettingsManager::SettingsManager() : _coin("EUR"), _showAll(true), _showFromDate(false), _showMonthly(false), _debtValue(0.0)
 	{
+		GUI::DeterminePlatform();
+
 		char path[Model::BUFF_SIZE];
 
 		maGetSystemProperty("mosync.path.local", path, Model::BUFF_SIZE);
 
 		_settingsFileCompletePath = new MAUtil::String(path);
-		(*_settingsFileCompletePath) += "/";
+		if(false == GUI::_IPhoneOS)(*_settingsFileCompletePath) += "/";
 		(*_settingsFileCompletePath) += SETTINGS_FILE;
 
 		_settingsFile = maFileOpen(_settingsFileCompletePath->c_str(), MA_ACCESS_READ_WRITE);
@@ -201,7 +204,9 @@ namespace Logical
 		char settingsFileContent[Model::BUFF_SIZE];
 		MAUtil::String content;
 
-		maFileRead(_settingsFile, settingsFileContent, Model::BUFF_SIZE);
+		int fileSize = maFileSize(_settingsFile);
+
+		maFileRead(_settingsFile, settingsFileContent, fileSize);
 
 		content.append(settingsFileContent, strlen(settingsFileContent));
 
