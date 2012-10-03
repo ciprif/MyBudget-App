@@ -361,9 +361,10 @@ namespace GUI
 		int screenHeight = EXTENT_Y(size);
 
 		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
+
 		if (_IPhoneOS)
 		{
-			parent->setHeight(900);
+			parent->setHeight(DIALOG_HEIGHT_IOS);
 			NativeUI::RelativeLayout* relativeLayout = new NativeUI::RelativeLayout();
 			relativeLayout->setScrollable(true);
 			relativeLayout->addChild(parent);
@@ -382,11 +383,9 @@ namespace GUI
 			parent->addChild(_createBottomButtonBar());
 
 			setMainWidget(relativeLayout);
-
 		}
 		else
 		{
-			parent->addChild(_mainLayout);
 			if(_WindowsPhone7) parent->setHeight(DIALOG_HEIGHT);
 			_mainLayout = new NativeUI::VerticalLayout();
 			_mainLayout->setScrollable(true);
@@ -405,6 +404,7 @@ namespace GUI
 			_mainLayout->addChild(_createBottomSpacer());
 			_mainLayout->addChild(_createBottomButtonBar());
 
+			parent->addChild(_mainLayout);
 			setMainWidget(parent);
 		}
 

@@ -340,7 +340,7 @@ namespace GUI
 			relativeLayout->setScrollable(true);
 
 			_mainLayout = new NativeUI::VerticalLayout();
-			_mainLayout->setHeight(950);
+			_mainLayout->setHeight(DIALOG_HEIGHT_IOS + 30);
 
 			_mainLayout->addChild(_createCheckBoxGroup(Model::INCOME_TYPES_LIST, Model::NO_OF_INCOMES));
 			_mainLayout->addChild(_createAmountBars());

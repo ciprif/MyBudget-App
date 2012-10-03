@@ -403,7 +403,6 @@ namespace GUI
 
 		_coinLabel->setText(coinLabelText);
 		if(!_WindowsPhone7) _coinLabel->fillSpaceHorizontally();
-		lprintfln("settings screen dialog font size %d", _dialogFontSize);
 		_coinLabel->setFontSize(_dialogFontSize);
 		_coinLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 

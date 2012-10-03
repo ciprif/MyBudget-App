@@ -379,10 +379,15 @@ namespace GUI
 			{
 				_optionsButton = new NativeUI::Button();
 				_optionsButton->setBackgroundColor(255, 0, 0);
-				_optionsButton->fillSpaceHorizontally();
+				_optionsButton->setWidth( _itemWidth * 0.95);
 				_optionsButton->setText("Options");
 				_optionsButton->addButtonListener(this);
+				_mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 				_mainLayout->addChild(_optionsButton);
+
+				NativeUI::VerticalLayout* spacer = new NativeUI::VerticalLayout();
+				spacer->setHeight(SPACER_HEIGHT_IOS);
+				_mainLayout->addChild(spacer);
 			}
 		}
 	}
