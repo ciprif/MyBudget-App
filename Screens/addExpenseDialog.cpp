@@ -429,7 +429,6 @@ namespace GUI
 
 		checkBoxGroupParentLayout->addChild(categoryLabel);
 		NativeUI::HorizontalLayout* checkBoxLabelLayout;
-		checkBoxLabelLayout->wrapContentVertically();
 		for(int i = 0; i < Model::NO_OF_CATEGORIES; i++)
 		{
 			checkBoxLabelLayout = new NativeUI::HorizontalLayout();
