@@ -26,6 +26,7 @@ MA 02110-1301, USA.
 #include <MAUtil/util.h>
 #include <MAFS/File.h>
 #include <conprint.h>
+#include "../Screens/GUIUtil.h"
 #include "../Model/ModelUtil.h"
 #include "DBManager.h"
 
@@ -36,6 +37,8 @@ namespace Repositories
 	 */
 	DBManager::DBManager()
 	{
+		GUI::DeterminePlatform();
+
 		char path[Model::BUFF_SIZE];
 
 		maGetSystemProperty("mosync.path.local", path, Model::BUFF_SIZE);
@@ -43,10 +46,10 @@ namespace Repositories
 		_incomesFileCompletePath = new MAUtil::String(path);
 		_expensesFileCompletePath = new MAUtil::String(path);
 
-		(*_incomesFileCompletePath) += "/";
+		if(false == GUI::_IPhoneOS) (*_incomesFileCompletePath) += "/";
 		(*_incomesFileCompletePath) += INCOMES_FILE;
 
-		(*_expensesFileCompletePath) += "/";
+		if(false == GUI::_IPhoneOS) (*_expensesFileCompletePath) += "/";
 		(*_expensesFileCompletePath) += EXPENSES_FILE;
 
 		_DBExpenses = maFileOpen(_expensesFileCompletePath->c_str(), MA_ACCESS_READ_WRITE);
@@ -99,14 +102,21 @@ namespace Repositories
 
 		char buffer[Model::BUFF_SIZE];
 		bool reading = true;
-		while(reading)
+		int remainingBytes = maFileSize(_DBExpenses);
+		int length = Model::BUFF_SIZE;
+		while(0 < remainingBytes)
 		{
-			if(0 <= maFileRead(_DBExpenses, &buffer, Model::BUFF_SIZE) && strlen(buffer) > 0)
+			if(remainingBytes < Model::BUFF_SIZE)
 			{
-				_expensesFileContent->append(buffer, strlen(buffer));
-				memset(&buffer, 0, Model::BUFF_SIZE);
+				length = remainingBytes;
 			}
-			else reading = false;
+			if(0 <= maFileRead(_DBExpenses, &buffer, length) && strlen(buffer) > 0)
+			{
+				remainingBytes -= length;
+				_expensesFileContent->append(buffer, strlen(buffer));
+				memset(&buffer, 0, length);
+			}
+			else break;
 		}
 		maFileClose(_DBExpenses);
 
@@ -135,6 +145,7 @@ namespace Repositories
 			//extracting date and time from the last 2 tokens
 			int count = 0;
 			int year, month, day;
+
 			while(-1 != inner_position)
 			{
 				int val = 0;
@@ -186,14 +197,22 @@ namespace Repositories
 
 		char buffer[Model::BUFF_SIZE];
 		bool reading = true;
-		while(reading)
+		int remainingBytes = maFileSize(_DBIncomes);
+		int length = Model::BUFF_SIZE;
+
+		while(0 < remainingBytes)
 		{
-			if(0 <= maFileRead(_DBIncomes, &buffer, Model::BUFF_SIZE) && strlen(buffer) > 0)
+			if(remainingBytes < Model::BUFF_SIZE)
 			{
-				_incomesFileContent->append(buffer, strlen(buffer));
-				memset(&buffer, 0, Model::BUFF_SIZE);
+				length = remainingBytes;
 			}
-			else reading = false;
+			if(0 <= maFileRead(_DBIncomes, &buffer, length) && strlen(buffer) > 0)
+			{
+				remainingBytes -= length;
+				_incomesFileContent->append(buffer, strlen(buffer));
+				memset(&buffer, 0, length);
+			}
+			else break;
 		}
 
 		maFileClose(_DBIncomes);

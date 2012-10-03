@@ -334,27 +334,55 @@ namespace GUI
 	 */
 	void AddIncomeDialog::_createUI()
 	{
-		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
-		if(_WindowsPhone7) parent->setHeight(DIALOG_HEIGHT);
-		_mainLayout = new NativeUI::VerticalLayout();
-		_mainLayout->setScrollable(true);
+		if (_IPhoneOS)
+		{
+			NativeUI::RelativeLayout* relativeLayout = new NativeUI::RelativeLayout();
+			relativeLayout->setScrollable(true);
 
-		_mainLayout->addChild(_createCheckBoxGroup(Model::INCOME_TYPES_LIST, Model::NO_OF_INCOMES));
-		_mainLayout->addChild(_createAmountBars());
+			_mainLayout = new NativeUI::VerticalLayout();
+			_mainLayout->setHeight(DIALOG_HEIGHT_IOS + 30);
 
-		_mainLayout->addChild(_createDatePicker());
-		_mainLayout->addChild(_createTimePicker());
+			_mainLayout->addChild(_createCheckBoxGroup(Model::INCOME_TYPES_LIST, Model::NO_OF_INCOMES));
+			_mainLayout->addChild(_createAmountBars());
 
-		_createDescriptionBox();
-		_mainLayout->addChild(_descriptionBoxParent);
+			_mainLayout->addChild(_createDatePicker());
+			_mainLayout->addChild(_createTimePicker());
 
-		_createTransactionInfoBox();
-		_mainLayout->addChild(_transactionInfoBoxParent);
-		_mainLayout->addChild(_createBottomSpacer());
-		_mainLayout->addChild(_createBottomButtonBar());
+			_createDescriptionBox();
+			_mainLayout->addChild(_descriptionBoxParent);
 
-		parent->addChild(_mainLayout);
-		setMainWidget(parent);
+			_createTransactionInfoBox();
+			_mainLayout->addChild(_transactionInfoBoxParent);
+			_mainLayout->addChild(_createBottomSpacer());
+			_mainLayout->addChild(_createBottomButtonBar());
+
+			relativeLayout->addChild(_mainLayout);
+			setMainWidget(relativeLayout);
+		}
+		else
+		{
+			NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
+			if(_WindowsPhone7) parent->setHeight(DIALOG_HEIGHT);
+			_mainLayout = new NativeUI::VerticalLayout();
+			_mainLayout->setScrollable(true);
+
+			_mainLayout->addChild(_createCheckBoxGroup(Model::INCOME_TYPES_LIST, Model::NO_OF_INCOMES));
+			_mainLayout->addChild(_createAmountBars());
+
+			_mainLayout->addChild(_createDatePicker());
+			_mainLayout->addChild(_createTimePicker());
+
+			_createDescriptionBox();
+			_mainLayout->addChild(_descriptionBoxParent);
+
+			_createTransactionInfoBox();
+			_mainLayout->addChild(_transactionInfoBoxParent);
+			_mainLayout->addChild(_createBottomSpacer());
+			_mainLayout->addChild(_createBottomButtonBar());
+
+			parent->addChild(_mainLayout);
+			setMainWidget(parent);
+		}
 	}
 
 	/**
@@ -370,6 +398,7 @@ namespace GUI
 			_checkBoxVector = new MAUtil::Vector<NativeUI::CheckBox*>();
 
 		NativeUI::VerticalLayout* checkBoxGroupParentLayout = new NativeUI::VerticalLayout();
+		checkBoxGroupParentLayout->wrapContentVertically();
 
 		NativeUI::Label* categoryLabel = new NativeUI::Label();
 		categoryLabel->setText("Choose a type:");
@@ -384,6 +413,7 @@ namespace GUI
 			checkBoxLabelLayout = new NativeUI::HorizontalLayout();
 			checkBoxLabelLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 			checkBoxLabelLayout->fillSpaceHorizontally();
+			checkBoxLabelLayout->wrapContentVertically();
 
 			NativeUI::Label* checkBoxLabel = new NativeUI::Label();
 			NativeUI::CheckBox* checkBox = new NativeUI::CheckBox();
@@ -440,14 +470,16 @@ namespace GUI
 	{
 		NativeUI::HorizontalLayout* amountBar = new NativeUI::HorizontalLayout();
 		amountBar->fillSpaceHorizontally();
+		amountBar->wrapContentVertically();
 		NativeUI::VerticalLayout* labelSliderParentLayout = new NativeUI::VerticalLayout();
+		labelSliderParentLayout->wrapContentVertically();
 
 		NativeUI::VerticalLayout* labelSliderParentLayoutThousands = new NativeUI::VerticalLayout();
 		labelSliderParentLayoutThousands->fillSpaceHorizontally();
-		labelSliderParentLayoutThousands->fillSpaceVertically();
+		labelSliderParentLayoutThousands->wrapContentVertically();
 		NativeUI::VerticalLayout* labelSliderParentLayoutUnits = new NativeUI::VerticalLayout();
 		labelSliderParentLayoutUnits->fillSpaceHorizontally();
-		labelSliderParentLayoutUnits->fillSpaceVertically();
+		labelSliderParentLayoutUnits->wrapContentVertically();
 
 		NativeUI::Label* _amountThousandsLabel = new NativeUI::Label();
 		NativeUI::Label* _amountUnitsLabel = new NativeUI::Label();
@@ -459,7 +491,7 @@ namespace GUI
 		_amountUnitsLabel->setFontSize(_dialogSmallFontSize);
 		_amountUnitsLabel->setText("Units");
 		_amountThousandsLabel->fillSpaceHorizontally();
-		_amountUnitsLabel->fillSpaceHorizontally();
+		_amountUnitsLabel->wrapContentVertically();
 
 		_amountSliderThousands = new NativeUI::Slider();
 		_amountSliderThousands->addSliderListener(this);
@@ -510,10 +542,11 @@ namespace GUI
 	{
 		NativeUI::HorizontalLayout* datePickerBar = new NativeUI::HorizontalLayout();
 		datePickerBar->fillSpaceHorizontally();
+		datePickerBar->wrapContentVertically();
 
 		NativeUI::VerticalLayout* labelDPParentLayout = new NativeUI::VerticalLayout();
 		labelDPParentLayout->fillSpaceHorizontally();
-		labelDPParentLayout->fillSpaceVertically();
+		labelDPParentLayout->wrapContentVertically();
 
 		_datePicker = new NativeUI::DatePicker();
 		_datePicker->fillSpaceHorizontally();
@@ -544,10 +577,11 @@ namespace GUI
 	{
 		NativeUI::HorizontalLayout* timePickerBar = new NativeUI::HorizontalLayout();
 		timePickerBar->fillSpaceHorizontally();
+		timePickerBar->wrapContentVertically();
 
 		NativeUI::VerticalLayout* labelTPParentLayout = new NativeUI::VerticalLayout();
 		labelTPParentLayout->fillSpaceHorizontally();
-		labelTPParentLayout->fillSpaceVertically();
+		labelTPParentLayout->wrapContentVertically();
 
 		_timePicker = new NativeUI::TimePicker();
 		_timePicker->fillSpaceHorizontally();
@@ -571,8 +605,10 @@ namespace GUI
 	void AddIncomeDialog::_createTransactionInfoBox()
 	{
 		_transactionInfoBoxParent = new NativeUI::VerticalLayout();
+		_transactionInfoBoxParent->wrapContentVertically();
 
 		NativeUI::VerticalLayout* transactionToggleAndLabelParent = new NativeUI::VerticalLayout();
+		transactionToggleAndLabelParent->wrapContentVertically();
 		NativeUI::Label* transactionToggleLabel = new NativeUI::Label();
 
 		_transactionInformationToggleButton = new NativeUI::ToggleButton();
@@ -601,8 +637,10 @@ namespace GUI
 	void AddIncomeDialog::_createDescriptionBox() //this is void because _descriptionBoxParent needs to be accessed from another function call. A return for NativeUI::VerticalLayout* would be redundant
 	{
 		_descriptionBoxParent = new NativeUI::VerticalLayout();
+		_descriptionBoxParent->wrapContentVertically();
 
 		NativeUI::VerticalLayout* descritionToggleAndLabelParent = new NativeUI::VerticalLayout();
+		descritionToggleAndLabelParent->wrapContentVertically();
 		NativeUI::Label* descriptionToggleLabel = new NativeUI::Label();
 
 		_descriptionToggleButton = new NativeUI::ToggleButton();

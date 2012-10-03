@@ -236,9 +236,9 @@ namespace GUI
 		 * \brief This function is called to create a list item
 		 * @param obj const Model::ListItemModel& the model object for the list view item
 		 * @param index int the index of the item
-		 * @return NativeUI::VerticalLayout* the layout containing the listViewItem
+		 * @return NativeUI::ListViewItem* pointer to the list view item.
 		 */
-		NativeUI::VerticalLayout* _createListItem(const Model::ListItemModel& obj, int index);
+		NativeUI::ListViewItem* _createListItem(const Model::ListItemModel& obj, int index);
 
 		/**
 		 * \brief This function is used for creating an expense type listViewItem

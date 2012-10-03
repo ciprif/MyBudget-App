@@ -177,7 +177,6 @@ namespace GUI
 	 */
 	void HomeScreen::customEvent(const MAEvent& event)
 	{
-		lprintfln("HomeScreen");
 		if(event.type == EVENT_TYPE_OPTIONS_BOX_BUTTON_CLICKED)
 		{
 			if(0 == event.optionsBoxButtonIndex) //add income

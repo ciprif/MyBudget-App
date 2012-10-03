@@ -25,6 +25,7 @@ MA 02110-1301, USA.
 #include <NativeUI/HorizontalLayout.h>
 #include <MAUtil/Vector.h>
 #include <NativeUI/ListView.h>
+#include <NativeUI/ListViewItem.h>
 #include <NativeUI/Button.h>
 
 #include "GUIUtil.h"
@@ -379,10 +380,15 @@ namespace GUI
 			{
 				_optionsButton = new NativeUI::Button();
 				_optionsButton->setBackgroundColor(255, 0, 0);
-				_optionsButton->fillSpaceHorizontally();
+				_optionsButton->setWidth( _itemWidth * 0.95);
 				_optionsButton->setText("Options");
 				_optionsButton->addButtonListener(this);
+				_mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 				_mainLayout->addChild(_optionsButton);
+
+				NativeUI::VerticalLayout* spacer = new NativeUI::VerticalLayout();
+				spacer->setHeight(SPACER_HEIGHT_IOS);
+				_mainLayout->addChild(spacer);
 			}
 		}
 	}
@@ -663,10 +669,11 @@ namespace GUI
 	 * \brief This function is called to create a list item
 	 * @param obj const Model::ListItemModel& the model object for the list view item
 	 * @param index int the index of the item
-	 * @return NativeUI::VerticalLayout* the layout containing the listViewItem
+	 * @return NativeUI::ListViewItem* pointer to the list view item.
 	 */
-	NativeUI::VerticalLayout* ListScreen::_createListItem(const Model::ListItemModel& obj, int index)
+	NativeUI::ListViewItem* ListScreen::_createListItem(const Model::ListItemModel& obj, int index)
 	{
+		NativeUI::ListViewItem* item = new NativeUI::ListViewItem();
 		NativeUI::VerticalLayout* itemParent = new NativeUI::VerticalLayout();
 		if(_WindowsPhone7) itemParent->setWidth(_itemWidth);
 		else itemParent->fillSpaceHorizontally();
@@ -700,7 +707,8 @@ namespace GUI
 
 		_detailsVector->add(details);
 
-		return itemParent;
+		item->addChild(itemParent);
+		return item;
 	}
 
 	/**

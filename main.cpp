@@ -37,8 +37,8 @@ MA 02110-1301, USA.
 #include "Screens/settingsScreen.h"
 #include "Screens/loadingScreen.h"
 #include "Logical/observer.h"
-#include "Logical/settingsManager.h"
 #include "Screens/GUIUtil.h"
+#include "Logical/settingsManager.h"
 #include "Screens/parentScreenIOS.h"
 
 using namespace MAUtil;
@@ -54,6 +54,7 @@ public:
 	 */
 	NativeUIMoblet()
 	{
+		GUI::DeterminePlatform();
 		// create a new observer object.
 		_observer = new Logical::Observer();
 
@@ -79,8 +80,6 @@ public:
 		GUI::LoadingScreen loadingScreen;
 		loadingScreen.show();
 		// the parent container is a panoramaView for WP7 and a TabScreen for Android and iOS
-
-		GUI::DeterminePlatform();
 
 		_listScreen = new GUI::ListScreen();
 		_listScreen->setTitle("Transactions");
