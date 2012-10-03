@@ -208,11 +208,13 @@ namespace GUI
 			if(true == state)
 			{
 				_descriptionBoxParent->addChild(_descriptionEditBox);
+				if(_IPhoneOS) _mainLayout->setHeight(_mainLayout->getHeight() + DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE);
 			}
 			else
 			{
 				_descriptionBoxParent->removeChild(_descriptionEditBox);
 				_descriptionEditBox->setText("");
+				if(_IPhoneOS) _mainLayout->setHeight(_mainLayout->getHeight() - DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE);
 			}
 		}
 		else if(toggleButton == _transactionInformationToggleButton)
@@ -220,11 +222,13 @@ namespace GUI
 			if(true == state)
 			{
 				_transactionInfoBoxParent->addChild(_transactionInformationEditBox);
+				if(_IPhoneOS) _mainLayout->setHeight(_mainLayout->getHeight() + DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE);
 			}
 			else
 			{
 				_transactionInfoBoxParent->removeChild(_transactionInformationEditBox);
 				_transactionInformationEditBox->setText("");
+				if(_IPhoneOS) _mainLayout->setHeight(_mainLayout->getHeight() - DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE);
 			}
 		}
 	}

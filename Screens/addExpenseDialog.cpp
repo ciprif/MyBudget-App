@@ -85,6 +85,7 @@ namespace GUI
 		_addButton->removeButtonListener(this);
 		_cancelButton->removeButtonListener(this);
 		_descriptionToggleButton->removeToggleButtonListener(this);
+		_descriptionEditBox->removeEditBoxListener(this);
 		_imageAtachementToggleButton->removeToggleButtonListener(this);
 		_amountSlider->removeSliderListener(this);
 		_selectImageButton->removeButtonListener(this);
@@ -197,11 +198,13 @@ namespace GUI
 			if(true == state)
 			{
 				_descriptionBoxParent->addChild(_descriptionEditBox);
+				if(_IPhoneOS) _mainLayout->setHeight(_mainLayout->getHeight() + DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE);
 			}
 			else
 			{
 				_descriptionBoxParent->removeChild(_descriptionEditBox);
 				_descriptionEditBox->setText("");
+				if(_IPhoneOS) _mainLayout->setHeight(_mainLayout->getHeight() - DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE);
 			}
 		}
 		else if(toggleButton == _imageAtachementToggleButton)
@@ -209,9 +212,11 @@ namespace GUI
 			if(true == state)
 			{
 				_imageBoxAndToggleLayout->addChild(_imageButtonsParentLayout);
+				if(_IPhoneOS) _mainLayout->setHeight(_mainLayout->getHeight() + _imageBoxAndToggleLayout->getHeight());
 			}
 			else
 			{
+				if(_IPhoneOS) _mainLayout->setHeight(_mainLayout->getHeight() - _imageBoxAndToggleLayout->getHeight());
 				_imageBoxAndToggleLayout->removeChild(_imageButtonsParentLayout);
 			}
 		}
@@ -361,33 +366,34 @@ namespace GUI
 		int screenHeight = EXTENT_Y(size);
 
 		NativeUI::VerticalLayout* parent = new NativeUI::VerticalLayout();
+		_mainLayout = new NativeUI::VerticalLayout();
 
 		if (_IPhoneOS)
 		{
-			parent->setHeight(DIALOG_HEIGHT_IOS);
+			_mainLayout->setHeight(DIALOG_HEIGHT_IOS);
 			NativeUI::RelativeLayout* relativeLayout = new NativeUI::RelativeLayout();
 			relativeLayout->setScrollable(true);
-			relativeLayout->addChild(parent);
-			parent->addChild(_createCheckBoxGroup());
-			parent->addChild(_createAmountBar((int)(_availableBudget + _acceptedDept)));
+			relativeLayout->addChild(_mainLayout);
+			_mainLayout->addChild(_createCheckBoxGroup());
+			_mainLayout->addChild(_createAmountBar((int)(_availableBudget + _acceptedDept)));
 
-			parent->addChild(_createDatePicker());
-			parent->addChild(_createTimePicker());
+			_mainLayout->addChild(_createDatePicker());
+			_mainLayout->addChild(_createTimePicker());
 
 			_createDescriptionBox();
-			parent->addChild(_descriptionBoxParent);
+			_mainLayout->addChild(_descriptionBoxParent);
 
 			_createImageBox();
-			parent->addChild(_imageBoxAndToggleLayout);
-			parent->addChild(_createBottomSpacer());
-			parent->addChild(_createBottomButtonBar());
+			_mainLayout->addChild(_imageBoxAndToggleLayout);
+			_mainLayout->addChild(_createBottomSpacer());
+			_mainLayout->addChild(_createBottomButtonBar());
 
 			setMainWidget(relativeLayout);
 		}
 		else
 		{
 			if(_WindowsPhone7) parent->setHeight(DIALOG_HEIGHT);
-			_mainLayout = new NativeUI::VerticalLayout();
+
 			_mainLayout->setScrollable(true);
 
 			_mainLayout->addChild(_createCheckBoxGroup());
@@ -407,8 +413,6 @@ namespace GUI
 			parent->addChild(_mainLayout);
 			setMainWidget(parent);
 		}
-
-
 	}
 
 	/**
@@ -715,6 +719,7 @@ namespace GUI
 		}
 
 		_descriptionEditBox->fillSpaceHorizontally();
+		_descriptionEditBox->addEditBoxListener(this);
 		_descriptionToggleButton->addToggleButtonListener(this);
 		_descriptionBoxParent->addChild(descritionToggleAndLabelParent);
 	}
