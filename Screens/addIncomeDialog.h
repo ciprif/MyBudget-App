@@ -28,7 +28,6 @@ MA 02110-1301, USA.
 #include <NativeUI/CheckBoxListener.h>
 #include <NativeUI/ButtonListener.h>
 #include <NativeUI/ToggleButtonListener.h>
-#include <NativeUI/SliderListener.h>
 #include <NativeUI/DatePickerListener.h>
 #include <NativeUI/EditBoxListener.h>
 #include <MAUtil/String.h>
@@ -44,7 +43,6 @@ namespace NativeUI
 	class CheckBox;
 	class EditBox;
 	class Button;
-	class Slider;
 	class ToggleButton;
 	class DatePicker;
 	class TimePicker;
@@ -61,8 +59,7 @@ namespace GUI
 	 */
 	class AddIncomeDialog : public NativeUI::Dialog, public NativeUI::CheckBoxListener,
 							public NativeUI::ButtonListener, public NativeUI::ToggleButtonListener,
-							public NativeUI::SliderListener, public NativeUI::DatePickerListener,
-							public NativeUI::EditBoxListener
+							public NativeUI::DatePickerListener, public NativeUI::EditBoxListener
 	{
 	public:
 		/**
@@ -118,14 +115,6 @@ namespace GUI
 		void toggleButtonStateChanged(NativeUI::ToggleButton* toggleButton, bool state);
 
 		/**
-		 * \brief This function is called when the state of the slider is changed by the user.
-		 * 		  Inherited from the NativeUI::SliderListener class
-		 * @param s NativeUI::Slider* pointer to the object that triggered the event
-		 * @param sliderValue int the new value of the slider object
-		 */
-		void sliderValueChanged(NativeUI::Slider* s, int sliderValue);
-
-		/**
 		 * \brief This function is used for showing the UI. Inherited from the NativeUI::Dialog class
 		 */
 		void show();
@@ -162,6 +151,13 @@ namespace GUI
 		 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
 		 */
 		void editBoxReturn(NativeUI::EditBox *editBox);
+
+		/**
+		 * \brief This function handles the edid did end event from the editBox;
+		 * 		  this function is inherited from the NativeUI::EditBoxListener class.
+		 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
+		 */
+		void editBoxEditingDidEnd(NativeUI::EditBox* editBox);
 	private:
 		/**
 		 * \brief This function is used for triggering the UI creation
@@ -184,7 +180,7 @@ namespace GUI
 		NativeUI::HorizontalLayout* _createBottomButtonBar();
 
 		/**
-		 * \brief This function is used for creating the amount bars (sliders and related UI elements)
+		 * \brief This function is used for creating the amount bars (and related UI elements)
 		 * @return NativeUI::HorizontalLayout* the newly created layout
 		 */
 		NativeUI::HorizontalLayout* _createAmountBars();
@@ -229,8 +225,7 @@ namespace GUI
 		NativeUI::EditBox* _transactionInformationEditBox;
 		NativeUI::Button* _addButton;
 		NativeUI::Button* _cancelButton;
-		NativeUI::Slider* _amountSliderThousands;
-		NativeUI::Slider* _amountSliderUnits;
+		NativeUI::EditBox* _amountEditBox;
 		NativeUI::DatePicker* _datePicker;
 		NativeUI::TimePicker* _timePicker;
 		NativeUI::ToggleButton* _descriptionToggleButton;

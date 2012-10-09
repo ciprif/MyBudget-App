@@ -29,7 +29,6 @@ MA 02110-1301, USA.
 #include <NativeUI/CheckBoxListener.h>
 #include <NativeUI/ButtonListener.h>
 #include <NativeUI/ToggleButtonListener.h>
-#include <NativeUI/SliderListener.h>
 #include <NativeUI/EditBoxListener.h>
 #include <MAUtil/String.h>
 #include <MAUtil/Vector.h>
@@ -45,7 +44,6 @@ namespace NativeUI
 	class EditBox;
 	class ImageButton;
 	class Button;
-	class Slider;
 	class ToggleButton;
 	class DatePicker;
 	class TimePicker;
@@ -66,7 +64,7 @@ namespace GUI
 	 */
 	class AddExpenseDialog : public NativeUI::Dialog, public NativeUI::CheckBoxListener,
 							 public NativeUI::ButtonListener, public NativeUI::ToggleButtonListener,
-							 public NativeUI::SliderListener, public NativeUI::EditBoxListener
+							 public NativeUI::EditBoxListener
 	{
 	public:
 		/**
@@ -124,14 +122,6 @@ namespace GUI
 		void toggleButtonStateChanged(NativeUI::ToggleButton* toggleButton, bool state);
 
 		/**
-		 * \brief This function is called when the state of the slider is changed by the user.
-		 * 		  Inherited from the NativeUI::SliderListener class
-		 * @param s NativeUI::Slider* pointer to the object that triggered the event
-		 * @param sliderValue int the new value of the slider object
-		 */
-		void sliderValueChanged(NativeUI::Slider* s, int sliderValue);
-
-		/**
 		 * \brief This function is used for showing the UI. Inherited from the NativeUI::Dialog class
 		 */
 		void show();
@@ -161,9 +151,9 @@ namespace GUI
 		void setAcceptedDebtValue(const double& value);
 
 		/**
-		 * \brief This function is used for updating the maximum value of the amount slider
+		 * \brief This function is used for updating the placeholder value of the amount editBox
 		 */
-		void updateAmountSliderValue();
+		void updateAmountValue();
 
 		/**
 		 * \brief This function is used for setting the _launcedFromHomeScreen boolean
@@ -177,6 +167,13 @@ namespace GUI
 		 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
 		 */
 		void editBoxReturn(NativeUI::EditBox *editBox);
+
+		/**
+		 * \brief This function handles the edid did end event from the editBox;
+		 * 		  this function is inherited from the NativeUI::EditBoxListener class.
+		 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
+		 */
+		void editBoxEditingDidEnd(NativeUI::EditBox* editBox);
 	private:
 		/**
 		 * \brief This function is used for triggering the UI creation
@@ -196,8 +193,8 @@ namespace GUI
 		NativeUI::HorizontalLayout* _createBottomButtonBar();
 
 		/**
-		 * \brief This function is used for creating the amount bars (sliders and related UI elements)
-		 * @param maxVal const int& the maximal value for the slider
+		 * \brief This function is used for creating the amount bars (and related UI elements)
+		 * @param maxVal const int& the maximal value for the amount editBox placeholder
 		 * @return NativeUI::HorizontalLayout* the newly created layout
 		 */
 		NativeUI::HorizontalLayout* _createAmountBar(const int& maxVal);
@@ -246,7 +243,7 @@ namespace GUI
 		NativeUI::Button* _addButton;
 		NativeUI::Button* _cancelButton;
 		NativeUI::EditBox* _descriptionEditBox;
-		NativeUI::Slider* _amountSlider;
+		NativeUI::EditBox* _amountEditBox;
 		NativeUI::Label* _amountLabel;
 		NativeUI::Label* _categoryLabel;
 		NativeUI::DatePicker* _datePicker;

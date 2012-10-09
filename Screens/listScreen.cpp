@@ -806,7 +806,7 @@ namespace GUI
 			_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
 			_addExpensesDialog->setCoin(_coin);
 			_addExpensesDialog->setLaunchedFromHomeScreen(false);
-			_addExpensesDialog->updateAmountSliderValue();
+			_addExpensesDialog->updateAmountValue();
 			_addExpensesDialog->show();
 		}
 	}
