@@ -637,10 +637,11 @@ namespace GUI
 	{
 		for(int i = 0; i < _listView->countChildWidgets(); i++)
 		{
-			Widget* w = _listView->getChild(i);
-			if (w->countChildWidgets() > 1)
+			NativeUI::ListViewItem* item = (NativeUI::ListViewItem*) _listView->getChild(i);
+			NativeUI::VerticalLayout* itemLayout = (NativeUI::VerticalLayout*) item->getChild(0);
+			if (itemLayout->countChildWidgets() > 1)
 			{
-				w->removeChild((*_detailsVector)[i]);
+				itemLayout->removeChild((*_detailsVector)[i]);
 			}
 		}
 
