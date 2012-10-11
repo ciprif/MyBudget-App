@@ -621,7 +621,7 @@ namespace GUI
 			_addExpensesDialog->setAvailableBudget(_budgetTotalValue - _budgetConsumedValue);
 			_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
 			_addExpensesDialog->setCoin(_coin);
-			_addExpensesDialog->updateAmountSliderValue();
+			_addExpensesDialog->updateAmountValue();
 			_addExpensesDialog->setLaunchedFromHomeScreen(true);
 			_addExpensesDialog->show();
 		}

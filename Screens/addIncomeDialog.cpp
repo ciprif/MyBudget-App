@@ -79,8 +79,7 @@ namespace GUI
 		_cancelButton->removeButtonListener(this);
 		_descriptionToggleButton->removeToggleButtonListener(this);
 		_transactionInformationToggleButton->removeToggleButtonListener(this);
-		_amountSliderThousands->removeSliderListener(this);
-		_amountSliderUnits->removeSliderListener(this);
+		_amountEditBox->removeEditBoxListener(this);
 		_descriptionEditBox->removeEditBoxListener(this);
 		_transactionInformationEditBox->removeEditBoxListener(this);
 		MAUtil::Vector<NativeUI::CheckBox*>::iterator it;
@@ -101,9 +100,9 @@ namespace GUI
 	{
 		if(button == _addButton)
 		{
-			double value = _amountSliderThousands->getValue() * 1000 + _amountSliderUnits->getValue()*9;
+			double value = (double)MAUtil::stringToDouble(_amountEditBox->getText());
 
-			if(0 < value)
+			if(0 < value || _amountEditBox->getText().length() != 0)
 			{
 				this->hide();
 				if(_WindowsPhone7)
@@ -234,30 +233,6 @@ namespace GUI
 	}
 
 	/**
-	 * \brief This function is called when the state of the slider is changed by the user.
-	 * 		  Inherited from the NativeUI::SliderListener class
-	 * @param s NativeUI::Slider* pointer to the object that triggered the event
-	 * @param sliderValue int the new value of the slider object
-	 */
-	void AddIncomeDialog::sliderValueChanged(NativeUI::Slider* s, int sliderValue)
-	{
-		if(_amountSliderThousands == s)
-		{
-			char budgetString[BUFFER_SIZE];
-			sprintf(budgetString, "The value of the income: %d %s", sliderValue*1000 + _amountSliderUnits->getValue()*9, _coin.c_str());
-
-			_amountLabel->setText(budgetString);
-		}
-		else if(_amountSliderUnits == s)
-		{
-			char budgetString[BUFFER_SIZE];
-			sprintf(budgetString, "The value of the income: %d %s", _amountSliderThousands->getValue()*1000 + sliderValue*9, _coin.c_str());
-
-			_amountLabel->setText(budgetString);
-		}
-	}
-
-	/**
 	 * \brief This function is used for showing the UI. Inherited from the NativeUI::Dialog class
 	 */
 	void AddIncomeDialog::show()
@@ -274,8 +249,8 @@ namespace GUI
 
 		_typeValue = Model::INCOME_TYPES_LIST[0];
 
-		_amountSliderThousands->setValue(0);
-		_amountSliderUnits->setValue(0);
+		_amountEditBox->setText("");
+		_amountLabel->setText("Set the value of your income: ");
 
 		_descriptionToggleButton->setCheckedState(false);
 		_transactionInformationToggleButton->setCheckedState(false);
@@ -331,6 +306,35 @@ namespace GUI
 	void AddIncomeDialog::editBoxReturn(NativeUI::EditBox *editBox)
 	{
 		editBox->hideKeyboard();
+	}
+
+	/**
+	 * \brief This function handles the edid did end event from the editBox;
+	 * 		  this function is inherited from the NativeUI::EditBoxListener class.
+	 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
+	 */
+	void AddIncomeDialog::editBoxEditingDidEnd(NativeUI::EditBox* editBox)
+	{
+		if(editBox == _amountEditBox)
+		{
+			MAUtil::String value = editBox->getText();
+			double doubleValue = MAUtil::stringToDouble(value);
+
+			if(doubleValue < 0.0000001)
+			{
+				if(_WindowsPhone7) maAlert("Alert!", "The value you are trying to insert is 0!", "OK", NULL, NULL);
+				else maAlert("Alert!", "The value you are trying to insert is 0!", "OK", "", "");
+
+				_amountEditBox->setText("");
+			}
+			else if(value.length() != 0)
+			{
+				char budgetString[BUFFER_SIZE];
+				sprintf(budgetString, "Set the value of your income: %s %s", value.c_str(), _coin.c_str());
+
+				_amountLabel->setText(budgetString);
+			}
+		}
 	}
 
 	/**
@@ -467,7 +471,7 @@ namespace GUI
 	}
 
 	/**
-	 * \brief This function is used for creating the amount bars (sliders and related UI elements)
+	 * \brief This function is used for creating the amount bars (and related UI elements)
 	 * @return NativeUI::HorizontalLayout* the newly created layout
 	 */
 	NativeUI::HorizontalLayout* AddIncomeDialog::_createAmountBars()
@@ -475,51 +479,27 @@ namespace GUI
 		NativeUI::HorizontalLayout* amountBar = new NativeUI::HorizontalLayout();
 		amountBar->fillSpaceHorizontally();
 		amountBar->wrapContentVertically();
-		NativeUI::VerticalLayout* labelSliderParentLayout = new NativeUI::VerticalLayout();
-		labelSliderParentLayout->wrapContentVertically();
 
-		NativeUI::VerticalLayout* labelSliderParentLayoutThousands = new NativeUI::VerticalLayout();
-		labelSliderParentLayoutThousands->fillSpaceHorizontally();
-		labelSliderParentLayoutThousands->wrapContentVertically();
-		NativeUI::VerticalLayout* labelSliderParentLayoutUnits = new NativeUI::VerticalLayout();
-		labelSliderParentLayoutUnits->fillSpaceHorizontally();
-		labelSliderParentLayoutUnits->wrapContentVertically();
+		NativeUI::VerticalLayout* labelEditBoxParentLayout = new NativeUI::VerticalLayout();
+		labelEditBoxParentLayout->fillSpaceHorizontally();
+		labelEditBoxParentLayout->wrapContentVertically();
 
-		NativeUI::Label* _amountThousandsLabel = new NativeUI::Label();
-		NativeUI::Label* _amountUnitsLabel = new NativeUI::Label();
+		_amountEditBox = new NativeUI::EditBox();
+		_amountEditBox->addEditBoxListener(this);
+		_amountEditBox->setInputMode(NativeUI::EDIT_BOX_INPUT_MODE_NUMERIC);
+
+		_amountEditBox->fillSpaceHorizontally();
+		_amountEditBox->setPlaceholder("Income value...");
+
 		_amountLabel = new NativeUI::Label();
-
-		_amountLabel->setFontSize(_dialogFontSize);
-		_amountThousandsLabel->setText("Thousands");
-		_amountThousandsLabel->setFontSize(_dialogSmallFontSize);
-		_amountUnitsLabel->setFontSize(_dialogSmallFontSize);
-		_amountUnitsLabel->setText("Units");
-		_amountThousandsLabel->fillSpaceHorizontally();
-		_amountUnitsLabel->wrapContentVertically();
-
-		_amountSliderThousands = new NativeUI::Slider();
-		_amountSliderThousands->addSliderListener(this);
-		_amountSliderThousands->setMaximumValue(30);
-		_amountSliderThousands->setValue(0);
-		_amountSliderThousands->fillSpaceHorizontally();
-
-		_amountSliderUnits = new NativeUI::Slider();
-		_amountSliderUnits->addSliderListener(this);
-		_amountSliderUnits->setMaximumValue(111);
-		_amountSliderUnits->setValue(0);
-		_amountSliderUnits->fillSpaceHorizontally();
-
 		_amountLabel->fillSpaceHorizontally();
-
+		_amountLabel->setFontSize(_dialogFontSize);
 		_amountLabel->setText("Set the value of your income: ");
 
-		labelSliderParentLayout->addChild(_amountLabel);
-		labelSliderParentLayout->addChild(_amountThousandsLabel);
-		labelSliderParentLayout->addChild(_amountSliderThousands);
-		labelSliderParentLayout->addChild(_amountUnitsLabel);
-		labelSliderParentLayout->addChild(_amountSliderUnits);
+		labelEditBoxParentLayout->addChild(_amountLabel);
+		labelEditBoxParentLayout->addChild(_amountEditBox);
 
-		amountBar->addChild(labelSliderParentLayout);
+		amountBar->addChild(labelEditBoxParentLayout);
 
 		return amountBar;
 	}

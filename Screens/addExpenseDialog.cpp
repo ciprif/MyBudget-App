@@ -29,7 +29,6 @@ MA 02110-1301, USA.
 #include <NativeUI/EditBox.h>
 #include <NativeUI/ImageButton.h>
 #include <NativeUI/Button.h>
-#include <NativeUI/Slider.h>
 #include <NativeUI/ToggleButton.h>
 #include <NativeUI/TimePicker.h>
 #include <NativeUI/DatePicker.h>
@@ -87,7 +86,7 @@ namespace GUI
 		_descriptionToggleButton->removeToggleButtonListener(this);
 		_descriptionEditBox->removeEditBoxListener(this);
 		_imageAtachementToggleButton->removeToggleButtonListener(this);
-		_amountSlider->removeSliderListener(this);
+		_amountEditBox->removeEditBoxListener(this);
 		_selectImageButton->removeButtonListener(this);
 		_captureImageButton->removeButtonListener(this);
 
@@ -108,8 +107,8 @@ namespace GUI
 	{
 		if(button == _addButton)
 		{
-			double value = (double)_amountSlider->getValue();
-			if(0 < value)
+			double value = (double)MAUtil::stringToDouble(_amountEditBox->getText());
+			if(0 < value || _amountEditBox->getText().length() != 0)
 			{
 				this->hide();
 				if(_WindowsPhone7)
@@ -243,23 +242,6 @@ namespace GUI
 	}
 
 	/**
-	 * \brief This function is called when the state of the slider is changed by the user.
-	 * 		  Inherited from the NativeUI::SliderListener class
-	 * @param s NativeUI::Slider* pointer to the object that triggered the event
-	 * @param sliderValue int the new value of the slider object
-	 */
-	void AddExpenseDialog::sliderValueChanged(NativeUI::Slider* s, int sliderValue)
-	{
-		if(_amountSlider == s)
-		{
-			char budgetString[BUFFER_SIZE];
-			sprintf(budgetString, "The value of the expense: %d %s", sliderValue, _coin.c_str());
-
-			_amountLabel->setText(budgetString);
-		}
-	}
-
-	/**
 	 * \brief This function is used for showing the UI. Inherited from the NativeUI::Dialog class
 	 */
 	void AddExpenseDialog::show()
@@ -276,7 +258,9 @@ namespace GUI
 
 		_categoryValue = Model::CATEGORY_LIST[0];
 
-		_amountSlider->setValue(0);
+		_amountEditBox->setText("");
+		_amountLabel->setText("Set the value of your expense: ");
+
 		_descriptionToggleButton->setCheckedState(false);
 		_imageAtachementToggleButton->setCheckedState(false);
 
@@ -330,11 +314,13 @@ namespace GUI
 	}
 
 	/**
-	 * \brief This function is used for updating the maximum value of the amount slider
+	 * \brief This function is used for updating the maximum value of the placeholder of the amount editBox
 	 */
-	void AddExpenseDialog::updateAmountSliderValue()
+	void AddExpenseDialog::updateAmountValue()
 	{
-		_amountSlider->setMaximumValue((int)(_availableBudget + _acceptedDept));
+		MAUtil::String placeholder = "Available amount: ";
+		placeholder += MAUtil::doubleToString(_availableBudget + _acceptedDept);
+		_amountEditBox->setPlaceholder(placeholder);
 	}
 
 	/**
@@ -357,6 +343,42 @@ namespace GUI
 	}
 
 	/**
+	 * \brief This function handles the edid did end event from the editBox;
+	 * 		  this function is inherited from the NativeUI::EditBoxListener class.
+	 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
+	 */
+	void AddExpenseDialog::editBoxEditingDidEnd(NativeUI::EditBox* editBox)
+	{
+		if(editBox == _amountEditBox)
+		{
+			MAUtil::String value = editBox->getText();
+			double doubleValue = MAUtil::stringToDouble(value);
+
+			if((doubleValue - (_availableBudget + _acceptedDept)) > 0)
+			{
+				if(_WindowsPhone7) maAlert("Alert!", "The value you are trying to insert is higher then the available amount of currency!", "OK", NULL, NULL);
+				else maAlert("Alert!", "The value you are trying to insert is higher then the available amount of currency!", "OK", "", "");
+
+				_amountEditBox->setText("");
+			}
+			else if(doubleValue < 0.0000001)
+			{
+				if(_WindowsPhone7) maAlert("Alert!", "The value you are trying to insert is 0!", "OK", NULL, NULL);
+				else maAlert("Alert!", "The value you are trying to insert is 0!", "OK", "", "");
+
+				_amountEditBox->setText("");
+			}
+			else if(value.length() != 0)
+			{
+				char budgetString[BUFFER_SIZE];
+				sprintf(budgetString, "Set the value of your expense: %s %s", value.c_str(), _coin.c_str());
+
+				_amountLabel->setText(budgetString);
+			}
+		}
+	}
+
+	/**
 	 * \brief This function is used for triggering the UI creation
 	 */
 	void AddExpenseDialog::_createUI()
@@ -375,7 +397,7 @@ namespace GUI
 			relativeLayout->setScrollable(true);
 			relativeLayout->addChild(_mainLayout);
 			_mainLayout->addChild(_createCheckBoxGroup());
-			_mainLayout->addChild(_createAmountBar((int)(_availableBudget + _acceptedDept)));
+			_mainLayout->addChild(_createAmountBar(_availableBudget + _acceptedDept));
 
 			_mainLayout->addChild(_createDatePicker());
 			_mainLayout->addChild(_createTimePicker());
@@ -484,35 +506,40 @@ namespace GUI
 	}
 
 	/**
-	 * \brief This function is used for creating the amount bars (sliders and related UI elements)
+	 * \brief This function is used for creating the amount bars (and related UI elements)
 	 * @param maxVal const int& the maximal value for the slider
 	 * @return NativeUI::HorizontalLayout* the newly created layout
 	 */
-	NativeUI::HorizontalLayout* AddExpenseDialog::_createAmountBar(const int& maxVal)
+	NativeUI::HorizontalLayout* AddExpenseDialog::_createAmountBar(const double& maxVal)
 	{
 		NativeUI::HorizontalLayout* amountBar = new NativeUI::HorizontalLayout();
 		amountBar->fillSpaceHorizontally();
 		amountBar->wrapContentVertically();
 
-		NativeUI::VerticalLayout* labelSliderParentLayout = new NativeUI::VerticalLayout();
-		labelSliderParentLayout->fillSpaceHorizontally();
-		labelSliderParentLayout->wrapContentVertically();
+		NativeUI::VerticalLayout* labelEditBoxParentLayout = new NativeUI::VerticalLayout();
+		labelEditBoxParentLayout->fillSpaceHorizontally();
+		labelEditBoxParentLayout->wrapContentVertically();
 
-		_amountSlider = new NativeUI::Slider();
-		_amountSlider->addSliderListener(this);
-		_amountSlider->setMaximumValue(maxVal);
-		_amountSlider->setValue(0);
-		_amountSlider->fillSpaceHorizontally();
+		_amountEditBox = new NativeUI::EditBox();
+		_amountEditBox->addEditBoxListener(this);
+		_amountEditBox->setInputMode(NativeUI::EDIT_BOX_INPUT_MODE_NUMERIC);
+
+		MAUtil::String placeholder = "Available amount: ";
+
+		placeholder += MAUtil::doubleToString(maxVal);
+
+		_amountEditBox->fillSpaceHorizontally();
+		_amountEditBox->setPlaceholder(placeholder);
 
 		_amountLabel = new NativeUI::Label();
 		_amountLabel->fillSpaceHorizontally();
 		_amountLabel->setFontSize(_dialogFontSize);
 		_amountLabel->setText("Set the value of your expense: ");
 
-		labelSliderParentLayout->addChild(_amountLabel);
-		labelSliderParentLayout->addChild(_amountSlider);
+		labelEditBoxParentLayout->addChild(_amountLabel);
+		labelEditBoxParentLayout->addChild(_amountEditBox);
 
-		amountBar->addChild(labelSliderParentLayout);
+		amountBar->addChild(labelEditBoxParentLayout);
 
 		return amountBar;
 	}

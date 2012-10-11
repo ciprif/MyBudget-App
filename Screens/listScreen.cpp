@@ -304,16 +304,18 @@ namespace GUI
 	{
 		if(listView == _listView)
 		{
-			if(((NativeUI::VerticalLayout*)listView->getChild(index))->getChild(1) == NULL)
+			NativeUI::ListViewItem* item = (NativeUI::ListViewItem*) listView->getChild(index);
+			NativeUI::VerticalLayout* itemLayout = (NativeUI::VerticalLayout*) item->getChild(0);
+			if(itemLayout->getChild(1) == NULL)
 			{
-				((NativeUI::VerticalLayout*)listView->getChild(index))->addChild((*_detailsVector)[index]);
-				((NativeUI::VerticalLayout*)listView->getChild(index))->getChild(1)->setBackgroundColor(0x736F6E);
-				((NativeUI::VerticalLayout*)listView->getChild(index))->getChild(0)->setBackgroundColor(0x413D3C);
+				itemLayout->addChild((*_detailsVector)[index]);
+				itemLayout->getChild(1)->setBackgroundColor(0x736F6E);
+				itemLayout->getChild(0)->setBackgroundColor(0x413D3C);
 			}
 			else
 			{
-				((NativeUI::VerticalLayout*)listView->getChild(index))->removeChild((*_detailsVector)[index]);
-				((NativeUI::VerticalLayout*)listView->getChild(index))->getChild(0)->setBackgroundColor(0);
+				itemLayout->removeChild((*_detailsVector)[index]);
+				itemLayout->getChild(0)->setBackgroundColor(0);
 			}
 		}
 	}
@@ -635,10 +637,11 @@ namespace GUI
 	{
 		for(int i = 0; i < _listView->countChildWidgets(); i++)
 		{
-			Widget* w = _listView->getChild(i);
-			if (w->countChildWidgets() > 1)
+			NativeUI::ListViewItem* item = (NativeUI::ListViewItem*) _listView->getChild(i);
+			NativeUI::VerticalLayout* itemLayout = (NativeUI::VerticalLayout*) item->getChild(0);
+			if (itemLayout->countChildWidgets() > 1)
 			{
-				w->removeChild((*_detailsVector)[i]);
+				itemLayout->removeChild((*_detailsVector)[i]);
 			}
 		}
 
@@ -677,8 +680,10 @@ namespace GUI
 		NativeUI::VerticalLayout* itemParent = new NativeUI::VerticalLayout();
 		if(_WindowsPhone7) itemParent->setWidth(_itemWidth);
 		else itemParent->fillSpaceHorizontally();
+		if (_IPhoneOS) itemParent->wrapContentVertically();
 
 		NativeUI::HorizontalLayout* visiblePart = new NativeUI::HorizontalLayout();
+		if (_IPhoneOS) visiblePart->wrapContentVertically();
 		NativeUI::Label* typeLabel = new NativeUI::Label();
 		NativeUI::Label* sumLabel = new NativeUI::Label();
 
@@ -688,6 +693,11 @@ namespace GUI
 		sumLabel->setFontSize(_dialogFontSize);
 		typeLabel->fillSpaceHorizontally();
 		sumLabel->fillSpaceHorizontally();
+		if (_IPhoneOS)
+		{
+			typeLabel->wrapContentVertically();
+			sumLabel->wrapContentVertically();
+		}
 
 		if(!_WindowsPhone7) sumLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
 
@@ -806,7 +816,7 @@ namespace GUI
 			_addExpensesDialog->setAcceptedDebtValue(_debtBudget);
 			_addExpensesDialog->setCoin(_coin);
 			_addExpensesDialog->setLaunchedFromHomeScreen(false);
-			_addExpensesDialog->updateAmountSliderValue();
+			_addExpensesDialog->updateAmountValue();
 			_addExpensesDialog->show();
 		}
 	}
