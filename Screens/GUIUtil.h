@@ -57,7 +57,7 @@ namespace GUI
 	const int DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_SMALL = 100;
 	const int DESCRIPTION_EDIT_BOX_LINES = 10;
 	const int DIALOG_HEIGHT = 750;
-	const int DIALOG_HEIGHT_IOS = 840;
+	const int DIALOG_HEIGHT_IOS = 960;
 	const int DIALOG_BUTTON_WIDTH_SCREEN_LARGE = 140;
 	const int DIALOG_BUTTON_WIDTH_SCREEN_MEDIUM = 100;
 	const int DIALOG_BUTTON_WIDTH_SCREEN_SMALL = 80;
@@ -72,6 +72,7 @@ namespace GUI
 	const int IMAGE_BUTTON_HEIGHT_MEDIUM = 70;
 	const int IMAGE_BUTTON_HEIGHT_SMALL = 40;
 	const int SPACER_HEIGHT_IOS = 30;
+	const int CHECKBOX_LAYOUT_HEIGHT_IOS = 80;
 
 	const int SMALL_SCREEN = 0;
 	const int MEDIUM_SCREEN = 1;
@@ -83,6 +84,7 @@ namespace GUI
 	// Static variables set by calling the SetSizeRelatedVariables() function; This are used for scaling the UI in order to make it
 	// work and look properly on as many screen sizes as posible
 	static int _dialogFontSize, _dialogSmallFontSize, _descriptionBoxHeight, _dialogButtonWidth, _imageButtonWidth, _imageButtonHeight;
+	static int _dialogHeightIOS, _checkboxLayoutHeightIOS;
 	static int _screenType;
 
 	//Platform variables; only one can be true during the application lifetime
@@ -155,6 +157,8 @@ namespace GUI
 			_dialogButtonWidth = DIALOG_BUTTON_WIDTH_SCREEN_MEDIUM;
 			_imageButtonWidth = IMAGE_BUTTON_WIDTH_MEDIUM;
 			_imageButtonHeight = IMAGE_BUTTON_HEIGHT_MEDIUM;
+			_dialogHeightIOS = DIALOG_HEIGHT_IOS;
+			_checkboxLayoutHeightIOS = CHECKBOX_LAYOUT_HEIGHT_IOS / 2;
 			break;
 		case LARGE_SCREEN:
 			_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE;
@@ -165,6 +169,8 @@ namespace GUI
 				_dialogButtonWidth = DIALOG_BUTTON_WIDTH_SCREEN_LARGE;
 				_imageButtonWidth = IMAGE_BUTTON_WIDTH_LARGE;
 				_imageButtonHeight = IMAGE_BUTTON_HEIGHT_LARGE;
+				_dialogHeightIOS = DIALOG_HEIGHT_IOS * 2;
+				_checkboxLayoutHeightIOS = CHECKBOX_LAYOUT_HEIGHT_IOS;
 			}
 			else
 			{
