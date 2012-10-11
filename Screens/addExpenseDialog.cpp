@@ -108,7 +108,7 @@ namespace GUI
 		if(button == _addButton)
 		{
 			double value = (double)MAUtil::stringToDouble(_amountEditBox->getText());
-			if(0 < value || _amountEditBox->getText().length() == 0)
+			if(0 < value || _amountEditBox->getText().length() != 0)
 			{
 				this->hide();
 				if(_WindowsPhone7)
@@ -397,7 +397,7 @@ namespace GUI
 			relativeLayout->setScrollable(true);
 			relativeLayout->addChild(_mainLayout);
 			_mainLayout->addChild(_createCheckBoxGroup());
-			_mainLayout->addChild(_createAmountBar((int)(_availableBudget + _acceptedDept)));
+			_mainLayout->addChild(_createAmountBar(_availableBudget + _acceptedDept));
 
 			_mainLayout->addChild(_createDatePicker());
 			_mainLayout->addChild(_createTimePicker());
@@ -510,7 +510,7 @@ namespace GUI
 	 * @param maxVal const int& the maximal value for the slider
 	 * @return NativeUI::HorizontalLayout* the newly created layout
 	 */
-	NativeUI::HorizontalLayout* AddExpenseDialog::_createAmountBar(const int& maxVal)
+	NativeUI::HorizontalLayout* AddExpenseDialog::_createAmountBar(const double& maxVal)
 	{
 		NativeUI::HorizontalLayout* amountBar = new NativeUI::HorizontalLayout();
 		amountBar->fillSpaceHorizontally();
@@ -526,7 +526,7 @@ namespace GUI
 
 		MAUtil::String placeholder = "Available amount: ";
 
-		placeholder += MAUtil::integerToString(maxVal);
+		placeholder += MAUtil::doubleToString(maxVal);
 
 		_amountEditBox->fillSpaceHorizontally();
 		_amountEditBox->setPlaceholder(placeholder);

@@ -30,6 +30,7 @@ MA 02110-1301, USA.
 #include <NativeUI/ButtonListener.h>
 #include <NativeUI/ToggleButtonListener.h>
 #include <NativeUI/EditBoxListener.h>
+#include <NativeUI/SliderListener.h>
 #include <MAUtil/String.h>
 #include <MAUtil/Vector.h>
 #include "../Model/ModelUtil.h"
@@ -64,7 +65,7 @@ namespace GUI
 	 */
 	class AddExpenseDialog : public NativeUI::Dialog, public NativeUI::CheckBoxListener,
 							 public NativeUI::ButtonListener, public NativeUI::ToggleButtonListener,
-							 public NativeUI::EditBoxListener
+							 public NativeUI::EditBoxListener, public NativeUI::SliderListener
 	{
 	public:
 		/**
@@ -174,6 +175,8 @@ namespace GUI
 		 * @param editBox NativeUI::EditBox* pointer to the edit box that triggered the event
 		 */
 		void editBoxEditingDidEnd(NativeUI::EditBox* editBox);
+
+	    void sliderValueChanged( NativeUI::Slider* slider, const int sliderValue) {}
 	private:
 		/**
 		 * \brief This function is used for triggering the UI creation
@@ -197,7 +200,7 @@ namespace GUI
 		 * @param maxVal const int& the maximal value for the amount editBox placeholder
 		 * @return NativeUI::HorizontalLayout* the newly created layout
 		 */
-		NativeUI::HorizontalLayout* _createAmountBar(const int& maxVal);
+		NativeUI::HorizontalLayout* _createAmountBar(const double& maxVal);
 
 		/**
 		 * \brief This function is used for creating the spacer from the bottom of the dialog

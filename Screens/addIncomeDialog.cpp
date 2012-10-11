@@ -102,7 +102,7 @@ namespace GUI
 		{
 			double value = (double)MAUtil::stringToDouble(_amountEditBox->getText());
 
-			if(0 < value || _amountEditBox->getText().length() == 0)
+			if(0 < value || _amountEditBox->getText().length() != 0)
 			{
 				this->hide();
 				if(_WindowsPhone7)
