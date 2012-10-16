@@ -121,10 +121,10 @@ namespace GUI
 			if(NULL == _optionsButton)
 			{
 				_optionsButton = new NativeUI::Button();
-				_optionsButton->setBackgroundColor(255, 0, 0);
 				_optionsButton->fillSpaceHorizontally();
 				_optionsButton->setText("Options");
 				_optionsButton->addButtonListener(this);
+
 				_mainLayout->addChild(_optionsButton);
 			}
 		}
@@ -411,6 +411,7 @@ namespace GUI
 			_mainLayout->setPaddingLeft(screenWidth / 20);
 			_mainLayout->setPaddingRight(screenWidth / 20);
 			_mainLayout->setPaddingBottom(screenHeight / 20);
+			_mainLayout->setPaddingTop(screenWidth / 30);
 
 			activityIndicatorLayoutSupport->addChild(_mainLayout);
 			activityIndicatorLayoutSupport->addChild(_activityIndicatorLayout);
