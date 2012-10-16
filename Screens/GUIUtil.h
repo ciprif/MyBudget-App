@@ -99,7 +99,7 @@ namespace GUI
 	static void DetermineScreenSize(const int& screenHeight, const int& screenWidth)
 	{
 		if(480 > screenHeight && 320 > screenWidth) _screenType = 0;
-		else if(480 < screenHeight && 640 > screenHeight && 320 < screenWidth && 480 > screenWidth) _screenType = 1;
+		else if(480 <= screenHeight && 640 > screenHeight && 320 <= screenWidth && 480 > screenWidth) _screenType = 1;
 		else _screenType = 2;
 	}
 
@@ -152,6 +152,7 @@ namespace GUI
 			_imageButtonHeight = IMAGE_BUTTON_HEIGHT_SMALL;
 			break;
 		case MEDIUM_SCREEN:
+			printf("icisha");
 			_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_MEDIUM;
 			_dialogSmallFontSize = DIALOG_FONT_SIZE_SMALL_SCREEN_MEDIUM;
 			_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_MEDIUM;
@@ -164,6 +165,7 @@ namespace GUI
 			_settingsScreenHeightIOS = SETTINGS_SCREEN_HEIGHT;
 			break;
 		case LARGE_SCREEN:
+			printf("icisha2");
 			if(_IPhoneOS)
 			{
 				_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE - 10;
