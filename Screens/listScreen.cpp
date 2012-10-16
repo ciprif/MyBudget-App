@@ -309,7 +309,14 @@ namespace GUI
 			if(itemLayout->getChild(1) == NULL)
 			{
 				itemLayout->addChild((*_detailsVector)[index]);
-				itemLayout->getChild(1)->setBackgroundColor(0x736F6E);
+				if(!_IPhoneOS)
+				{
+					itemLayout->getChild(1)->setBackgroundColor(0x736F6E);
+				}
+				else
+				{
+					itemLayout->getChild(1)->setBackgroundColor(0xC2E0FF);
+				}
 				itemLayout->getChild(0)->setBackgroundColor(0x413D3C);
 			}
 			else
@@ -381,7 +388,6 @@ namespace GUI
 			if(NULL == _optionsButton)
 			{
 				_optionsButton = new NativeUI::Button();
-				_optionsButton->setBackgroundColor(255, 0, 0);
 				_optionsButton->setWidth((int)(_itemWidth * 0.95));
 				_optionsButton->setText("Options");
 				_optionsButton->addButtonListener(this);

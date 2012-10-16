@@ -57,7 +57,7 @@ namespace GUI
 	const int DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_SMALL = 100;
 	const int DESCRIPTION_EDIT_BOX_LINES = 10;
 	const int DIALOG_HEIGHT = 750;
-	const int DIALOG_HEIGHT_IOS = 840;
+	const int DIALOG_HEIGHT_IOS = 960;
 	const int DIALOG_BUTTON_WIDTH_SCREEN_LARGE = 140;
 	const int DIALOG_BUTTON_WIDTH_SCREEN_MEDIUM = 100;
 	const int DIALOG_BUTTON_WIDTH_SCREEN_SMALL = 80;
@@ -72,6 +72,8 @@ namespace GUI
 	const int IMAGE_BUTTON_HEIGHT_MEDIUM = 70;
 	const int IMAGE_BUTTON_HEIGHT_SMALL = 40;
 	const int SPACER_HEIGHT_IOS = 30;
+	const int CHECKBOX_LAYOUT_HEIGHT_IOS = 80;
+	const int SETTINGS_SCREEN_HEIGHT = 350;
 
 	const int SMALL_SCREEN = 0;
 	const int MEDIUM_SCREEN = 1;
@@ -83,6 +85,7 @@ namespace GUI
 	// Static variables set by calling the SetSizeRelatedVariables() function; This are used for scaling the UI in order to make it
 	// work and look properly on as many screen sizes as posible
 	static int _dialogFontSize, _dialogSmallFontSize, _descriptionBoxHeight, _dialogButtonWidth, _imageButtonWidth, _imageButtonHeight;
+	static int _dialogHeightIOS, _checkboxLayoutHeightIOS, _spacerHeightIOS, _settingsScreenHeightIOS;
 	static int _screenType;
 
 	//Platform variables; only one can be true during the application lifetime
@@ -96,7 +99,7 @@ namespace GUI
 	static void DetermineScreenSize(const int& screenHeight, const int& screenWidth)
 	{
 		if(480 > screenHeight && 320 > screenWidth) _screenType = 0;
-		else if(480 < screenHeight && 640 > screenHeight && 320 < screenWidth && 480 > screenWidth) _screenType = 1;
+		else if(480 <= screenHeight && 640 > screenHeight && 320 <= screenWidth && 480 > screenWidth) _screenType = 1;
 		else _screenType = 2;
 	}
 
@@ -149,15 +152,20 @@ namespace GUI
 			_imageButtonHeight = IMAGE_BUTTON_HEIGHT_SMALL;
 			break;
 		case MEDIUM_SCREEN:
+			printf("icisha");
 			_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_MEDIUM;
 			_dialogSmallFontSize = DIALOG_FONT_SIZE_SMALL_SCREEN_MEDIUM;
 			_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_MEDIUM;
 			_dialogButtonWidth = DIALOG_BUTTON_WIDTH_SCREEN_MEDIUM;
 			_imageButtonWidth = IMAGE_BUTTON_WIDTH_MEDIUM;
 			_imageButtonHeight = IMAGE_BUTTON_HEIGHT_MEDIUM;
+			_dialogHeightIOS = DIALOG_HEIGHT_IOS;
+			_checkboxLayoutHeightIOS = CHECKBOX_LAYOUT_HEIGHT_IOS / 2;
+			_spacerHeightIOS = SPACER_HEIGHT_IOS;
+			_settingsScreenHeightIOS = SETTINGS_SCREEN_HEIGHT;
 			break;
 		case LARGE_SCREEN:
-			_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE;
+			printf("icisha2");
 			if(_IPhoneOS)
 			{
 				_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE - 10;
@@ -165,6 +173,11 @@ namespace GUI
 				_dialogButtonWidth = DIALOG_BUTTON_WIDTH_SCREEN_LARGE;
 				_imageButtonWidth = IMAGE_BUTTON_WIDTH_LARGE;
 				_imageButtonHeight = IMAGE_BUTTON_HEIGHT_LARGE;
+				_dialogHeightIOS = DIALOG_HEIGHT_IOS * 2;
+				_checkboxLayoutHeightIOS = CHECKBOX_LAYOUT_HEIGHT_IOS;
+				_spacerHeightIOS = SPACER_HEIGHT_IOS * 2;
+				_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE;
+				_settingsScreenHeightIOS = SETTINGS_SCREEN_HEIGHT * 2;
 			}
 			else
 			{

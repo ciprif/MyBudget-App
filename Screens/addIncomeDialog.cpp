@@ -137,6 +137,10 @@ namespace GUI
 					if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
 					else _listScreenRef->createOptionsMenu();
 			}
+			else if(_IPhoneOS)
+			{
+				_mainLayout->setHeight(_dialogHeightIOS);
+			}
 		}
 	}
 
@@ -344,12 +348,19 @@ namespace GUI
 	{
 		if (_IPhoneOS)
 		{
+			MAExtent size = maGetScrSize();
+			int screenWidth = EXTENT_X(size);
+			int screenHeight = EXTENT_Y(size);
+
+			_itemWidth = (int)(screenWidth * 0.90);
+
+			this->setTitle("Add an income");
 			NativeUI::RelativeLayout* relativeLayout = new NativeUI::RelativeLayout();
 			relativeLayout->setScrollable(true);
 
 			_mainLayout = new NativeUI::VerticalLayout();
-			_mainLayout->setHeight(DIALOG_HEIGHT_IOS + 30);
-
+			_mainLayout->setHeight(_dialogHeightIOS);
+			_mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 			_mainLayout->addChild(_createCheckBoxGroup(Model::INCOME_TYPES_LIST, Model::NO_OF_INCOMES));
 			_mainLayout->addChild(_createAmountBars());
 
@@ -409,8 +420,13 @@ namespace GUI
 		checkBoxGroupParentLayout->wrapContentVertically();
 
 		NativeUI::Label* categoryLabel = new NativeUI::Label();
-		categoryLabel->setText("Choose a type:");
+		categoryLabel->setText("Chose a type:");
 
+		if(_IPhoneOS)
+		{
+			categoryLabel->setHeight(_checkboxLayoutHeightIOS);
+			checkBoxGroupParentLayout->setWidth(_itemWidth);
+		}
 
 		categoryLabel->setFontSize(_dialogFontSize);
 		NativeUI::HorizontalLayout* checkBoxLabelLayout;
@@ -430,9 +446,21 @@ namespace GUI
 			checkBoxLabel->setText(categories[i]);
 			checkBoxLabel->setFontSize(_dialogFontSize);
 
-			checkBoxLabelLayout->addChild(checkBox);
-			checkBoxLabelLayout->addChild(checkBoxLabel);
-
+			if(_IPhoneOS)
+			{
+				NativeUI::HorizontalLayout* auxLayout = new NativeUI::HorizontalLayout();
+				auxLayout->fillSpaceHorizontally();
+				auxLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
+				auxLayout->addChild(checkBox);
+				auxLayout->setHeight(_checkboxLayoutHeightIOS);
+				checkBoxLabelLayout->addChild(checkBoxLabel);
+				checkBoxLabelLayout->addChild(auxLayout);
+			}
+			else
+			{
+				checkBoxLabelLayout->addChild(checkBox);
+				checkBoxLabelLayout->addChild(checkBoxLabel);
+			}
 			checkBoxGroupParentLayout->addChild(checkBoxLabelLayout);
 
 			_checkBoxVector->add(checkBox);
@@ -496,6 +524,12 @@ namespace GUI
 		_amountLabel->setFontSize(_dialogFontSize);
 		_amountLabel->setText("Set the value of your income: ");
 
+		if(_IPhoneOS)
+		{
+			_amountLabel->setHeight(_checkboxLayoutHeightIOS);
+			amountBar->setWidth(_itemWidth);
+		}
+
 		labelEditBoxParentLayout->addChild(_amountLabel);
 		labelEditBoxParentLayout->addChild(_amountEditBox);
 
@@ -545,6 +579,13 @@ namespace GUI
 		datePickerLabel->setFontSize(_dialogFontSize);
 		datePickerLabel->setText("Chose a date:");
 
+		if(_IPhoneOS)
+		{
+			datePickerLabel->setHeight(_checkboxLayoutHeightIOS);
+			datePickerLabel->setWidth(_itemWidth);
+			labelDPParentLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+		}
+
 		labelDPParentLayout->addChild(datePickerLabel);
 		labelDPParentLayout->addChild(_datePicker);
 
@@ -575,6 +616,13 @@ namespace GUI
 		timePickerLabel->setFontSize(_dialogFontSize);
 		timePickerLabel->setText("Chose a time:");
 
+		if(_IPhoneOS)
+		{
+			timePickerLabel->setHeight(_checkboxLayoutHeightIOS);
+			timePickerLabel->setWidth(_itemWidth);
+			labelTPParentLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+		}
+
 		labelTPParentLayout->addChild(timePickerLabel);
 		labelTPParentLayout->addChild(_timePicker);
 
@@ -591,12 +639,22 @@ namespace GUI
 		_transactionInfoBoxParent = new NativeUI::VerticalLayout();
 		_transactionInfoBoxParent->wrapContentVertically();
 
-		NativeUI::VerticalLayout* transactionToggleAndLabelParent = new NativeUI::VerticalLayout();
-		transactionToggleAndLabelParent->wrapContentVertically();
+		NativeUI::Layout* transactionToggleAndLabelParent;
+
+		if(_IPhoneOS)
+		{
+			transactionToggleAndLabelParent = new NativeUI::HorizontalLayout();
+			transactionToggleAndLabelParent->setHeight(_checkboxLayoutHeightIOS);
+		}
+		else
+		{
+			transactionToggleAndLabelParent = new NativeUI::VerticalLayout();
+			transactionToggleAndLabelParent->wrapContentVertically();
+		}
+
 		NativeUI::Label* transactionToggleLabel = new NativeUI::Label();
 
 		_transactionInformationToggleButton = new NativeUI::ToggleButton();
-		_transactionInformationToggleButton->fillSpaceHorizontally();
 		_transactionInformationToggleButton->setCheckedState(false);
 
 		_transactionInformationEditBox = new NativeUI::EditBox();
@@ -604,8 +662,26 @@ namespace GUI
 
 		transactionToggleLabel->setText("Transaction info:");
 		transactionToggleLabel->setFontSize(_dialogFontSize);
-		transactionToggleAndLabelParent->addChild(transactionToggleLabel);
-		transactionToggleAndLabelParent->addChild(_transactionInformationToggleButton);
+
+		if(_IPhoneOS)
+		{
+			NativeUI::HorizontalLayout* auxLayout = new NativeUI::HorizontalLayout();
+			auxLayout->fillSpaceHorizontally();
+			auxLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
+			auxLayout->setChildVerticalAlignment(MAW_ALIGNMENT_CENTER);
+			auxLayout->addChild(_transactionInformationToggleButton);
+			auxLayout->setHeight(_checkboxLayoutHeightIOS);
+			transactionToggleAndLabelParent->addChild(transactionToggleLabel);
+			transactionToggleAndLabelParent->addChild(auxLayout);
+			((NativeUI::HorizontalLayout*) transactionToggleAndLabelParent)->setChildVerticalAlignment(MAW_ALIGNMENT_CENTER);
+			_transactionInfoBoxParent->setWidth(_itemWidth);
+		}
+		else
+		{
+			_transactionInformationToggleButton->fillSpaceHorizontally();
+			transactionToggleAndLabelParent->addChild(transactionToggleLabel);
+			transactionToggleAndLabelParent->addChild(_transactionInformationToggleButton);
+		}
 
 		_transactionInformationEditBox->setEditMode(NativeUI::EDIT_BOX_MODE_TEXT);
 		_transactionInformationEditBox->fillSpaceHorizontally();
@@ -623,12 +699,22 @@ namespace GUI
 		_descriptionBoxParent = new NativeUI::VerticalLayout();
 		_descriptionBoxParent->wrapContentVertically();
 
-		NativeUI::VerticalLayout* descritionToggleAndLabelParent = new NativeUI::VerticalLayout();
-		descritionToggleAndLabelParent->wrapContentVertically();
+		NativeUI::Layout* descritionToggleAndLabelParent;
+
+		if(_IPhoneOS)
+		{
+			descritionToggleAndLabelParent = new NativeUI::HorizontalLayout();
+			descritionToggleAndLabelParent->setHeight(_checkboxLayoutHeightIOS);
+		}
+		else
+		{
+			descritionToggleAndLabelParent = new NativeUI::VerticalLayout();
+			descritionToggleAndLabelParent->wrapContentVertically();
+		}
+
 		NativeUI::Label* descriptionToggleLabel = new NativeUI::Label();
 
 		_descriptionToggleButton = new NativeUI::ToggleButton();
-		_descriptionToggleButton->fillSpaceHorizontally();
 		_descriptionToggleButton->setCheckedState(false);
 
 		_descriptionEditBox = new NativeUI::EditBox();
@@ -636,8 +722,26 @@ namespace GUI
 
 		descriptionToggleLabel->setText("Description:");
 		descriptionToggleLabel->setFontSize(_dialogFontSize);
-		descritionToggleAndLabelParent->addChild(descriptionToggleLabel);
-		descritionToggleAndLabelParent->addChild(_descriptionToggleButton);
+
+		if(_IPhoneOS)
+		{
+			NativeUI::HorizontalLayout* auxLayout = new NativeUI::HorizontalLayout();
+			auxLayout->fillSpaceHorizontally();
+			auxLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
+			auxLayout->setChildVerticalAlignment(MAW_ALIGNMENT_CENTER);
+			auxLayout->addChild(_descriptionToggleButton);
+			auxLayout->setHeight(_checkboxLayoutHeightIOS);
+			descritionToggleAndLabelParent->addChild(descriptionToggleLabel);
+			descritionToggleAndLabelParent->addChild(auxLayout);
+			((NativeUI::HorizontalLayout*) descritionToggleAndLabelParent)->setChildVerticalAlignment(MAW_ALIGNMENT_CENTER);
+			_descriptionBoxParent->setWidth(_itemWidth);
+		}
+		else
+		{
+			_descriptionToggleButton->fillSpaceHorizontally();
+			descritionToggleAndLabelParent->addChild(descriptionToggleLabel);
+			descritionToggleAndLabelParent->addChild(_descriptionToggleButton);
+		}
 
 		_descriptionEditBox->fillSpaceHorizontally();
 		_descriptionToggleButton->addToggleButtonListener(this);
