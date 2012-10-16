@@ -27,7 +27,6 @@ MA 02110-1301, USA.
 #include <NativeUI/Label.h>
 #include <NativeUI/CheckBox.h>
 #include <NativeUI/EditBox.h>
-#include <NativeUI/ImageButton.h>
 #include <NativeUI/Button.h>
 #include <NativeUI/ToggleButton.h>
 #include <NativeUI/TimePicker.h>
@@ -85,10 +84,7 @@ namespace GUI
 		_cancelButton->removeButtonListener(this);
 		_descriptionToggleButton->removeToggleButtonListener(this);
 		_descriptionEditBox->removeEditBoxListener(this);
-		_imageAtachementToggleButton->removeToggleButtonListener(this);
 		_amountEditBox->removeEditBoxListener(this);
-		_selectImageButton->removeButtonListener(this);
-		_captureImageButton->removeButtonListener(this);
 
 		MAUtil::Vector<NativeUI::CheckBox*>::iterator it;
 		for(it = checkBoxVector->begin(); it != checkBoxVector->end(); it++)
@@ -210,19 +206,6 @@ namespace GUI
 				if(_IPhoneOS) _mainLayout->setHeight(_mainLayout->getHeight() - DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE);
 			}
 		}
-		else if(toggleButton == _imageAtachementToggleButton)
-		{
-			if(true == state)
-			{
-				_imageBoxAndToggleLayout->addChild(_imageButtonsParentLayout);
-				if(_IPhoneOS) _mainLayout->setHeight(_mainLayout->getHeight() + _imageBoxAndToggleLayout->getHeight());
-			}
-			else
-			{
-				if(_IPhoneOS) _mainLayout->setHeight(_mainLayout->getHeight() - _imageBoxAndToggleLayout->getHeight());
-				_imageBoxAndToggleLayout->removeChild(_imageButtonsParentLayout);
-			}
-		}
 	}
 
 	/**
@@ -266,9 +249,7 @@ namespace GUI
 		_amountLabel->setText("Set the value of your expense: ");
 
 		_descriptionToggleButton->setCheckedState(false);
-		_imageAtachementToggleButton->setCheckedState(false);
 
-		_imageBoxAndToggleLayout->removeChild(_imageButtonsParentLayout);
 		_descriptionBoxParent->removeChild(_descriptionEditBox);
 		_descriptionEditBox->setText("");
 
@@ -412,8 +393,6 @@ namespace GUI
 			_createDescriptionBox();
 			_mainLayout->addChild(_descriptionBoxParent);
 
-			//_createImageBox();
-			//_mainLayout->addChild(_imageBoxAndToggleLayout);
 			_mainLayout->addChild(_createBottomSpacer());
 			_mainLayout->addChild(_createBottomButtonBar());
 
@@ -434,8 +413,6 @@ namespace GUI
 			_createDescriptionBox();
 			_mainLayout->addChild(_descriptionBoxParent);
 
-			_createImageBox();
-			_mainLayout->addChild(_imageBoxAndToggleLayout);
 			_mainLayout->addChild(_createBottomSpacer());
 			_mainLayout->addChild(_createBottomButtonBar());
 
@@ -665,120 +642,6 @@ namespace GUI
 		timePickerBar->addChild(labelTPParentLayout);
 
 		return timePickerBar;
-	}
-
-	/**
-	 * \brief This function is used for creating the image related box (capture and folder buttons)
-	 */
-	void AddExpenseDialog::_createImageBox()
-	{
-		NativeUI::Layout* imageToggleAndLabelParent;
-		NativeUI::Label* imageToggleLabel = new NativeUI::Label();
-
-		if(_IPhoneOS)
-		{
-			imageToggleAndLabelParent = new NativeUI::HorizontalLayout();
-			imageToggleAndLabelParent->setHeight(_checkboxLayoutHeightIOS);
-		}
-		else
-		{
-			imageToggleAndLabelParent = new NativeUI::VerticalLayout();
-			imageToggleAndLabelParent->wrapContentVertically();
-		}
-
-		_imageBoxAndToggleLayout = new NativeUI::VerticalLayout();
-		_imageBoxAndToggleLayout->wrapContentVertically();
-		_imageButtonsParentLayout = new NativeUI::HorizontalLayout();
-		_imageButtonsParentLayout->wrapContentVertically();
-		_imageAtachementToggleButton = new NativeUI::ToggleButton();
-
-		_imageAtachementToggleButton->fillSpaceHorizontally();
-		_imageAtachementToggleButton->setCheckedState(false);
-		_imageAtachementToggleButton->addToggleButtonListener(this);
-
-		_captureImageButton = new NativeUI::ImageButton();
-		_selectImageButton = new NativeUI::ImageButton();
-
-		_selectImageButton->addButtonListener(this);
-		_captureImageButton->addButtonListener(this);
-
-		imageToggleLabel->setText("Atach an image:");
-		imageToggleLabel->setFontSize(_dialogFontSize);
-
-		if(_IPhoneOS)
-		{
-			NativeUI::HorizontalLayout* auxLayout = new NativeUI::HorizontalLayout();
-			auxLayout->fillSpaceHorizontally();
-			auxLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
-			auxLayout->setChildVerticalAlignment(MAW_ALIGNMENT_CENTER);
-			auxLayout->addChild(_imageAtachementToggleButton);
-			auxLayout->setHeight(_checkboxLayoutHeightIOS);
-			imageToggleAndLabelParent->addChild(imageToggleLabel);
-			imageToggleAndLabelParent->addChild(auxLayout);
-			((NativeUI::HorizontalLayout*) imageToggleAndLabelParent)->setChildVerticalAlignment(MAW_ALIGNMENT_CENTER);
-			_imageBoxAndToggleLayout->setWidth(_itemWidth);
-		}
-		else
-		{
-			_imageAtachementToggleButton->fillSpaceHorizontally();
-			imageToggleAndLabelParent->addChild(imageToggleLabel);
-			imageToggleAndLabelParent->addChild(_imageAtachementToggleButton);
-		}
-
-		NativeUI::RelativeLayout* captureButtonWrapper = new NativeUI::RelativeLayout();
-		NativeUI::RelativeLayout* selectButtonWrapper = new NativeUI::RelativeLayout();
-
-		captureButtonWrapper->setSize(_imageButtonWidth, (int)(_imageButtonHeight + 0.2 * _imageButtonHeight));
-		selectButtonWrapper->setSize(_imageButtonWidth, (int)(_imageButtonHeight + 0.2 * _imageButtonHeight));
-
-		NativeUI::Label* captureLabel = new NativeUI::Label();
-		NativeUI::Label* selectLabel = new NativeUI::Label();
-
-		captureLabel->setText("Capture");
-		captureLabel->setTopPosition(80);
-		captureLabel->setWidth(_imageButtonWidth);
-		captureLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
-
-		selectLabel->setText("Select");
-		selectLabel->setTopPosition(80);
-		selectLabel->setWidth(_imageButtonWidth);
-		selectLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
-
-		_captureImageButton->setSize(_imageButtonWidth, _imageButtonHeight);
-		_captureImageButton->setTopPosition(0);
-		_selectImageButton->setSize(_imageButtonWidth, _imageButtonHeight);
-		_selectImageButton->setTopPosition(0);
-
-		switch (GUI::_screenType) {
-			case 0:
-				_captureImageButton->setBackgroundImage(RES_BUTTON_CAMERA_SMALL);
-				_selectImageButton->setBackgroundImage(RES_BUTTON_FOLDER_SMALL);
-				break;
-			case 1:
-				_captureImageButton->setBackgroundImage(RES_BUTTON_CAMERA_MEDIUM);
-				_selectImageButton->setBackgroundImage(RES_BUTTON_FOLDER_MEDIUM);
-				break;
-			case 2:
-				_captureImageButton->setBackgroundImage(RES_BUTTON_CAMERA_LARGE);
-				_selectImageButton->setBackgroundImage(RES_BUTTON_FOLDER_LARGE);
-				break;
-		}
-
-		captureButtonWrapper->addChild(_captureImageButton);
-		captureButtonWrapper->addChild(captureLabel);
-		selectButtonWrapper->addChild(_selectImageButton);
-		selectButtonWrapper->addChild(selectLabel);
-
-		NativeUI::HorizontalLayout* spacer = new NativeUI::HorizontalLayout();
-		spacer->setWidth(_imageButtonWidth);
-
-		_imageButtonsParentLayout->addChild(captureButtonWrapper);
-		_imageButtonsParentLayout->addChild(spacer);
-		_imageButtonsParentLayout->addChild(selectButtonWrapper);
-		_imageButtonsParentLayout->wrapContentVertically();
-		_imageButtonsParentLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
-
-		_imageBoxAndToggleLayout->addChild(imageToggleAndLabelParent);
 	}
 
 	/**

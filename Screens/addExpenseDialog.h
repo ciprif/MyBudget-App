@@ -221,11 +221,6 @@ namespace GUI
 		NativeUI::HorizontalLayout* _createTimePicker();
 
 		/**
-		 * \brief This function is used for creating the image related box (capture and folder buttons)
-		 */
-		void _createImageBox();
-
-		/**
 		 * \brief This function is used for creating the description
 		 */
 		void _createDescriptionBox();
@@ -237,12 +232,7 @@ namespace GUI
 		// UI related variables
 		NativeUI::VerticalLayout* _mainLayout;
 		NativeUI::VerticalLayout* _descriptionBoxParent;
-		NativeUI::VerticalLayout* _imageBoxAndToggleLayout;
-		NativeUI::HorizontalLayout* _imageButtonsParentLayout;
-		NativeUI::ImageButton* _selectImageButton;
-		NativeUI::ImageButton* _captureImageButton;
 		NativeUI::ToggleButton* _descriptionToggleButton;
-		NativeUI::ToggleButton* _imageAtachementToggleButton;
 		NativeUI::Button* _addButton;
 		NativeUI::Button* _cancelButton;
 		NativeUI::EditBox* _descriptionEditBox;
