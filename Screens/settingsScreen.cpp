@@ -676,10 +676,17 @@ namespace GUI
 			_transactionSettingsLayout->removeChild(widget);
 		}
 
-		if(_isFromDate) _fromDate->setState(false);
-		else if(_isMonthly) _monthly->setState(false);
-
-		if(_IPhoneOS) _allItems->setState(true);
+		if(_IPhoneOS)
+		{
+			_allItems->setState(true);
+			_fromDate->setState(false);
+			_monthly->setState(false);
+		}
+		else
+		{
+			if(_isFromDate) _fromDate->setState(false);
+			else if(_isMonthly) _monthly->setState(false);
+		}
 
 		_isMonthly = false;
 		_isAllItems = true;
@@ -708,10 +715,17 @@ namespace GUI
 			_transactionSettingsLayout->addChild(_numberPickerReplace);
 		}
 
-		if(_isAllItems) _allItems->setState(false);
-		else if(_isFromDate) _fromDate->setState(false);
-
-		if(_IPhoneOS) _monthly->setState(true);
+		if(_IPhoneOS)
+		{
+			_monthly->setState(true);
+			_allItems->setState(false);
+			_fromDate->setState(false);
+		}
+		else
+		{
+			if(_isAllItems) _allItems->setState(false);
+			else if(_isFromDate) _fromDate->setState(false);
+		}
 
 		_isMonthly = true;
 		_isAllItems = false;
@@ -742,10 +756,17 @@ namespace GUI
 		_transactionSettingsLayout->addChild(_datePicker);
 		_recalculateMainLayoutHeight(_datePicker->getHeight(), true);
 
-		if(_IPhoneOS) _fromDate->setState(true);
-
-		if(_isAllItems) _allItems->setState(false);
-		else if(_isMonthly) _monthly->setState(false);
+		if(_IPhoneOS)
+		{
+			_fromDate->setState(true);
+			_allItems->setState(false);
+			_monthly->setState(false);
+		}
+		else
+		{
+			if(_isAllItems) _allItems->setState(false);
+			else if(_isMonthly) _monthly->setState(false);
+		}
 
 		_isMonthly = false;
 		_isAllItems = false;
