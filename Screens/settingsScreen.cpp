@@ -481,8 +481,6 @@ namespace GUI
 		_monthly = new NativeUI::CheckBox();
 		_fromDate = new NativeUI::CheckBox();
 
-		//_allItems->setState(true);
-
 		_allItems->addCheckBoxListener(this);
 		_monthly->addCheckBoxListener(this);
 		_fromDate->addCheckBoxListener(this);
@@ -676,7 +674,7 @@ namespace GUI
 			_transactionSettingsLayout->removeChild(widget);
 		}
 
-		if(_IPhoneOS)
+		if(_IPhoneOS || _WindowsPhone7)
 		{
 			_allItems->setState(true);
 			_fromDate->setState(false);
@@ -715,7 +713,7 @@ namespace GUI
 			_transactionSettingsLayout->addChild(_numberPickerReplace);
 		}
 
-		if(_IPhoneOS)
+		if(_IPhoneOS || _WindowsPhone7)
 		{
 			_monthly->setState(true);
 			_allItems->setState(false);
@@ -756,7 +754,7 @@ namespace GUI
 		_transactionSettingsLayout->addChild(_datePicker);
 		_recalculateMainLayoutHeight(_datePicker->getHeight(), true);
 
-		if(_IPhoneOS)
+		if(_IPhoneOS || _WindowsPhone7)
 		{
 			_fromDate->setState(true);
 			_allItems->setState(false);
