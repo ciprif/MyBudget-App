@@ -137,6 +137,10 @@ namespace GUI
 					if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
 					else _listScreenRef->createOptionsMenu();
 			}
+			else if(_IPhoneOS)
+			{
+				_mainLayout->setHeight(_dialogHeightIOS);
+			}
 		}
 	}
 
@@ -348,15 +352,15 @@ namespace GUI
 			int screenWidth = EXTENT_X(size);
 			int screenHeight = EXTENT_Y(size);
 
+			_itemWidth = (int)(screenWidth * 0.90);
+
 			this->setTitle("Add an income");
 			NativeUI::RelativeLayout* relativeLayout = new NativeUI::RelativeLayout();
 			relativeLayout->setScrollable(true);
 
 			_mainLayout = new NativeUI::VerticalLayout();
 			_mainLayout->setHeight(_dialogHeightIOS - _checkboxLayoutHeightIOS);
-			_mainLayout->setWidth((int)(screenWidth * 0.90));
-			_mainLayout->setLeftPosition((int)(screenWidth * 0.05));
-
+			_mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 			_mainLayout->addChild(_createCheckBoxGroup(Model::INCOME_TYPES_LIST, Model::NO_OF_INCOMES));
 			_mainLayout->addChild(_createAmountBars());
 
@@ -421,6 +425,7 @@ namespace GUI
 		if(_IPhoneOS)
 		{
 			categoryLabel->setHeight(_checkboxLayoutHeightIOS);
+			checkBoxGroupParentLayout->setWidth(_itemWidth);
 		}
 
 		categoryLabel->setFontSize(_dialogFontSize);
@@ -522,6 +527,7 @@ namespace GUI
 		if(_IPhoneOS)
 		{
 			_amountLabel->setHeight(_checkboxLayoutHeightIOS);
+			amountBar->setWidth(_itemWidth);
 		}
 
 		labelEditBoxParentLayout->addChild(_amountLabel);
@@ -576,6 +582,8 @@ namespace GUI
 		if(_IPhoneOS)
 		{
 			datePickerLabel->setHeight(_checkboxLayoutHeightIOS);
+			datePickerLabel->setWidth(_itemWidth);
+			labelDPParentLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		}
 
 		labelDPParentLayout->addChild(datePickerLabel);
@@ -611,6 +619,8 @@ namespace GUI
 		if(_IPhoneOS)
 		{
 			timePickerLabel->setHeight(_checkboxLayoutHeightIOS);
+			timePickerLabel->setWidth(_itemWidth);
+			labelTPParentLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		}
 
 		labelTPParentLayout->addChild(timePickerLabel);
@@ -664,6 +674,7 @@ namespace GUI
 			transactionToggleAndLabelParent->addChild(transactionToggleLabel);
 			transactionToggleAndLabelParent->addChild(auxLayout);
 			((NativeUI::HorizontalLayout*) transactionToggleAndLabelParent)->setChildVerticalAlignment(MAW_ALIGNMENT_CENTER);
+			_transactionInfoBoxParent->setWidth(_itemWidth);
 		}
 		else
 		{
@@ -723,6 +734,7 @@ namespace GUI
 			descritionToggleAndLabelParent->addChild(descriptionToggleLabel);
 			descritionToggleAndLabelParent->addChild(auxLayout);
 			((NativeUI::HorizontalLayout*) descritionToggleAndLabelParent)->setChildVerticalAlignment(MAW_ALIGNMENT_CENTER);
+			_descriptionBoxParent->setWidth(_itemWidth);
 		}
 		else
 		{

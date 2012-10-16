@@ -73,6 +73,7 @@ namespace GUI
 	const int IMAGE_BUTTON_HEIGHT_SMALL = 40;
 	const int SPACER_HEIGHT_IOS = 30;
 	const int CHECKBOX_LAYOUT_HEIGHT_IOS = 80;
+	const int SETTINGS_SCREEN_HEIGHT = 350;
 
 	const int SMALL_SCREEN = 0;
 	const int MEDIUM_SCREEN = 1;
@@ -84,7 +85,7 @@ namespace GUI
 	// Static variables set by calling the SetSizeRelatedVariables() function; This are used for scaling the UI in order to make it
 	// work and look properly on as many screen sizes as posible
 	static int _dialogFontSize, _dialogSmallFontSize, _descriptionBoxHeight, _dialogButtonWidth, _imageButtonWidth, _imageButtonHeight;
-	static int _dialogHeightIOS, _checkboxLayoutHeightIOS;
+	static int _dialogHeightIOS, _checkboxLayoutHeightIOS, _spacerHeightIOS, _settingsScreenHeightIOS;
 	static int _screenType;
 
 	//Platform variables; only one can be true during the application lifetime
@@ -159,9 +160,10 @@ namespace GUI
 			_imageButtonHeight = IMAGE_BUTTON_HEIGHT_MEDIUM;
 			_dialogHeightIOS = DIALOG_HEIGHT_IOS;
 			_checkboxLayoutHeightIOS = CHECKBOX_LAYOUT_HEIGHT_IOS / 2;
+			_spacerHeightIOS = SPACER_HEIGHT_IOS;
+			_settingsScreenHeightIOS = SETTINGS_SCREEN_HEIGHT;
 			break;
 		case LARGE_SCREEN:
-			_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE;
 			if(_IPhoneOS)
 			{
 				_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE - 10;
@@ -171,6 +173,9 @@ namespace GUI
 				_imageButtonHeight = IMAGE_BUTTON_HEIGHT_LARGE;
 				_dialogHeightIOS = DIALOG_HEIGHT_IOS * 2;
 				_checkboxLayoutHeightIOS = CHECKBOX_LAYOUT_HEIGHT_IOS;
+				_spacerHeightIOS = SPACER_HEIGHT_IOS * 2;
+				_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_LARGE;
+				_settingsScreenHeightIOS = SETTINGS_SCREEN_HEIGHT * 2;
 			}
 			else
 			{

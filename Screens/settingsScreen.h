@@ -279,6 +279,13 @@ namespace GUI
 		 */
 		void _resetDebtValue();
 
+	   /**
+	    * \brief This function is called when a height recalculation is required for the main layout.
+	    * @param widgetHeight the height of the newly added or removed widget
+	    * @param addition bool true if the widgetHeight value needs to be added, false otherwise
+	    */
+		void SettingsScreen::_recalculateMainLayoutHeight(int widgetHeight, bool addition);
+
 		// Observer reference
 		Logical::Observer* _observerReference;
 

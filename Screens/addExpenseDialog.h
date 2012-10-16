@@ -265,6 +265,8 @@ namespace GUI
 		double _acceptedDept;
 
 		bool _launcedFromHomeScreen;
+
+		int _itemWidth;
 	};
 }
 

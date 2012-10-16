@@ -31,6 +31,7 @@ MA 02110-1301, USA.
 #include <NativeUI/EditBox.h>
 #include <NativeUI/NumberPicker.h>
 #include <NativeUI/DatePicker.h>
+#include <NativeUI/RelativeLayout.h>
 
 #include "GUIUtil.h"
 #include "settingsScreen.h"
@@ -87,7 +88,7 @@ namespace GUI
 	{
 		if(b == _coinChangeToggle)
 		{
-			if(clickCount % 2 == 0)
+			if(1 == _coinSettingsLayout->countChildWidgets())
 			{
 				_expendCoinList();
 			}
@@ -149,7 +150,6 @@ namespace GUI
 			coinLabelText += _coin;
 			coinLabelText += " (not applied)";
 			_coinLabel->setText(coinLabelText);
-
 			_collapseCoinList();
 		}
 	}
@@ -268,7 +268,6 @@ namespace GUI
 				_saveCoinSettings();
 
 				_saveDebtSettings();
-				_collapseCoinList();
 				_observerReference->requestSaveSettings(_isAllItems, _isMonthly, _isFromDate, _debtValue, d, _coin);
 			}
 		}
@@ -306,10 +305,15 @@ namespace GUI
 			if(NULL == _optionsButton)
 			{
 				_optionsButton = new NativeUI::Button();
-				_optionsButton->setBackgroundColor(255, 0, 0);
 				_optionsButton->fillSpaceHorizontally();
 				_optionsButton->setText("Options");
 				_optionsButton->addButtonListener(this);
+				_optionsButton->setWidth(_itemWidth);
+
+				NativeUI::HorizontalLayout* spacer = new NativeUI::HorizontalLayout();
+				spacer->setHeight(_checkboxLayoutHeightIOS / 2);
+
+				_mainLayout->addChild(spacer);
 				_mainLayout->addChild(_optionsButton);
 			}
 		}
@@ -337,24 +341,41 @@ namespace GUI
 			_mainLayout->setScrollable(true);
 			parent->addChild(_mainLayout);
 			this->setMainWidget(parent);
+
+			_coinSettingsLayout = _createCoinSettingsLayout();
+			_mainLayout->addChild(_coinSettingsLayout);
+			_mainLayout->addChild(_createDebtValueSettingsLayout());
+			_transactionSettingsLayout = _createTransactionListSettingsLayout();
+			_mainLayout->addChild(_transactionSettingsLayout);
 		}
 		else
 		{
 			_mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
-			_itemWidth = (int)(screenWidth * 0.95);
-			this->setMainWidget(_mainLayout);
+			_itemWidth = (int)(screenWidth * 0.90);
 
 			if(LARGE_SCREEN != _screenType)
 			{
 				_mainLayout->setHeight(screenHeight + DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_MEDIUM);
 			}
-		}
 
-		_coinSettingsLayout = _createCoinSettingsLayout();
-		_mainLayout->addChild(_coinSettingsLayout);
-		_mainLayout->addChild(_createDebtValueSettingsLayout());
-		_transactionSettingsLayout = _createTransactionListSettingsLayout();
-		_mainLayout->addChild(_transactionSettingsLayout);
+			if(_IPhoneOS)
+			{
+				_mainLayout->setHeight(_settingsScreenHeightIOS);
+
+				NativeUI::RelativeLayout* relativeLayout = new NativeUI::RelativeLayout();
+				relativeLayout->setScrollable(true);
+				relativeLayout->addChild(_mainLayout);
+
+				setMainWidget(relativeLayout);
+			}
+			else this->setMainWidget(_mainLayout);
+
+			_coinSettingsLayout = _createCoinSettingsLayout();
+			_mainLayout->addChild(_coinSettingsLayout);
+			_mainLayout->addChild(_createDebtValueSettingsLayout());
+			_transactionSettingsLayout = _createTransactionListSettingsLayout();
+			_mainLayout->addChild(_transactionSettingsLayout);
+		}
 
 		createOptionsMenu();
 
@@ -402,7 +423,12 @@ namespace GUI
 		coinLabelText += _coin;
 
 		_coinLabel->setText(coinLabelText);
-		if(!_WindowsPhone7) _coinLabel->fillSpaceHorizontally();
+		if(_Android) _coinLabel->fillSpaceHorizontally();
+		else if(_IPhoneOS)
+		{
+			_coinLabel->setWidth(_itemWidth);
+			_coinLabel->setHeight(_checkboxLayoutHeightIOS);
+		}
 		_coinLabel->setFontSize(_dialogFontSize);
 		_coinLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 
@@ -421,12 +447,14 @@ namespace GUI
 
 		_coinsList = new NativeUI::ListView();
 		_coinsList->setWidth(_itemWidth);
-		_coinsList->setHeight(_descriptionBoxHeight);
+		if(_IPhoneOS) _coinsList->setHeight(_descriptionBoxHeight * 2);
+		else _coinsList->setHeight(_descriptionBoxHeight);
 
 		for(int i = 0; i < NUMBER_OF_COINS; i++)
 		{
 			NativeUI::ListViewItem* item = new NativeUI::ListViewItem();
 			item->setText(COINS[i]);
+			item->setFontSize(_dialogFontSize);
 			_coinsList->addChild(item);
 		}
 
@@ -453,7 +481,7 @@ namespace GUI
 		_monthly = new NativeUI::CheckBox();
 		_fromDate = new NativeUI::CheckBox();
 
-		_allItems->setState(true);
+		//_allItems->setState(true);
 
 		_allItems->addCheckBoxListener(this);
 		_monthly->addCheckBoxListener(this);
@@ -486,14 +514,50 @@ namespace GUI
 		checkBoxLabelMonthly->setFontSize(_dialogFontSize);
 		checkBoxLabelFromDate->setFontSize(_dialogFontSize);
 
-		checkBoxLabelLayoutAll->addChild(_allItems);
-		checkBoxLabelLayoutAll->addChild(checkBoxLabelAllItems);
+		if(_IPhoneOS)
+		{
+			NativeUI::HorizontalLayout* auxLayout = new NativeUI::HorizontalLayout();
+			auxLayout->fillSpaceHorizontally();
+			auxLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
+			auxLayout->addChild(_allItems);
+			auxLayout->setHeight(_checkboxLayoutHeightIOS);
 
-		checkBoxLabelLayoutMonthly->addChild(_monthly);
-		checkBoxLabelLayoutMonthly->addChild(checkBoxLabelMonthly);
+			checkBoxLabelLayoutAll->addChild(checkBoxLabelAllItems);
+			checkBoxLabelLayoutAll->addChild(auxLayout);
 
-		checkBoxLabelLayoutFromDate->addChild(_fromDate);
-		checkBoxLabelLayoutFromDate->addChild(checkBoxLabelFromDate);
+			auxLayout = new NativeUI::HorizontalLayout();
+			auxLayout->fillSpaceHorizontally();
+			auxLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
+			auxLayout->addChild(_monthly);
+			auxLayout->setHeight(_checkboxLayoutHeightIOS);
+
+			checkBoxLabelLayoutMonthly->addChild(checkBoxLabelMonthly);
+			checkBoxLabelLayoutMonthly->addChild(auxLayout);
+
+			auxLayout = new NativeUI::HorizontalLayout();
+			auxLayout->fillSpaceHorizontally();
+			auxLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_RIGHT);
+			auxLayout->addChild(_fromDate);
+			auxLayout->setHeight(_checkboxLayoutHeightIOS);
+
+			checkBoxLabelLayoutFromDate->addChild(checkBoxLabelFromDate);
+			checkBoxLabelLayoutFromDate->addChild(auxLayout);
+
+			checkBoxLabelLayoutAll->setWidth(_itemWidth);
+			checkBoxLabelLayoutMonthly->setWidth(_itemWidth);
+			checkBoxLabelLayoutFromDate->setWidth(_itemWidth);
+		}
+		else
+		{
+			checkBoxLabelLayoutAll->addChild(_allItems);
+			checkBoxLabelLayoutAll->addChild(checkBoxLabelAllItems);
+
+			checkBoxLabelLayoutMonthly->addChild(_monthly);
+			checkBoxLabelLayoutMonthly->addChild(checkBoxLabelMonthly);
+
+			checkBoxLabelLayoutFromDate->addChild(_fromDate);
+			checkBoxLabelLayoutFromDate->addChild(checkBoxLabelFromDate);
+		}
 
 		transactionListSettings->addChild(checkBoxLabelLayoutAll);
 		transactionListSettings->addChild(checkBoxLabelLayoutMonthly);
@@ -543,7 +607,13 @@ namespace GUI
 
 		_debtValueLabel = new NativeUI::Label(debtValueLabelText);
 		_debtValueLabel->setFontSize(_dialogFontSize);
-		if(!_WindowsPhone7) _debtValueLabel->fillSpaceHorizontally();
+		if(_Android) _debtValueLabel->fillSpaceHorizontally();
+		else if(_IPhoneOS)
+		{
+			_debtValueLabel->setWidth(_itemWidth);
+			_debtValueLabel->setHeight(_checkboxLayoutHeightIOS);
+		}
+
 		_debtValueLabel->setTextHorizontalAlignment(MAW_ALIGNMENT_LEFT);
 
 		_newDebtValueEditBox = new NativeUI::EditBox();
@@ -556,6 +626,14 @@ namespace GUI
 		debtValueSettingsParent->addChild(_debtValueLabel);
 		debtValueSettingsParent->addChild(_newDebtValueEditBox);
 
+		if(_IPhoneOS)
+		{
+			NativeUI::HorizontalLayout* spacer = new NativeUI::HorizontalLayout();
+			spacer->setHeight(_checkboxLayoutHeightIOS / 2);
+
+			debtValueSettingsParent->addChild(spacer);
+		}
+
 		if(!_WindowsPhone7) debtValueSettingsParent->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 
 		return debtValueSettingsParent;
@@ -566,12 +644,11 @@ namespace GUI
 	 */
 	void SettingsScreen::_collapseCoinList()
 	{
-
-		if(MAW_RES_OK == _coinSettingsLayout->removeChild(_coinsList))
+		if(1 < _coinSettingsLayout->countChildWidgets())
 		{
+			_recalculateMainLayoutHeight(_coinsList->getHeight(), false);
+			_coinSettingsLayout->removeChild(_coinsList);
 			_coinsList->removeListViewListener(this);
-			clickCount++;
-			clickCount %= 2;
 		}
 	}
 
@@ -581,10 +658,9 @@ namespace GUI
 	void SettingsScreen::_expendCoinList()
 	{
 		_coinSettingsLayout->addChild(_coinsList);
+		_recalculateMainLayoutHeight(_coinsList->getHeight(), true);
 		if(!_WindowsPhone7) _coinSettingsLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		_coinsList->addListViewListener(this);
-		clickCount++;
-		clickCount %= 2;
 	}
 
 	/**
@@ -595,11 +671,15 @@ namespace GUI
 	{
 		if(_transactionSettingsLayout->countChildWidgets() == 4)
 		{
-			_transactionSettingsLayout->removeChild(_transactionSettingsLayout->getChild(3));
+			NativeUI::Widget* widget = _transactionSettingsLayout->getChild(3);
+			_recalculateMainLayoutHeight(widget->getHeight(), false);
+			_transactionSettingsLayout->removeChild(widget);
 		}
 
 		if(_isFromDate) _fromDate->setState(false);
 		else if(_isMonthly) _monthly->setState(false);
+
+		if(_IPhoneOS) _allItems->setState(true);
 
 		_isMonthly = false;
 		_isAllItems = true;
@@ -614,15 +694,24 @@ namespace GUI
 	{
 		if(_transactionSettingsLayout->countChildWidgets() == 4)
 		{
-			if(_transactionSettingsLayout->getChild(3) == _datePicker)
+			NativeUI::Widget* widget = _transactionSettingsLayout->getChild(3);
+			_recalculateMainLayoutHeight(widget->getHeight(), false);
+
+			if(widget == _datePicker)
 				_transactionSettingsLayout->removeChild(_datePicker);
 		}
 
 		if(_WindowsPhone7) _transactionSettingsLayout->addChild(_numberPicker);
-		else _transactionSettingsLayout->addChild(_numberPickerReplace);
+		else
+		{
+			_recalculateMainLayoutHeight(_numberPickerReplace->getHeight(), true);
+			_transactionSettingsLayout->addChild(_numberPickerReplace);
+		}
 
 		if(_isAllItems) _allItems->setState(false);
 		else if(_isFromDate) _fromDate->setState(false);
+
+		if(_IPhoneOS) _monthly->setState(true);
 
 		_isMonthly = true;
 		_isAllItems = false;
@@ -637,13 +726,23 @@ namespace GUI
 	{
 		if(_transactionSettingsLayout->countChildWidgets() == 4)
 		{
-			if(_transactionSettingsLayout->getChild(3) == _numberPicker && _WindowsPhone7)
+			NativeUI::Widget* widget = _transactionSettingsLayout->getChild(3);
+
+			if(widget == _numberPicker && _WindowsPhone7)
+			{
 				_transactionSettingsLayout->removeChild(_numberPicker);
-			else if(_transactionSettingsLayout->getChild(3) == _numberPickerReplace)
+			}
+			else if(widget == _numberPickerReplace)
+			{
 				_transactionSettingsLayout->removeChild(_numberPickerReplace);
+				_recalculateMainLayoutHeight(_numberPickerReplace->getHeight(), false);
+			}
 		}
 
 		_transactionSettingsLayout->addChild(_datePicker);
+		_recalculateMainLayoutHeight(_datePicker->getHeight(), true);
+
+		if(_IPhoneOS) _fromDate->setState(true);
 
 		if(_isAllItems) _allItems->setState(false);
 		else if(_isMonthly) _monthly->setState(false);
@@ -740,7 +839,7 @@ namespace GUI
 	{
 		if(_isAllItems)
 		{
-			if(_WindowsPhone7) checkBoxStateChanged(_allItems, true);
+			if(_WindowsPhone7 || _IPhoneOS) checkBoxStateChanged(_allItems, true);
 			else
 			{
 				_allItems->setState(true);
@@ -750,7 +849,7 @@ namespace GUI
 		}
 		else if(_isMonthly)
 		{
-			if(_WindowsPhone7) checkBoxStateChanged(_monthly, true);
+			if(_WindowsPhone7 || _IPhoneOS) checkBoxStateChanged(_monthly, true);
 			else
 			{
 				_monthly->setState(true);
@@ -763,7 +862,7 @@ namespace GUI
 		}
 		else if(_isFromDate)
 		{
-			if(_WindowsPhone7) checkBoxStateChanged(_fromDate, true);
+			if(_WindowsPhone7 || _IPhoneOS) checkBoxStateChanged(_fromDate, true);
 			else
 			{
 				_fromDate->setState(true);
@@ -789,5 +888,21 @@ namespace GUI
 
 		_debtValueLabel->setText(*debtValueLabelText);
 		delete debtValueLabelText;
+	}
+
+   /**
+    * \brief This function is called when a height recalculation is required for the main layout.
+    * @param widgetHeight the height of the newly added or removed widget
+    * @param addition bool true if the widgetHeight value needs to be added, false otherwise
+    */
+	void SettingsScreen::_recalculateMainLayoutHeight(int widgetHeight, bool addition)
+	{
+		if(_IPhoneOS)
+		{
+			int height = _mainLayout->getHeight();
+			if(addition) height += widgetHeight;
+			else height -= widgetHeight;
+			_mainLayout->setHeight(height);
+		}
 	}
 }

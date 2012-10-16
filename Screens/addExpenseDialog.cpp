@@ -143,6 +143,10 @@ namespace GUI
 				if(_launcedFromHomeScreen) _homeScreenRef->createOptionsMenu();
 				else _listScreenRef->createOptionsMenu();
 			}
+			else if(_IPhoneOS)
+			{
+				_mainLayout->setHeight(_dialogHeightIOS);
+			}
 		}
 		else
 		{
@@ -391,15 +395,14 @@ namespace GUI
 			MAExtent size = maGetScrSize();
 			int screenWidth = EXTENT_X(size);
 			int screenHeight = EXTENT_Y(size);
-
+			_itemWidth = (int)(screenWidth * 0.90);
 			this->setTitle("Add an expense");
 			_mainLayout->setHeight(_dialogHeightIOS);
-			_mainLayout->setWidth((int)(screenWidth * 0.90));
-			_mainLayout->setLeftPosition((int)(screenWidth * 0.05));
 
 			NativeUI::RelativeLayout* relativeLayout = new NativeUI::RelativeLayout();
 			relativeLayout->setScrollable(true);
 			relativeLayout->addChild(_mainLayout);
+			_mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 			_mainLayout->addChild(_createCheckBoxGroup());
 			_mainLayout->addChild(_createAmountBar(_availableBudget + _acceptedDept));
 
@@ -409,8 +412,8 @@ namespace GUI
 			_createDescriptionBox();
 			_mainLayout->addChild(_descriptionBoxParent);
 
-			_createImageBox();
-			_mainLayout->addChild(_imageBoxAndToggleLayout);
+			//_createImageBox();
+			//_mainLayout->addChild(_imageBoxAndToggleLayout);
 			_mainLayout->addChild(_createBottomSpacer());
 			_mainLayout->addChild(_createBottomButtonBar());
 
@@ -459,6 +462,7 @@ namespace GUI
 		if(_IPhoneOS)
 		{
 			categoryLabel->setHeight(_checkboxLayoutHeightIOS);
+			checkBoxGroupParentLayout->setWidth(_itemWidth);
 		}
 
 		categoryLabel->setFontSize(_dialogFontSize);
@@ -562,6 +566,7 @@ namespace GUI
 		if(_IPhoneOS)
 		{
 			_amountLabel->setHeight(_checkboxLayoutHeightIOS);
+			amountBar->setWidth(_itemWidth);
 		}
 
 		labelEditBoxParentLayout->addChild(_amountLabel);
@@ -614,6 +619,8 @@ namespace GUI
 		if(_IPhoneOS)
 		{
 			datePickerLabel->setHeight(_checkboxLayoutHeightIOS);
+			datePickerLabel->setWidth(_itemWidth);
+			labelDPParentLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		}
 
 		labelDPParentLayout->addChild(datePickerLabel);
@@ -648,6 +655,8 @@ namespace GUI
 		if(_IPhoneOS)
 		{
 			timePickerLabel->setHeight(_checkboxLayoutHeightIOS);
+			timePickerLabel->setWidth(_itemWidth);
+			labelTPParentLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
 		}
 
 		labelTPParentLayout->addChild(timePickerLabel);
@@ -707,6 +716,7 @@ namespace GUI
 			imageToggleAndLabelParent->addChild(imageToggleLabel);
 			imageToggleAndLabelParent->addChild(auxLayout);
 			((NativeUI::HorizontalLayout*) imageToggleAndLabelParent)->setChildVerticalAlignment(MAW_ALIGNMENT_CENTER);
+			_imageBoxAndToggleLayout->setWidth(_itemWidth);
 		}
 		else
 		{
@@ -813,6 +823,7 @@ namespace GUI
 			descritionToggleAndLabelParent->addChild(descriptionToggleLabel);
 			descritionToggleAndLabelParent->addChild(auxLayout);
 			((NativeUI::HorizontalLayout*) descritionToggleAndLabelParent)->setChildVerticalAlignment(MAW_ALIGNMENT_CENTER);
+			_descriptionBoxParent->setWidth(_itemWidth);
 		}
 		else
 		{

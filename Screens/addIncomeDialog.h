@@ -243,6 +243,8 @@ namespace GUI
 		MAUtil::String _coin;
 
 		bool _launcedFromHomeScreen;
+
+		int _itemWidth;
 	};
 }
 #endif /* ADDINCOMEDIALOG_H_ */
