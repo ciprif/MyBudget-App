@@ -27,6 +27,7 @@ MA 02110-1301, USA.
 #include <NativeUI/ListView.h>
 #include <NativeUI/ListViewItem.h>
 #include <NativeUI/Button.h>
+#include <madmath.h>
 
 #include "GUIUtil.h"
 #include "../Model/expenseObject.h"
@@ -99,6 +100,7 @@ namespace GUI
 		else b_amount = b.getIncomeObject().getAmount();
 
 		if((a_amount - b_amount) > 0) return 1;
+		if(fabs(a_amount - b_amount) < 0.00001) return 0;
 
 		return -1;
 	}
