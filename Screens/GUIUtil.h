@@ -152,7 +152,6 @@ namespace GUI
 			_imageButtonHeight = IMAGE_BUTTON_HEIGHT_SMALL;
 			break;
 		case MEDIUM_SCREEN:
-			printf("icisha");
 			_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_MEDIUM;
 			_dialogSmallFontSize = DIALOG_FONT_SIZE_SMALL_SCREEN_MEDIUM;
 			_descriptionBoxHeight = DESCRIPTION_EDIT_BOX_HEIGHT_SCREEN_MEDIUM;
@@ -165,7 +164,6 @@ namespace GUI
 			_settingsScreenHeightIOS = SETTINGS_SCREEN_HEIGHT;
 			break;
 		case LARGE_SCREEN:
-			printf("icisha2");
 			if(_IPhoneOS)
 			{
 				_dialogFontSize = DIALOG_FONT_SIZE_SCREEN_LARGE - 10;
