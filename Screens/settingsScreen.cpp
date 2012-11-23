@@ -276,12 +276,7 @@ namespace GUI
 			_collapseCoinList();
 			if(0 == event.optionsBoxButtonIndex) //save
 			{
-				Model::DateStruct d;
-				_saveDateSettings(d);
-				_saveCoinSettings();
-				_saveDebtSettings();
-				_observerReference->requestSaveSettings(_isAllItems, _isMonthly, _isFromDate, _debtValue, d, _coin);
-
+				maAlert("Alert!", "Are you sure you want to save these settings?", "OK", "Cancel", "");
 			}
 			else if(1 == event.optionsBoxButtonIndex) //restore
 			{

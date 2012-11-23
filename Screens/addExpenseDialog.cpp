@@ -384,8 +384,8 @@ namespace GUI
 			relativeLayout->setScrollable(true);
 			relativeLayout->addChild(_mainLayout);
 			_mainLayout->setChildHorizontalAlignment(MAW_ALIGNMENT_CENTER);
-			_mainLayout->addChild(_createCheckBoxGroup());
 			_mainLayout->addChild(_createAmountBar(_availableBudget + _acceptedDept));
+			_mainLayout->addChild(_createCheckBoxGroup());
 
 			_mainLayout->addChild(_createDatePicker());
 			_mainLayout->addChild(_createTimePicker());
@@ -404,8 +404,8 @@ namespace GUI
 
 			_mainLayout->setScrollable(true);
 
-			_mainLayout->addChild(_createCheckBoxGroup());
 			_mainLayout->addChild(_createAmountBar((int)(_availableBudget + _acceptedDept)));
+			_mainLayout->addChild(_createCheckBoxGroup());
 
 			_mainLayout->addChild(_createDatePicker());
 			_mainLayout->addChild(_createTimePicker());
